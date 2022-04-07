@@ -2,12 +2,12 @@ package com.cocofhu.ctb.kernel.core.config;
 
 import java.lang.reflect.Constructor;
 
-public class CConstructorExecutionWrapper {
+public class CConstructorWrapper {
 
     private final Constructor<?> constructor;
     private final Object[] parameters;
 
-    public CConstructorExecutionWrapper(Constructor<?> constructor, Object[] parameters) {
+    public CConstructorWrapper(Constructor<?> constructor, Object[] parameters) {
         this.constructor = constructor;
         this.parameters = parameters;
     }

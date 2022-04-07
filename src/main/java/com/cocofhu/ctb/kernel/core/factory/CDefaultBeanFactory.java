@@ -1,40 +1,48 @@
 package com.cocofhu.ctb.kernel.core.factory;
 
 import com.cocofhu.ctb.kernel.Startup;
-import com.cocofhu.ctb.kernel.core.CBeansException;
-import com.cocofhu.ctb.kernel.core.CNoSuchBeanDefinitionException;
-import com.cocofhu.ctb.kernel.core.CNoUniqueBeanDefinitionException;
+import com.cocofhu.ctb.kernel.core.config.CConstructorWrapper;
+import com.cocofhu.ctb.kernel.exception.*;
 import com.cocofhu.ctb.kernel.core.config.CAbstractBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CConstructorExecutionWrapper;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CDefaultBeanFactory implements CBeanFactory {
 
+    private final CBeanInstanceCreator beanCreator;
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
     private final Map<String, CBeanDefinition> beanDefinitionsForName = new ConcurrentHashMap<>(256);
 
-    {
+
+
+    public CDefaultBeanFactory() {
+        this.beanCreator = new CDefaultBeanInstanceCreator();
+        beanCreator.setBeanFactory(this);
+        // Register default ctor resolver
+        beanCreator.registerConstructorResolvers(bd->{
+            if(bd == null){
+                throw new CBadBeanDefinitionException("empty bean definition.");
+            }
+            Class<?> clazz = bd.getBeanClass();
+            try {
+                return new CConstructorWrapper(clazz.getConstructor(),new Object[0]);
+            } catch (NoSuchMethodException e) {
+                return null;
+            }
+        });
+
         beanDefinitionsForName.put("ABC", new CAbstractBeanDefinition(Startup.class) {
             public String getBeanName() {
                 return "ABC";
             }
 
             @Override
-            public CConstructorExecutionWrapper resolveConstructor() {
-                Constructor<?> constructor = null;
-                try {
-                    constructor = getBeanClass().getConstructor(Double.class, Double.class);
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
-                return new CConstructorExecutionWrapper(constructor, new Object[]{1.0, 2.0});
-
+            public Map<String, Object> resourceBundles() {
+                return null;
             }
+
         });
         beanDefinitionsForName.put("BCD", new CAbstractBeanDefinition(Startup.class) {
             public String getBeanName() {
@@ -42,17 +50,14 @@ public class CDefaultBeanFactory implements CBeanFactory {
             }
 
             @Override
-            public CConstructorExecutionWrapper resolveConstructor() {
-                Constructor<?> constructor = null;
-                try {
-                    constructor = getBeanClass().getConstructor(Double.class, Double.class);
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
-                return new CConstructorExecutionWrapper(constructor, new Object[]{1.0, 2.0});
-
+            public Map<String, Object> resourceBundles() {
+                return null;
             }
+
         });
+
+        //
+        beanDefinitionsForName.forEach((s,b)->{if(b.isSingleton())getBean(s);});
     }
 
     protected CBeanDefinition doGetSingleBeanDefinition(String name, Class<?> requiredType){
@@ -97,38 +102,33 @@ public class CDefaultBeanFactory implements CBeanFactory {
         // Get instance of bean
 
 
+        T beanInstance = null;
+
         if (beanDefinition.isSingleton()) {
-            return doGetSingletonBean(beanDefinition);
+            beanInstance = doGetSingletonBean(beanDefinition);
         } else if (beanDefinition.isPrototype()) {
-
+            // just for warning
+            beanInstance = beanCreator.newInstance(beanDefinition,requiredType);
         } else {
-            // Unsupported Instantiation
+            throw new CInstantiationException("instantiating bean for "+beanDefinition.getBeanClassName()+" unsupported.");
         }
-
-
-        // Call Init Method
 
         // Aware Interface Callback
 
-
-//        Class<?> beanClass = beanDefinition.getBeanClass();
-//        Constructor<?> constructor = beanDefinition.resolveConstructor().getConstructor();
+        // Call Init Method
 
 
-        return null;
+
+
+
+        return (T) beanInstance;
     }
 
     @SuppressWarnings("unchecked")
     private <T> T doGetSingletonBean(CBeanDefinition beanDefinition) {
         Object obj = singletonObjects.get(beanDefinition.getBeanName());
         if (obj == null) {
-            CConstructorExecutionWrapper ctorWrapper = beanDefinition.resolveConstructor();
-            try {
-                obj = ctorWrapper.getConstructor().newInstance(ctorWrapper.getParameters());
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
-            singletonObjects.put(beanDefinition.getBeanName(), obj);
+            beanCreator.newInstance(beanDefinition);
         }
         return (T) obj;
     }

@@ -1,5 +1,7 @@
 package com.cocofhu.ctb.kernel.core.config;
 
+import java.util.Map;
+
 public interface CBeanDefinition {
     enum CBeanScope{
         SINGLETON,
@@ -11,12 +13,12 @@ public interface CBeanDefinition {
     Class<?> getBeanClass();
 
 
-    CConstructorExecutionWrapper resolveConstructor();
-
-
     // Read-Only attributes
     boolean isSingleton();
     boolean isPrototype();
     String getBeanName();
+
+    Map<String,Object> resourceBundles();
+
 }
 

@@ -19,17 +19,6 @@ public abstract class CAbstractBeanDefinition implements CBeanDefinition{
     }
 
     @Override
-    public CConstructorExecutionWrapper resolveConstructor() {
-        try {
-            Constructor<?> constructor = beanClass.getConstructor();
-            return new CConstructorExecutionWrapper(constructor,new Object[0]);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
     public String getBeanClassName() {
         return beanClass.getName();
     }

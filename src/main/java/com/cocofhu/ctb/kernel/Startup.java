@@ -1,11 +1,6 @@
 package com.cocofhu.ctb.kernel;
 
-import com.cocofhu.ctb.kernel.anno.CConstructor;
 import com.cocofhu.ctb.kernel.core.factory.CDefaultBeanFactory;
-import org.apache.commons.beanutils.converters.IntegerConverter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class Startup{
 
@@ -14,8 +9,8 @@ public class Startup{
         return x + "" + y;
     }
 
-    public Startup(Double x,Double y){
-        System.out.println(x+y);
+    public Startup(){
+        System.out.println("===");
     }
 
 
@@ -23,7 +18,7 @@ public class Startup{
 
     public static void main(String[] args) throws Exception {
         CDefaultBeanFactory factory = new CDefaultBeanFactory();
-        System.out.println(factory.getBean(Math.class));
+        System.out.println(factory.getBean(Startup.class));
 //        System.out.println(Startup.class.getConstructor(null));
 //        Map<String,Object> params = new HashMap<>();
 //        params.put("a","10");
