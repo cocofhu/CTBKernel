@@ -18,7 +18,7 @@ public class Startup{
 
     public static void main(String[] args) throws Exception {
         CDefaultBeanFactory factory = new CDefaultBeanFactory();
-        System.out.println(factory.getBean(Startup.class));
+        System.out.println(factory.getBean("BCD"));
 //        System.out.println(Startup.class.getConstructor(null));
 //        Map<String,Object> params = new HashMap<>();
 //        params.put("a","10");

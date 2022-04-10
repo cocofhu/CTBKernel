@@ -1,7 +1,10 @@
 package com.cocofhu.ctb.kernel.core.factory;
 
 import com.cocofhu.ctb.kernel.Startup;
+import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
 import com.cocofhu.ctb.kernel.core.config.CConstructorWrapper;
+import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
+import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultConstructorResolver;
 import com.cocofhu.ctb.kernel.exception.*;
 import com.cocofhu.ctb.kernel.core.config.CAbstractBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
@@ -9,6 +12,19 @@ import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+/**
+ * 简化的BeanFactory
+ * 一、BeanDefinitionReader
+ * 二、Bean的生命周期
+ * 1、使用指定的构造函数创建Bean
+ * 2、创建代理(如果有)
+ * 3、调用所有的Aware方法
+ * 4、依赖注入
+ * 5、调用init-method
+ *
+ * @author cocofhu
+ */
 public class CDefaultBeanFactory implements CBeanFactory {
 
     private final CBeanInstanceCreator beanCreator;
@@ -17,48 +33,43 @@ public class CDefaultBeanFactory implements CBeanFactory {
 
 
 
-    public CDefaultBeanFactory() {
-        this.beanCreator = new CDefaultBeanInstanceCreator();
-        beanCreator.setBeanFactory(this);
-        // Register default ctor resolver
-        beanCreator.registerConstructorResolvers(bd->{
-            if(bd == null){
-                throw new CBadBeanDefinitionException("empty bean definition.");
-            }
-            Class<?> clazz = bd.getBeanClass();
-            try {
-                return new CConstructorWrapper(clazz.getConstructor(),new Object[0]);
-            } catch (NoSuchMethodException e) {
-                return null;
-            }
-        });
+    public CDefaultBeanFactory(){
+        this(new CDefaultBeanInstanceCreator(),new CDefaultConstructorResolver());
+    }
+
+    public CDefaultBeanFactory(CBeanInstanceCreator beanCreator, CConstructorResolver ...ctorResolvers) {
+        this.beanCreator = beanCreator;
+        if(this.beanCreator instanceof CBeanFactoryAware){
+            ((CBeanFactoryAware) this.beanCreator).setBeanFactory(this);
+        }
+        for (CConstructorResolver ctorResolver: ctorResolvers) {
+            beanCreator.registerConstructorResolvers(ctorResolver);
+        }
+
+
+
+        refresh();
 
         beanDefinitionsForName.put("ABC", new CAbstractBeanDefinition(Startup.class) {
             public String getBeanName() {
                 return "ABC";
             }
-
-            @Override
-            public Map<String, Object> resourceBundles() {
-                return null;
-            }
-
         });
         beanDefinitionsForName.put("BCD", new CAbstractBeanDefinition(Startup.class) {
             public String getBeanName() {
                 return "BCD";
             }
-
-            @Override
-            public Map<String, Object> resourceBundles() {
-                return null;
-            }
-
         });
 
-        //
+        // initiating singleton beans
         beanDefinitionsForName.forEach((s,b)->{if(b.isSingleton())getBean(s);});
     }
+
+    protected void refresh(){
+        // Register default ctor resolver
+
+    }
+
 
     protected CBeanDefinition doGetSingleBeanDefinition(String name, Class<?> requiredType){
         CBeanDefinition beanDefinition;
@@ -83,6 +94,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
                 throw new CNoUniqueBeanDefinitionException(beanNamesFound);
             }
             beanDefinition = beanDefinitionsForName.get(beanNamesFound[0]);
+            // 这里如果按照规范注册BeanDefinition，这里不会为空
             if (beanDefinition == null) {
                 throw new CNoSuchBeanDefinitionException("beanDefinition is null,  type:" + requiredType.getName());
             }
@@ -100,10 +112,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
         CBeanDefinition beanDefinition = doGetSingleBeanDefinition(name,requiredType);
 
         // Get instance of bean
-
-
-        T beanInstance = null;
-
+        T beanInstance;
         if (beanDefinition.isSingleton()) {
             beanInstance = doGetSingletonBean(beanDefinition);
         } else if (beanDefinition.isPrototype()) {
@@ -115,20 +124,23 @@ public class CDefaultBeanFactory implements CBeanFactory {
 
         // Aware Interface Callback
 
+
+
         // Call Init Method
 
 
 
 
 
-        return (T) beanInstance;
+        return beanInstance;
     }
 
     @SuppressWarnings("unchecked")
     private <T> T doGetSingletonBean(CBeanDefinition beanDefinition) {
         Object obj = singletonObjects.get(beanDefinition.getBeanName());
         if (obj == null) {
-            beanCreator.newInstance(beanDefinition);
+            obj = beanCreator.newInstance(beanDefinition);
+            singletonObjects.put(beanDefinition.getBeanName(),obj);
         }
         return (T) obj;
     }

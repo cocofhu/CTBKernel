@@ -1,5 +1,6 @@
 package com.cocofhu.ctb.kernel.core.factory;
 
+import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CConstructorWrapper;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
@@ -8,7 +9,7 @@ import com.cocofhu.ctb.kernel.exception.CBadBeanDefinitionException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreator{
+public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreator, CBeanFactoryAware {
 
     protected List<CConstructorResolver> resolvers;
     protected CBeanFactory beanFactory;

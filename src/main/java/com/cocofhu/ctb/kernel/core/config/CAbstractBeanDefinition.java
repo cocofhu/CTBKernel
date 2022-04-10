@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.config;
 
-import java.lang.reflect.Constructor;
+import java.util.Map;
 
 public abstract class CAbstractBeanDefinition implements CBeanDefinition{
 
@@ -38,5 +38,8 @@ public abstract class CAbstractBeanDefinition implements CBeanDefinition{
         return scope.equals(CBeanScope.PROTOTYPE);
     }
 
-
+    @Override
+    public Map<String, Object> resourceBundles() {
+        return null;
+    }
 }

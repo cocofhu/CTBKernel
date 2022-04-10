@@ -29,11 +29,6 @@ public interface CBeanInstanceCreator {
     }
 
     /**
-     * 设置BeanFactory对象，用于构造器注入
-     */
-    void setBeanFactory(CBeanFactory beanFactory);
-
-    /**
      * 注册一个CConstructorResolver，用于决定构造函数
      */
     void registerConstructorResolvers(CConstructorResolver resolver);
