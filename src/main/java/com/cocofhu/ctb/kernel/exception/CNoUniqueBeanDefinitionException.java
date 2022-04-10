@@ -3,6 +3,9 @@ package com.cocofhu.ctb.kernel.exception;
 
 import java.util.Arrays;
 
+/**
+ * BeanDefinition 不唯一
+ */
 public class CNoUniqueBeanDefinitionException extends CNestedRuntimeException {
     private final String[] beanNamesFound;
     public CNoUniqueBeanDefinitionException(String[] beanNamesFound) {

@@ -15,9 +15,7 @@ public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator{
     @Override
     public Object newInstance(CBeanDefinition beanDefinition)
             throws CNoBeanFactoryException,CNoConstructorResolverException,CNoSuchConstructorException,CInstantiationException{
-        if(beanFactory == null){
-            throw new CNoBeanFactoryException("BeanFactory was not set.");
-        }
+
         if(resolvers == null || resolvers.size() == 0){
             throw new CNoConstructorResolverException("ConstructorResolver set was not set.");
         }

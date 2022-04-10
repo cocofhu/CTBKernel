@@ -14,4 +14,6 @@ public interface CBeanFactory {
     Class<?> getType(String name) throws CNoSuchBeanDefinitionException;
 
 
+
+
 }

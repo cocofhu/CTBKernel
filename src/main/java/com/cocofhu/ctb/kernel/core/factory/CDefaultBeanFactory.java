@@ -2,6 +2,8 @@ package com.cocofhu.ctb.kernel.core.factory;
 
 import com.cocofhu.ctb.kernel.Startup;
 import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
+import com.cocofhu.ctb.kernel.core.aware.CBeanNameAware;
+import com.cocofhu.ctb.kernel.core.aware.CBeanScopeAware;
 import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.creator.CDefaultBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
@@ -33,46 +35,63 @@ public class CDefaultBeanFactory implements CBeanFactory {
     private final Map<String, CBeanDefinition> beanDefinitionsForName = new ConcurrentHashMap<>(256);
 
 
-
-    public CDefaultBeanFactory(){
-        this(new CDefaultBeanInstanceCreator(),new CDefaultConstructorResolver());
+    public CDefaultBeanFactory() {
+        this(new CDefaultBeanInstanceCreator(), new CDefaultConstructorResolver());
     }
 
-    public CDefaultBeanFactory(CBeanInstanceCreator beanCreator, CConstructorResolver ...ctorResolvers) {
+    public CDefaultBeanFactory(CBeanInstanceCreator beanCreator, CConstructorResolver... ctorResolvers) {
         this.beanCreator = beanCreator;
-        if(this.beanCreator instanceof CBeanFactoryAware){
-            ((CBeanFactoryAware) this.beanCreator).setBeanFactory(this);
-        }
-        for (CConstructorResolver ctorResolver: ctorResolvers) {
+
+        awareCallBack(this.beanCreator, null);
+
+        for (CConstructorResolver ctorResolver : ctorResolvers) {
+            awareCallBack(ctorResolver, null);
             beanCreator.registerConstructorResolvers(ctorResolver);
         }
 
 
-
-        refresh();
-
-        beanDefinitionsForName.put("ABC", new CAbstractBeanDefinition(Startup.class) {
+        beanDefinitionsForName.put("ABC", new CAbstractBeanDefinition(Startup.class, CBeanDefinition.CBeanScope.PROTOTYPE) {
             public String getBeanName() {
                 return "ABC";
             }
         });
-        beanDefinitionsForName.put("BCD", new CAbstractBeanDefinition(Startup.class) {
+        beanDefinitionsForName.put("BCD", new CAbstractBeanDefinition(Startup.class,CBeanDefinition.CBeanScope.PROTOTYPE) {
             public String getBeanName() {
                 return "BCD";
             }
         });
 
+
         // initiating singleton beans
-        beanDefinitionsForName.forEach((s,b)->{if(b.isSingleton())getBean(s);});
+        beanDefinitionsForName.forEach((s, b) -> {
+            if (b.isSingleton()) {
+                getBean(s);
+            }
+        });
+
+
+        // Aware Interface Callback
+        beanDefinitionsForName.forEach((s, b) -> {
+            if (b.isSingleton()) {
+                awareCallBack(getBean(s),b);
+            }
+        });
+
+
+        // Call Init Method
     }
 
-    protected void refresh(){
-        // Register default ctor resolver
 
-    }
-
-
-    protected CBeanDefinition doGetSingleBeanDefinition(String name, Class<?> requiredType){
+    /**
+     * 根据name或者type获得BeanDefinition
+     *
+     * @param name         Bean的name
+     * @param requiredType Bean的类型
+     * @return BeanDefinition对象
+     * @throws CNoSuchBeanDefinitionException   没有找到指定的BeanDefinition、BeanDefinition为空或requiredType和name都为空
+     * @throws CNoUniqueBeanDefinitionException 查找到的BeanDefinition不唯一
+     */
+    protected CBeanDefinition doGetSingleBeanDefinition(String name, Class<?> requiredType) {
         CBeanDefinition beanDefinition;
         if (name != null) {
             CBeanDefinition bd = beanDefinitionsForName.get(name);
@@ -105,30 +124,34 @@ public class CDefaultBeanFactory implements CBeanFactory {
         return beanDefinition;
     }
 
-
+    /**
+     * 根据name或者type获得Bean实例对象
+     *
+     * @param name         Bean的name
+     * @param requiredType Bean的类型
+     * @throws CNoSuchBeanDefinitionException   没有找到指定的BeanDefinition、BeanDefinition为空或requiredType和name都为空
+     * @throws CNoUniqueBeanDefinitionException 查找到的BeanDefinition不唯一
+     * @throws CInstantiationException          初始化Bean实例的时候出现错误或BeanScope是不支持的类型
+     */
     protected <T> T doGetBean(String name, Class<T> requiredType) {
 
 
         // Find BeanDefinition
-        CBeanDefinition beanDefinition = doGetSingleBeanDefinition(name,requiredType);
+        CBeanDefinition beanDefinition = doGetSingleBeanDefinition(name, requiredType);
 
         // Get instance of bean
         T beanInstance;
         if (beanDefinition.isSingleton()) {
             beanInstance = doGetSingletonBean(beanDefinition);
         } else if (beanDefinition.isPrototype()) {
-            // just for warning
-            beanInstance = beanCreator.newInstance(beanDefinition,requiredType);
+            // Prototype
+            beanInstance = beanCreator.newInstance(beanDefinition, requiredType);
+            awareCallBack(beanInstance,beanDefinition);
+            // Call Init Method
+
         } else {
-            throw new CInstantiationException("instantiating bean for "+beanDefinition.getBeanClassName()+" unsupported.");
+            throw new CInstantiationException("instantiating bean for " + beanDefinition.getBeanClassName() + " unsupported.");
         }
-
-        // Aware Interface Callback
-
-
-
-        // Call Init Method
-
 
 
 
@@ -141,11 +164,22 @@ public class CDefaultBeanFactory implements CBeanFactory {
         Object obj = singletonObjects.get(beanDefinition.getBeanName());
         if (obj == null) {
             obj = beanCreator.newInstance(beanDefinition);
-            singletonObjects.put(beanDefinition.getBeanName(),obj);
+            singletonObjects.put(beanDefinition.getBeanName(), obj);
         }
         return (T) obj;
     }
 
+    private void awareCallBack(Object obj, CBeanDefinition beanDefinition) {
+        if (obj instanceof CBeanFactoryAware) {
+            ((CBeanFactoryAware) obj).setBeanFactory(this);
+        }
+        if (obj instanceof CBeanNameAware && beanDefinition != null) {
+            ((CBeanNameAware) obj).setBeanName(beanDefinition.getBeanName());
+        }
+        if (obj instanceof CBeanScopeAware && beanDefinition != null) {
+            ((CBeanScopeAware) obj).setScope(beanDefinition.isSingleton() ? CBeanDefinition.CBeanScope.SINGLETON : CBeanDefinition.CBeanScope.PROTOTYPE);
+        }
+    }
 
     @Override
     public Object getBean(String name) throws CBeansException {
@@ -169,16 +203,16 @@ public class CDefaultBeanFactory implements CBeanFactory {
 
     @Override
     public boolean isSingleton(String name) throws CNoSuchBeanDefinitionException {
-        return doGetSingleBeanDefinition(name,null).isSingleton();
+        return doGetSingleBeanDefinition(name, null).isSingleton();
     }
 
     @Override
     public boolean isPrototype(String name) throws CNoSuchBeanDefinitionException {
-        return doGetSingleBeanDefinition(name,null).isPrototype();
+        return doGetSingleBeanDefinition(name, null).isPrototype();
     }
 
     @Override
     public Class<?> getType(String name) throws CNoSuchBeanDefinitionException {
-        return doGetSingleBeanDefinition(name,null).getBeanClass();
+        return doGetSingleBeanDefinition(name, null).getBeanClass();
     }
 }

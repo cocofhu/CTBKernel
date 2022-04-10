@@ -1,7 +1,9 @@
 package com.cocofhu.ctb.kernel.exception;
 
-import com.cocofhu.ctb.kernel.exception.CNestedRuntimeException;
 
+/**
+ * BeanDefinition不存在
+ */
 public class CNoSuchBeanDefinitionException extends CNestedRuntimeException {
     public CNoSuchBeanDefinitionException(String msg) {
         super(msg);
