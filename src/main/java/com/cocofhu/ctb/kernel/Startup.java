@@ -2,8 +2,16 @@ package com.cocofhu.ctb.kernel;
 
 import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
 import com.cocofhu.ctb.kernel.core.aware.CBeanNameAware;
+import com.cocofhu.ctb.kernel.core.config.CAbstractBeanDefinition;
+import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
+import com.cocofhu.ctb.kernel.core.creator.CDefaultBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.factory.CDefaultBeanFactory;
+import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
+import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultConstructorResolver;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Startup implements CBeanFactoryAware , CBeanNameAware {
 
@@ -20,7 +28,16 @@ public class Startup implements CBeanFactoryAware , CBeanNameAware {
 
 
     public static void main(String[] args) throws Exception {
-        CDefaultBeanFactory factory = new CDefaultBeanFactory();
+        CDefaultBeanFactory factory = new CDefaultBeanFactory(new CDefaultBeanInstanceCreator(), () -> {
+            ArrayList<CBeanDefinition> beans = new ArrayList<>();
+            beans.add(new CAbstractBeanDefinition(Startup.class, CBeanDefinition.CBeanScope.PROTOTYPE) {
+                @Override
+                public String getBeanName() {
+                    return "BCD";
+                }
+            });
+            return beans;
+        }, new CDefaultConstructorResolver());
         System.out.println(factory.getBean("BCD"));
         System.out.println(factory.getBean("BCD"));
 //        System.out.println(Startup.class.getConstructor(null));

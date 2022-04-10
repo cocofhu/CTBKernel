@@ -1,17 +1,18 @@
 package com.cocofhu.ctb.kernel.core.factory;
 
-import com.cocofhu.ctb.kernel.Startup;
 import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
 import com.cocofhu.ctb.kernel.core.aware.CBeanNameAware;
 import com.cocofhu.ctb.kernel.core.aware.CBeanScopeAware;
 import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.creator.CDefaultBeanInstanceCreator;
+import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultConstructorResolver;
 import com.cocofhu.ctb.kernel.exception.*;
-import com.cocofhu.ctb.kernel.core.config.CAbstractBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,36 +31,50 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CDefaultBeanFactory implements CBeanFactory {
 
+    private final CBeanDefinitionResolver beanDefinitionResolver;
     private final CBeanInstanceCreator beanCreator;
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
     private final Map<String, CBeanDefinition> beanDefinitionsForName = new ConcurrentHashMap<>(256);
 
 
-    public CDefaultBeanFactory() {
-        this(new CDefaultBeanInstanceCreator(), new CDefaultConstructorResolver());
+    protected void registerBeanDefinition(CBeanDefinition beanDefinition) {
+        if (beanDefinition == null) {
+            throw new CBadBeanDefinitionException("bean definition is null.");
+        }
+        beanDefinitionsForName.put(beanDefinition.getBeanName(), beanDefinition);
     }
 
-    public CDefaultBeanFactory(CBeanInstanceCreator beanCreator, CConstructorResolver... ctorResolvers) {
-        this.beanCreator = beanCreator;
 
+    public CDefaultBeanFactory() {
+        this(new CDefaultBeanInstanceCreator(), ArrayList::new, new CDefaultConstructorResolver());
+    }
+
+
+    public CDefaultBeanFactory(CBeanInstanceCreator beanCreator, CBeanDefinitionResolver beanDefinitionResolver, CConstructorResolver... ctorResolvers) {
+        this.beanCreator = beanCreator;
         awareCallBack(this.beanCreator, null);
+
+        this.beanDefinitionResolver = beanDefinitionResolver;
+        awareCallBack(this.beanDefinitionResolver, null);
 
         for (CConstructorResolver ctorResolver : ctorResolvers) {
             awareCallBack(ctorResolver, null);
             beanCreator.registerConstructorResolvers(ctorResolver);
         }
 
+        refresh();
+    }
 
-        beanDefinitionsForName.put("ABC", new CAbstractBeanDefinition(Startup.class, CBeanDefinition.CBeanScope.PROTOTYPE) {
-            public String getBeanName() {
-                return "ABC";
-            }
-        });
-        beanDefinitionsForName.put("BCD", new CAbstractBeanDefinition(Startup.class,CBeanDefinition.CBeanScope.PROTOTYPE) {
-            public String getBeanName() {
-                return "BCD";
-            }
-        });
+    protected void refresh() {
+
+        singletonObjects.clear();
+        beanDefinitionsForName.clear();
+
+        List<CBeanDefinition> beanDefinitions = beanDefinitionResolver.resolveAll();
+
+        for (CBeanDefinition bd : beanDefinitions) {
+            registerBeanDefinition(bd);
+        }
 
 
         // initiating singleton beans
@@ -69,16 +84,12 @@ public class CDefaultBeanFactory implements CBeanFactory {
             }
         });
 
-
         // Aware Interface Callback
         beanDefinitionsForName.forEach((s, b) -> {
             if (b.isSingleton()) {
-                awareCallBack(getBean(s),b);
+                awareCallBack(getBean(s), b);
             }
         });
-
-
-        // Call Init Method
     }
 
 
@@ -146,14 +157,12 @@ public class CDefaultBeanFactory implements CBeanFactory {
         } else if (beanDefinition.isPrototype()) {
             // Prototype
             beanInstance = beanCreator.newInstance(beanDefinition, requiredType);
-            awareCallBack(beanInstance,beanDefinition);
+            awareCallBack(beanInstance, beanDefinition);
             // Call Init Method
 
         } else {
             throw new CInstantiationException("instantiating bean for " + beanDefinition.getBeanClassName() + " unsupported.");
         }
-
-
 
 
         return beanInstance;
