@@ -1,8 +1,9 @@
-package com.cocofhu.ctb.kernel.core.factory;
+package com.cocofhu.ctb.kernel.core.creator;
 
 import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CConstructorWrapper;
+import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.exception.CBadBeanDefinitionException;
 

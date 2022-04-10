@@ -1,4 +1,4 @@
-package com.cocofhu.ctb.kernel.core.factory;
+package com.cocofhu.ctb.kernel.core.creator;
 
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CConstructorWrapper;

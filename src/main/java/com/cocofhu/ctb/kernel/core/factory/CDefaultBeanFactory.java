@@ -2,7 +2,8 @@ package com.cocofhu.ctb.kernel.core.factory;
 
 import com.cocofhu.ctb.kernel.Startup;
 import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
-import com.cocofhu.ctb.kernel.core.config.CConstructorWrapper;
+import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
+import com.cocofhu.ctb.kernel.core.creator.CDefaultBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultConstructorResolver;
 import com.cocofhu.ctb.kernel.exception.*;
