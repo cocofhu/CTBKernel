@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -31,11 +32,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CDefaultBeanFactory implements CBeanFactory {
 
+    private final ReentrantLock contextLock = new ReentrantLock();
+
     private final CBeanDefinitionResolver beanDefinitionResolver;
     private final CBeanInstanceCreator beanCreator;
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
     private final Map<String, CBeanDefinition> beanDefinitionsForName = new ConcurrentHashMap<>(256);
 
+//    protected volatile boolean factoryRefreshFinished = false;
 
     protected void registerBeanDefinition(CBeanDefinition beanDefinition) {
         if (beanDefinition == null) {
@@ -67,6 +71,12 @@ public class CDefaultBeanFactory implements CBeanFactory {
 
     protected void refresh() {
 
+
+
+        // LOCK!
+        contextLock.lock();
+
+
         singletonObjects.clear();
         beanDefinitionsForName.clear();
 
@@ -90,6 +100,8 @@ public class CDefaultBeanFactory implements CBeanFactory {
                 awareCallBack(getBean(s), b);
             }
         });
+
+        contextLock.unlock();
     }
 
 
