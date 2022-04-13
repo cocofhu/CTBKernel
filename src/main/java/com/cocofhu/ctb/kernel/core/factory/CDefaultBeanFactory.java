@@ -13,6 +13,8 @@ import com.cocofhu.ctb.kernel.exception.*;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,26 +22,36 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
- * 简化的BeanFactory
- * 一、BeanDefinitionReader
+ * 简化的BeanFactory,非线程安全的
+ *
+ * 一、实例化过程
+ * 1、设置 CBeanInstanceCreator    用于实例化Bean
+ * 2、设置 CBeanDefinitionResolver 用于加载所有BeanDefinition
+ * 3、设置 CAnnotationProcess[]    用户解析注解
+ * 4、设置 CConstructorResolver    用于寻找Bean的构造函数
+ * 5、上述1234调用所有的AwareMethod
+ * 6、执行 refresh() 加载并初始化BeanFactory
+ *
  * 二、Bean的生命周期
  * 1、使用指定的构造函数创建Bean
  * 2、创建代理(如果有)
  * 3、调用所有的Aware方法
- * 4、依赖注入
+ * 4、依赖注入(方法注入)
  * 5、调用init-method
  *
  * @author cocofhu
  */
 public class CDefaultBeanFactory implements CBeanFactory {
 
-    private final ReentrantLock contextLock = new ReentrantLock();
+//    private final ReentrantLock contextLock = new ReentrantLock();
 
     // 用于加载所有BeanDefinition
     private final CBeanDefinitionResolver beanDefinitionResolver;
     // 用于创建Bean
     private final CBeanInstanceCreator beanCreator;
+    // 单例对象
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
+    // BeanDefinition
     private final Map<String, CBeanDefinition> beanDefinitionsForName = new ConcurrentHashMap<>(256);
 
     // 上下文
@@ -60,7 +72,16 @@ public class CDefaultBeanFactory implements CBeanFactory {
 //    }
 
 
-    public CDefaultBeanFactory(CBeanInstanceCreator beanCreator, CBeanDefinitionResolver beanDefinitionResolver,CAnnotationProcess[] parameterAnnotationProcesses, CConstructorResolver... ctorResolvers) {
+    public CDefaultBeanFactory(CBeanInstanceCreator beanCreator, CBeanDefinitionResolver beanDefinitionResolver,CAnnotationProcess[] parameterAnnotationProcesses, CConstructorResolver[] ctorResolvers) {
+
+        // 兼容空参数
+        if(parameterAnnotationProcesses == null) {
+            parameterAnnotationProcesses = new CAnnotationProcess[0];
+        }
+        if(ctorResolvers == null){
+            ctorResolvers = new CConstructorResolver[0];
+        }
+
 
         // 创建依赖组件
         this.beanCreator = beanCreator;
@@ -70,8 +91,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
             beanCreator.registerConstructorResolvers(ctorResolver);
         }
 
-        this.context = new CTBContext(this,this.beanCreator,this.beanDefinitionResolver,parameterAnnotationProcesses);
-
+        this.context = new CTBContext(this,this.beanCreator,this.beanDefinitionResolver,new ArrayList<>(Arrays.asList(parameterAnnotationProcesses)));
 
         // 回调Aware
         awareCallBack(this.beanCreator, null);
@@ -82,6 +102,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
         for (CAnnotationProcess process: parameterAnnotationProcesses){
             awareCallBack(process, null);
         }
+
         refresh();
     }
 
@@ -90,14 +111,14 @@ public class CDefaultBeanFactory implements CBeanFactory {
 
 
         // LOCK!
-        contextLock.lock();
+//        contextLock.lock();
 
 
         singletonObjects.clear();
         beanDefinitionsForName.clear();
 
-        List<CBeanDefinition> beanDefinitions = beanDefinitionResolver.resolveAll();
 
+        List<CBeanDefinition> beanDefinitions = beanDefinitionResolver.resolveAll();
         for (CBeanDefinition bd : beanDefinitions) {
             registerBeanDefinition(bd);
         }
@@ -117,7 +138,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
             }
         });
 
-        contextLock.unlock();
+//        contextLock.unlock();
     }
 
 

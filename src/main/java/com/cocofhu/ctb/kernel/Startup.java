@@ -12,6 +12,7 @@ import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.creator.CDefaultBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.factory.CDefaultBeanFactory;
+import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultConstructorResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultNoParameterConstructorResolver;
 
@@ -66,9 +67,8 @@ public class Startup implements CBeanFactoryAware , CBeanNameAware {
                     return "person";
                 }
             });
-
             return beans;
-        }, new CAnnotationProcess[]{new CValueProcess(), new CBeanRefProcess()}, new CDefaultNoParameterConstructorResolver(), new CDefaultConstructorResolver());
+        }, new CAnnotationProcess[]{new CValueProcess(), new CBeanRefProcess()}, new CConstructorResolver[]{new CDefaultNoParameterConstructorResolver(), new CDefaultConstructorResolver()});
         System.out.println(factory.getBean("BCD"));
         System.out.println(factory.getBean("BCD"));
     }

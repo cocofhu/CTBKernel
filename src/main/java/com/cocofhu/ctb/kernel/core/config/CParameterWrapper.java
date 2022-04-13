@@ -17,7 +17,7 @@ public class CParameterWrapper {
 
 
     public List<CValueWrapper> resolveParameterValues(){
-        CAnnotationProcess[] annotationProcesses = context.getAnnotationProcesses();
+        List<CAnnotationProcess> annotationProcesses = context.getAnnotationProcesses();
         List<CValueWrapper> candidateValues = new ArrayList<>();
         for (CAnnotationProcess process:annotationProcesses){
             CTBPair<Object, Boolean> pair = process.process(this, context);
