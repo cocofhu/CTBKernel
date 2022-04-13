@@ -8,7 +8,9 @@ import com.cocofhu.ctb.kernel.exception.CNoConstructorResolverException;
 import com.cocofhu.ctb.kernel.exception.CNoSuchConstructorException;
 
 
-
+/**
+ * Bean实例创建器
+ */
 public interface CBeanInstanceCreator {
 
     /**

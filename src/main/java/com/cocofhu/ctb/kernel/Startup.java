@@ -1,5 +1,10 @@
 package com.cocofhu.ctb.kernel;
 
+import com.cocofhu.ctb.kernel.anno.process.CAnnotationProcess;
+import com.cocofhu.ctb.kernel.anno.process.param.CBeanRef;
+import com.cocofhu.ctb.kernel.anno.process.param.CBeanRefProcess;
+import com.cocofhu.ctb.kernel.anno.process.param.CValue;
+import com.cocofhu.ctb.kernel.anno.process.param.CValueProcess;
 import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
 import com.cocofhu.ctb.kernel.core.aware.CBeanNameAware;
 import com.cocofhu.ctb.kernel.core.config.CAbstractBeanDefinition;
@@ -7,11 +12,10 @@ import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.creator.CDefaultBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.factory.CDefaultBeanFactory;
-import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultConstructorResolver;
+import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultNoParameterConstructorResolver;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Startup implements CBeanFactoryAware , CBeanNameAware {
 
@@ -20,39 +24,53 @@ public class Startup implements CBeanFactoryAware , CBeanNameAware {
         return x + "" + y;
     }
 
-    public Startup(){
-        System.out.println("===");
+    public Startup(@CValue("555") int x,@CValue("184.678901") double y, @CBeanRef("person") Person person){
+        System.out.println(x);
+        System.out.println(y);
+        System.out.println(person);
+    }
+
+    public static class Person{
+        public int x;
+        public int y;
+        public Person(@CValue("100") int x,@CValue("200") int y){
+            this.x = x;
+            this.y = y;
+//            System.out.println(x+y);
+        }
+
+        @Override
+        public String toString() {
+            return "Person{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    '}';
+        }
     }
 
 
 
-
     public static void main(String[] args) throws Exception {
+        // 默认的factory
         CDefaultBeanFactory factory = new CDefaultBeanFactory(new CDefaultBeanInstanceCreator(), () -> {
             ArrayList<CBeanDefinition> beans = new ArrayList<>();
-            beans.add(new CAbstractBeanDefinition(Startup.class, CBeanDefinition.CBeanScope.PROTOTYPE) {
+            beans.add(new CAbstractBeanDefinition(Startup.class, CBeanDefinition.CBeanScope.SINGLETON) {
                 @Override
                 public String getBeanName() {
                     return "BCD";
                 }
             });
+            beans.add(new CAbstractBeanDefinition(Person.class, CBeanDefinition.CBeanScope.SINGLETON) {
+                @Override
+                public String getBeanName() {
+                    return "person";
+                }
+            });
+
             return beans;
-        }, new CDefaultConstructorResolver());
+        }, new CAnnotationProcess[]{new CValueProcess(), new CBeanRefProcess()}, new CDefaultNoParameterConstructorResolver(), new CDefaultConstructorResolver());
         System.out.println(factory.getBean("BCD"));
         System.out.println(factory.getBean("BCD"));
-//        System.out.println(Startup.class.getConstructor(null));
-//        Map<String,Object> params = new HashMap<>();
-//        params.put("a","10");
-//        params.put("b","2");
-////        IntegerConverter
-//        Executor executor = new Executor(Math.class,"pow",params);
-//        System.out.println(executor.execute());
-//        CBeanFactory beanFactory = new CBeanFactory();
-//        beanFactory.registerBean("abc",Startup.class);
-//        System.out.println(beanFactory.getBean("abc"));
-//        System.out.println(beanFactory.getBean("abc"));
-//        System.out.println(beanFactory.getBean("abc"));
-//        System.out.println(executor);
     }
 
     @Override

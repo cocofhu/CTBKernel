@@ -1,40 +1,39 @@
 package com.cocofhu.ctb.kernel.core.creator;
 
 import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
-import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CConstructorWrapper;
+import com.cocofhu.ctb.kernel.core.aware.CTBContextAware;
+import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
-import com.cocofhu.ctb.kernel.exception.CBadBeanDefinitionException;
+
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
-public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreator, CBeanFactoryAware {
+public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreator, CBeanFactoryAware, CTBContextAware {
 
-    protected List<CConstructorResolver> resolvers;
+    protected Queue<CConstructorResolver> resolvers;
     protected CBeanFactory beanFactory;
+    protected CTBContext context;
 
     @Override
     public void setBeanFactory(CBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
     }
 
-    protected CConstructorWrapper findDefaultConstructor(CBeanDefinition beanDefinition) throws NoSuchMethodException {
-        if(beanDefinition == null){
-            throw new CBadBeanDefinitionException("empty bean definition.");
-        }
-        Class<?> clazz = beanDefinition.getBeanClass();
-        return new CConstructorWrapper(clazz.getConstructor(),new Object[0]);
-    }
 
     @Override
     public void registerConstructorResolvers(CConstructorResolver resolver) {
         if(resolvers == null){
-            resolvers = new ArrayList<>(4);
+            resolvers = new PriorityQueue<>(4);
         }
         resolvers.add(resolver);
     }
 
-
+    @Override
+    public void setCTBContext(CTBContext context) {
+        this.context = context;
+    }
 }

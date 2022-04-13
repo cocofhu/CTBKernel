@@ -10,27 +10,34 @@ import com.cocofhu.ctb.kernel.exception.CNoSuchConstructorException;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator{
+/**
+ * Bean实例创建器
+ * 0、使用 newInstance 实例化Bean
+ * 1、通过 registerConstructorResolvers 注册 ConstructorResolver 来寻找构造函数
+ * 2、寻找到构造函数(CConstructorWrapper)后，调用 acquireParameterValues获得构造函数需要的参数
+ * 3、调用 newInstance 实例化对象
+ */
+public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
 
     @Override
     public Object newInstance(CBeanDefinition beanDefinition)
-            throws CNoBeanFactoryException,CNoConstructorResolverException,CNoSuchConstructorException,CInstantiationException{
+            throws CNoBeanFactoryException, CNoConstructorResolverException, CNoSuchConstructorException, CInstantiationException {
 
-        if(resolvers == null || resolvers.size() == 0){
+        if (resolvers == null || resolvers.size() == 0) {
             throw new CNoConstructorResolverException("ConstructorResolver set was not set.");
         }
-        CConstructorWrapper ctorWrapper = null ;
-        for (CConstructorResolver resolver:resolvers){
-            ctorWrapper = resolver.resolveConstructor(beanDefinition);
+        CConstructorWrapper ctorWrapper = null;
+        for (CConstructorResolver resolver : resolvers) {
+            ctorWrapper = resolver.resolveConstructor(beanDefinition, context);
             if (ctorWrapper != null) break;
         }
-        if(ctorWrapper == null){
+        if (ctorWrapper == null) {
             throw new CNoSuchConstructorException("No constructor was found for " + beanDefinition.getBeanClassName() + ".");
         }
         try {
-            return ctorWrapper.getConstructor().newInstance(ctorWrapper.getParameters());
+            return ctorWrapper.getConstructor().newInstance(ctorWrapper.acquireParameterValues());
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new CInstantiationException("Instantiating for "+ beanDefinition.getBeanClassName()+" failed.");
+            throw new CInstantiationException("Instantiating for " + beanDefinition.getBeanClassName() + " failed.");
         }
     }
 }

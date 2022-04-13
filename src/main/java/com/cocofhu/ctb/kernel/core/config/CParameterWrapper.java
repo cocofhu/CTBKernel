@@ -2,30 +2,33 @@ package com.cocofhu.ctb.kernel.core.config;
 
 import com.cocofhu.ctb.kernel.anno.process.CAnnotationProcess;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CParameterWrapper {
     private final Parameter parameter;
-    public <A extends Annotation> A findAnnotation(Class<A> annotationType){
-        return parameter.getAnnotation(annotationType);
+    private final CTBContext context;
+
+    public CParameterWrapper(Parameter parameter, CTBContext context) {
+        this.parameter = parameter;
+        this.context = context;
     }
-    public Object resolveParameterValue(CTBContext context){
+
+
+    public List<CValueWrapper> resolveParameterValues(){
         CAnnotationProcess[] annotationProcesses = context.getAnnotationProcesses();
-        List<Object> candidateValues = new ArrayList<>();
+        List<CValueWrapper> candidateValues = new ArrayList<>();
         for (CAnnotationProcess process:annotationProcesses){
-            CTBPair<Object, Boolean> pair = process.processValue(parameter.getAnnotations(), context);
-            if(pair.getSecond()){
-                candidateValues.add(pair.getFirst());
+            CTBPair<Object, Boolean> pair = process.process(this, context);
+            if(pair != null && pair.getSecond()){
+                candidateValues.add(new CValueWrapper(process,pair,context));
             }
         }
-
-        return candidateValues.get(0);
+        return candidateValues;
     }
 
-    public CParameterWrapper(Parameter parameter) {
-        this.parameter = parameter;
+    public Parameter getParameter() {
+        return parameter;
     }
 }

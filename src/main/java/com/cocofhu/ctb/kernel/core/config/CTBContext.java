@@ -9,18 +9,18 @@ public class CTBContext {
     private final CBeanFactory beanFactory;
     private final CBeanInstanceCreator instanceCreator;
     private final CBeanDefinitionResolver beanDefinitionResolver;
-    private final CAnnotationProcess[] annotationProcesses;
+    private final CAnnotationProcess[] parameterAnnotationProcesses;
 
-    public CTBContext(CBeanFactory beanFactory, CBeanInstanceCreator instanceCreator, CBeanDefinitionResolver beanDefinitionResolver, CAnnotationProcess[] annotationProcesses) {
+    public CTBContext(CBeanFactory beanFactory, CBeanInstanceCreator instanceCreator, CBeanDefinitionResolver beanDefinitionResolver, CAnnotationProcess[] parameterAnnotationProcesses) {
         this.beanFactory = beanFactory;
         this.instanceCreator = instanceCreator;
         this.beanDefinitionResolver = beanDefinitionResolver;
-        this.annotationProcesses = annotationProcesses;
+        this.parameterAnnotationProcesses = parameterAnnotationProcesses;
     }
 
 
     public CAnnotationProcess[] getAnnotationProcesses() {
-        return annotationProcesses;
+        return parameterAnnotationProcesses;
     }
 
     public CBeanFactory getBeanFactory() {
