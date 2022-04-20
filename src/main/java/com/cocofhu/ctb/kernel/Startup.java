@@ -15,7 +15,9 @@ import com.cocofhu.ctb.kernel.core.factory.CDefaultBeanFactory;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultConstructorResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultNoParameterConstructorResolver;
+import com.cocofhu.ctb.kernel.core.resolver.value.CAnnotationValueResolver;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class Startup implements CBeanFactoryAware , CBeanNameAware {
@@ -49,11 +51,28 @@ public class Startup implements CBeanFactoryAware , CBeanNameAware {
         }
     }
 
+    public static class Derived extends Person{
+
+        public Derived(@CValue("4444") int x, @CValue("555") int y) {
+            super(x, y);
+        }
+
+        public void omg(@CValue("9999999") int x){
+            System.out.println("init  " + x);
+        }
+
+        @Override
+        public String toString() {
+            return super.toString() + "DDDDD";
+        }
+    }
+
 
 
     public static void main(String[] args) throws Exception {
         // 默认的factory
-        CDefaultBeanFactory factory = new CDefaultBeanFactory(new CDefaultBeanInstanceCreator(), () -> {
+        CDefaultBeanFactory factory =
+                new CDefaultBeanFactory(new CDefaultBeanInstanceCreator(new CConstructorResolver[]{new CDefaultConstructorResolver(),new CDefaultNoParameterConstructorResolver()}), () -> {
             ArrayList<CBeanDefinition> beans = new ArrayList<>();
             beans.add(new CAbstractBeanDefinition(Startup.class, CBeanDefinition.CBeanScope.SINGLETON) {
                 @Override
@@ -61,14 +80,24 @@ public class Startup implements CBeanFactoryAware , CBeanNameAware {
                     return "BCD";
                 }
             });
-            beans.add(new CAbstractBeanDefinition(Person.class, CBeanDefinition.CBeanScope.SINGLETON) {
+            beans.add(new CAbstractBeanDefinition(Derived.class, CBeanDefinition.CBeanScope.SINGLETON) {
                 @Override
                 public String getBeanName() {
                     return "person";
                 }
+
+                @Override
+                public Method[] initMethods() {
+                    try {
+                        return new Method[]{Derived.class.getMethod("omg",Integer.TYPE)};
+                    } catch (NoSuchMethodException e) {
+                        e.printStackTrace();
+                    }
+                    return super.initMethods();
+                }
             });
             return beans;
-        }, new CAnnotationProcess[]{new CValueProcess(), new CBeanRefProcess()}, new CConstructorResolver[]{new CDefaultNoParameterConstructorResolver(), new CDefaultConstructorResolver()});
+        },new CAnnotationValueResolver(new CAnnotationProcess[]{new CValueProcess(),new CBeanRefProcess()}));
         System.out.println(factory.getBean("BCD"));
         System.out.println(factory.getBean("BCD"));
     }

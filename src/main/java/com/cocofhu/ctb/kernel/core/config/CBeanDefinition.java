@@ -1,10 +1,18 @@
 package com.cocofhu.ctb.kernel.core.config;
 
-import java.util.Map;
+
+import java.lang.reflect.Method;
 
 public interface CBeanDefinition {
+
     enum CBeanScope{
+        /**
+         * 单例模式
+         */
         SINGLETON,
+        /**
+         * 原型模式
+         */
         PROTOTYPE
     }
 
@@ -18,7 +26,9 @@ public interface CBeanDefinition {
     boolean isPrototype();
     String getBeanName();
 
-    Map<String,Object> resourceBundles();
+    default Method[] initMethods() {
+        return new Method[0];
+    }
 
 }
 

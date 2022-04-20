@@ -1,7 +1,7 @@
 package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CConstructorWrapper;
+import com.cocofhu.ctb.kernel.core.config.CExecutableWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 
 import java.lang.reflect.Constructor;
@@ -11,12 +11,12 @@ import java.lang.reflect.Constructor;
  */
 public class CDefaultConstructorResolver implements CConstructorResolver {
     @Override
-    public CConstructorWrapper resolveConstructor(CBeanDefinition beanDefinition,CTBContext context) {
+    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CTBContext context) {
         checkEmpty(beanDefinition,context);
         Class<?> clazz = beanDefinition.getBeanClass();
         Constructor<?>[] constructors = clazz.getConstructors();
         if(constructors.length == 1 && constructors[0].getParameters().length != 0){
-            return new CConstructorWrapper(constructors[0],context);
+            return new CExecutableWrapper(constructors[0],context);
         }
         return null;
     }

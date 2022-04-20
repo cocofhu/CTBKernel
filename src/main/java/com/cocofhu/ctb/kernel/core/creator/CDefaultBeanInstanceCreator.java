@@ -1,7 +1,6 @@
 package com.cocofhu.ctb.kernel.core.creator;
 
-import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CConstructorWrapper;
+import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.exception.CInstantiationException;
 import com.cocofhu.ctb.kernel.exception.CNoBeanFactoryException;
@@ -19,14 +18,22 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
 
+    public CDefaultBeanInstanceCreator() {
+    }
+    public CDefaultBeanInstanceCreator(CConstructorResolver[] constructorResolvers) {
+        for (CConstructorResolver ctorResolver: constructorResolvers) {
+            registerConstructorResolvers(ctorResolver);
+        }
+    }
+
     @Override
-    public Object newInstance(CBeanDefinition beanDefinition)
+    public Object newInstance(CBeanDefinition beanDefinition, CTBContext context)
             throws CNoBeanFactoryException, CNoConstructorResolverException, CNoSuchConstructorException, CInstantiationException {
 
         if (resolvers == null || resolvers.size() == 0) {
             throw new CNoConstructorResolverException("ConstructorResolver set was not set.");
         }
-        CConstructorWrapper ctorWrapper = null;
+        CExecutableWrapper ctorWrapper = null;
         for (CConstructorResolver resolver : resolvers) {
             ctorWrapper = resolver.resolveConstructor(beanDefinition, context);
             if (ctorWrapper != null) break;

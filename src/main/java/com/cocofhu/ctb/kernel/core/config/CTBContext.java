@@ -4,6 +4,7 @@ import com.cocofhu.ctb.kernel.anno.process.CAnnotationProcess;
 import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
+import com.cocofhu.ctb.kernel.core.resolver.value.CValueResolver;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,17 +13,19 @@ public class CTBContext {
     private final CBeanFactory beanFactory;
     private final CBeanInstanceCreator instanceCreator;
     private final CBeanDefinitionResolver beanDefinitionResolver;
-    private final List<CAnnotationProcess> parameterAnnotationProcesses;
+    private final CValueResolver valueResolver;
 
-    public CTBContext(CBeanFactory beanFactory, CBeanInstanceCreator instanceCreator, CBeanDefinitionResolver beanDefinitionResolver, List<CAnnotationProcess> parameterAnnotationProcesses) {
+    public CTBContext(CBeanFactory beanFactory, CBeanInstanceCreator instanceCreator, CBeanDefinitionResolver beanDefinitionResolver, CValueResolver valueResolver) {
         this.beanFactory = beanFactory;
         this.instanceCreator = instanceCreator;
         this.beanDefinitionResolver = beanDefinitionResolver;
-        this.parameterAnnotationProcesses = parameterAnnotationProcesses;
+        this.valueResolver = valueResolver;
     }
 
-    public List<CAnnotationProcess> getAnnotationProcesses() {
-        return Collections.unmodifiableList(parameterAnnotationProcesses);
+
+
+    public CValueResolver getValueResolver() {
+        return valueResolver;
     }
 
     public CBeanFactory getBeanFactory() {

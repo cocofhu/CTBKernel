@@ -38,8 +38,4 @@ public abstract class CAbstractBeanDefinition implements CBeanDefinition{
         return scope.equals(CBeanScope.PROTOTYPE);
     }
 
-    @Override
-    public Map<String, Object> resourceBundles() {
-        return null;
-    }
 }

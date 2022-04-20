@@ -5,20 +5,21 @@ import com.cocofhu.ctb.kernel.core.aware.CBeanFactoryAware;
 import com.cocofhu.ctb.kernel.core.aware.CBeanNameAware;
 import com.cocofhu.ctb.kernel.core.aware.CBeanScopeAware;
 import com.cocofhu.ctb.kernel.core.aware.CTBContextAware;
+import com.cocofhu.ctb.kernel.core.config.CExecutableWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
+import com.cocofhu.ctb.kernel.core.resolver.value.CValueResolver;
 import com.cocofhu.ctb.kernel.exception.*;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -43,17 +44,11 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class CDefaultBeanFactory implements CBeanFactory {
 
-//    private final ReentrantLock contextLock = new ReentrantLock();
 
-    // 用于加载所有BeanDefinition
-    private final CBeanDefinitionResolver beanDefinitionResolver;
-    // 用于创建Bean
-    private final CBeanInstanceCreator beanCreator;
     // 单例对象
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
     // BeanDefinition
     private final Map<String, CBeanDefinition> beanDefinitionsForName = new ConcurrentHashMap<>(256);
-
     // 上下文
     private final CTBContext context;
 
@@ -67,41 +62,22 @@ public class CDefaultBeanFactory implements CBeanFactory {
     }
 
 
-//    public CDefaultBeanFactory() {
-//        this(new CDefaultBeanInstanceCreator(), ArrayList::new,new CAnnotationProcess[0], new CDefaultConstructorResolver());
-//    }
+    /**
+     * 创建一个默认的BeanFactory
+     * @param beanCreator               用于创建和实例化Bean
+     * @param beanDefinitionResolver    用于加载所有的BeanDefinition
+     * @param valueResolver             用于获取参数对应的值，完成依赖注入
+     */
+    public CDefaultBeanFactory(CBeanInstanceCreator beanCreator, CBeanDefinitionResolver beanDefinitionResolver,CValueResolver valueResolver) {
 
 
-    public CDefaultBeanFactory(CBeanInstanceCreator beanCreator, CBeanDefinitionResolver beanDefinitionResolver,CAnnotationProcess[] parameterAnnotationProcesses, CConstructorResolver[] ctorResolvers) {
+        this.context = new CTBContext(this,beanCreator,beanDefinitionResolver,valueResolver);
 
-        // 兼容空参数
-        if(parameterAnnotationProcesses == null) {
-            parameterAnnotationProcesses = new CAnnotationProcess[0];
-        }
-        if(ctorResolvers == null){
-            ctorResolvers = new CConstructorResolver[0];
-        }
+        // 回调Aware 用于配置一些全局参数
+        awareCallBack(valueResolver,null);
+        awareCallBack(beanCreator, null);
+        awareCallBack(beanDefinitionResolver, null);
 
-
-        // 创建依赖组件
-        this.beanCreator = beanCreator;
-        this.beanDefinitionResolver = beanDefinitionResolver;
-
-        for (CConstructorResolver ctorResolver : ctorResolvers) {
-            beanCreator.registerConstructorResolvers(ctorResolver);
-        }
-
-        this.context = new CTBContext(this,this.beanCreator,this.beanDefinitionResolver,new ArrayList<>(Arrays.asList(parameterAnnotationProcesses)));
-
-        // 回调Aware
-        awareCallBack(this.beanCreator, null);
-        awareCallBack(this.beanDefinitionResolver, null);
-        for (CConstructorResolver ctorResolver : ctorResolvers) {
-            awareCallBack(ctorResolver, null);
-        }
-        for (CAnnotationProcess process: parameterAnnotationProcesses){
-            awareCallBack(process, null);
-        }
 
         refresh();
     }
@@ -118,7 +94,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
         beanDefinitionsForName.clear();
 
 
-        List<CBeanDefinition> beanDefinitions = beanDefinitionResolver.resolveAll();
+        List<CBeanDefinition> beanDefinitions = this.context.getBeanDefinitionResolver().resolveAll();
         for (CBeanDefinition bd : beanDefinitions) {
             registerBeanDefinition(bd);
         }
@@ -127,7 +103,16 @@ public class CDefaultBeanFactory implements CBeanFactory {
         // initiating singleton beans
         beanDefinitionsForName.forEach((s, b) -> {
             if (b.isSingleton()) {
-                getBean(s);
+                Object o = getBean(s);
+                Method[] methods = b.initMethods();
+                for (Method method: methods) {
+                    Object[] objects = new CExecutableWrapper(method, context).acquireParameterValues();
+                    try {
+                        method.invoke(o,objects);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
@@ -137,6 +122,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
                 awareCallBack(getBean(s), b);
             }
         });
+
 
 //        contextLock.unlock();
     }
@@ -165,7 +151,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
             beanDefinition = bd;
         } else if (requiredType != null) {
             String[] beanNamesFound = beanDefinitionsForName.entrySet().stream()
-                    .filter(entry -> entry.getValue().getBeanClassName().equals(requiredType.getName()))
+                    .filter(entry -> entry.getValue().getBeanClass().isInstance(requiredType))
                     .map(Map.Entry::getKey).toArray(String[]::new);
             if (beanNamesFound.length == 0) {
                 throw new CNoSuchBeanDefinitionException(requiredType.getName() + " of bean was not found by type.");
@@ -205,7 +191,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
             beanInstance = doGetSingletonBean(beanDefinition);
         } else if (beanDefinition.isPrototype()) {
             // Prototype
-            beanInstance = beanCreator.newInstance(beanDefinition, requiredType);
+            beanInstance = this.context.getInstanceCreator().newInstance(beanDefinition, context ,requiredType);
             awareCallBack(beanInstance, beanDefinition);
             // Call Init Method
 
@@ -221,8 +207,9 @@ public class CDefaultBeanFactory implements CBeanFactory {
     private <T> T doGetSingletonBean(CBeanDefinition beanDefinition) {
         Object obj = singletonObjects.get(beanDefinition.getBeanName());
         if (obj == null) {
-            obj = beanCreator.newInstance(beanDefinition);
+            obj = this.context.getInstanceCreator().newInstance(beanDefinition,context);
             singletonObjects.put(beanDefinition.getBeanName(), obj);
+            // 不要在这里调用Aware方法和Initial Method 部分单例对象还没添加到BeanFactory
         }
         return (T) obj;
     }

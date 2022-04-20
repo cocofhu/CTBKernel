@@ -1,6 +1,7 @@
 package com.cocofhu.ctb.kernel.core.creator;
 
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
+import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.exception.CInstantiationException;
 import com.cocofhu.ctb.kernel.exception.CNoBeanFactoryException;
@@ -21,7 +22,7 @@ public interface CBeanInstanceCreator {
      * @throws CNoSuchConstructorException      没有找到相应的构造方法
      * @throws CInstantiationException          创建Bean实例时发生了错误
      */
-    Object newInstance(CBeanDefinition beanDefinition)
+    Object newInstance(CBeanDefinition beanDefinition, CTBContext context)
             throws CNoBeanFactoryException, CNoConstructorResolverException, CNoSuchConstructorException, CInstantiationException;
 
     /**
@@ -33,9 +34,9 @@ public interface CBeanInstanceCreator {
      * @throws CInstantiationException          创建Bean实例时发生了错误
      */
     @SuppressWarnings("unchecked")
-    default <T> T newInstance(CBeanDefinition beanDefinition,Class<T> clazz)
+    default <T> T newInstance(CBeanDefinition beanDefinition,CTBContext context,Class<T> clazz)
             throws CNoBeanFactoryException, CNoConstructorResolverException, CNoSuchConstructorException, CInstantiationException{
-        return (T) newInstance(beanDefinition);
+        return (T) newInstance(beanDefinition,context);
     }
 
     /**
