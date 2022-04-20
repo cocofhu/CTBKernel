@@ -17,6 +17,7 @@ import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -150,16 +151,15 @@ public class CDefaultBeanFactory implements CBeanFactory {
             }
             beanDefinition = bd;
         } else if (requiredType != null) {
-            String[] beanNamesFound = beanDefinitionsForName.entrySet().stream()
-                    .filter(entry -> entry.getValue().getBeanClass().isInstance(requiredType))
-                    .map(Map.Entry::getKey).toArray(String[]::new);
-            if (beanNamesFound.length == 0) {
+            CBeanDefinition[] beansFound = beanDefinitionsForName.values().stream()
+                    .filter(cBeanDefinition -> requiredType.isAssignableFrom(cBeanDefinition.getBeanClass())).toArray(CBeanDefinition[]::new);
+            if (beansFound.length == 0) {
                 throw new CNoSuchBeanDefinitionException(requiredType.getName() + " of bean was not found by type.");
             }
-            if (beanNamesFound.length != 1) {
-                throw new CNoUniqueBeanDefinitionException(beanNamesFound);
+            if (beansFound.length != 1) {
+                throw new CNoUniqueBeanDefinitionException(Arrays.stream(beansFound).map(CBeanDefinition::getBeanName).toArray(String[]::new));
             }
-            beanDefinition = beanDefinitionsForName.get(beanNamesFound[0]);
+            beanDefinition = beansFound[0];
             // 这里如果按照规范注册BeanDefinition，这里不会为空
             if (beanDefinition == null) {
                 throw new CNoSuchBeanDefinitionException("beanDefinition is null,  type:" + requiredType.getName());
