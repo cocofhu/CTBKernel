@@ -19,10 +19,10 @@ public class CClassPathAnnotationBeanDefinitionResolver implements CBeanDefiniti
         try {
             String url = getClassPath();
             List<String> classes = getClassesList(url);
-            for (int i = 0; i < classes.size(); i++) {
-                Class<?> clazz = Class.forName(classes.get(i));
+            for (String str : classes) {
+                Class<?> clazz = Class.forName(str);
                 CBean bean = clazz.getAnnotation(CBean.class);
-                if(bean != null){
+                if (bean != null) {
                     beanDefinitions.add(new CAbstractBeanDefinition(clazz, CBeanDefinition.CBeanScope.SINGLETON) {
                         @Override
                         public String getBeanName() {
