@@ -7,6 +7,6 @@ public class BooleanConverter implements IConverter{
         if(Boolean.class == target.getClass() || Boolean.TYPE == target.getClass()) return target;
         if("false".equals(target)) return false;
         if("true".equals(target)) return true;
-        throw new ConvertException(target.toString() + " of value unsupported.");
+        throw new ConvertException(target + " of value unsupported.");
     }
 }

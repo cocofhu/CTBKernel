@@ -5,9 +5,9 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 public class  Executor {
-    private Class<?> clazz;
-    private String methodName;
-    private Map<String,Object> args;
+    private final Class<?> clazz;
+    private final String methodName;
+    private final Map<String,Object> args;
 
 
     public Executor(Class<?> clazz, String methodName, Map<String, Object> args) {
