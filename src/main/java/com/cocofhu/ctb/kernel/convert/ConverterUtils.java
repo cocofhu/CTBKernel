@@ -18,6 +18,8 @@ public class ConverterUtils {
         converters.put(Character.class,new CharacterConverter());
         converters.put(Character.TYPE,new CharacterConverter());
 
+
+
         converters.put(Double.class,new DoubleConverter());
         converters.put(Double.TYPE,new DoubleConverter());
         converters.put(Float.class,new FloatConverter());
@@ -25,6 +27,8 @@ public class ConverterUtils {
 
         converters.put(Boolean.class,new BooleanConverter());
         converters.put(Boolean.TYPE,new BooleanConverter());
+
+        converters.put(String.class,new StringConverter());
     }
 
     public static Object convert(Object raw, Class<?> type){

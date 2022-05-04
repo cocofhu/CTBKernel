@@ -8,15 +8,35 @@ import com.cocofhu.ctb.kernel.core.factory.exec.*;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.exception.CBadBeanDefinitionException;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 public class Startup{
 
-    public int f(int x, CBeanFactory factory){
-        System.out.println(factory);
-
-        return x/100;
+    public long f(String x, CBeanFactory factory) throws Exception {
+        File file = new File(x);
+        System.out.println(x);
+        BasicFileAttributes basicFileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+        if(basicFileAttributes.isRegularFile()){
+//            try (
+//                    BufferedReader bufferedReader = new BufferedReader(new FileReader(file))
+//            ){
+//                return bufferedReader.lines().count();
+//            }
+            return 1;
+        }else if(basicFileAttributes.isDirectory()){
+            File[] files = file.listFiles();
+            long ret = 0;
+            for (int i = 0; i < files.length; i++) {
+                ret += f(files[i].getAbsolutePath(),factory);
+            }
+            return ret;
+        }
+        return 0L;
     }
+
 
 
 
@@ -37,7 +57,7 @@ public class Startup{
 
 
         CExecutorContext context = new CExecutorContext();
-        context.put("x",1123112311);
+        context.put("x","C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src");
 
         CExecutorBuilder executorBuilder = new CExecutorBuilder(context,factory);
 
