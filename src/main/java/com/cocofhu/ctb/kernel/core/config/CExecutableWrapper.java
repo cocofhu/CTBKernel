@@ -5,11 +5,9 @@ import com.cocofhu.ctb.kernel.anno.CConstructor;
 import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.exception.CNoParameterValueException;
 import com.cocofhu.ctb.kernel.exception.CNoUniqueParameterValueException;
+import com.cocofhu.ctb.kernel.exception.CUnsupportedExecutableTypeException;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.List;
 
 
@@ -24,7 +22,7 @@ public class CExecutableWrapper {
 
     }
 
-    public CParameterWrapper[] acquireParameterWrappers(){
+    private CParameterWrapper[] acquireParameterWrappers(){
         Parameter[] parameters = executor.getParameters();
         CParameterWrapper[] parameterWrappers = new CParameterWrapper[parameters.length];
         for (int i = 0 ; i< parameters.length ;++i){
@@ -33,7 +31,7 @@ public class CExecutableWrapper {
         return parameterWrappers;
     }
 
-    public Object[] acquireParameterValues() {
+    private Object[] acquireParameterValues() {
         CParameterWrapper[] parameterWrappers = acquireParameterWrappers();
         Object[] values = new Object[parameterWrappers.length];
         for (int i = 0; i < parameterWrappers.length; i++) {
@@ -54,12 +52,14 @@ public class CExecutableWrapper {
         return values;
     }
 
-    public Constructor<?> getConstructor() {
-        return (Constructor<?>) executor;
-    }
-
-    public Method getMethod() {
-        return (Method) executor;
+    public Object execute(Object obj) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        if(executor instanceof Constructor) {
+            return ((Constructor<?>) executor).newInstance(acquireParameterValues());
+        }else if(executor instanceof  Method){
+            return ((Method) executor).invoke(obj,acquireParameterValues());
+        }else{
+            throw new CUnsupportedExecutableTypeException("unsupported executable type of " + executor.getClass());
+        }
     }
 
 }

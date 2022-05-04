@@ -42,7 +42,7 @@ public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
             throw new CNoSuchConstructorException("No constructor was found for " + beanDefinition.getBeanClassName() + ".");
         }
         try {
-            return ctorWrapper.getConstructor().newInstance(ctorWrapper.acquireParameterValues());
+            return ctorWrapper.execute(null);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new CInstantiationException("Instantiating for " + beanDefinition.getBeanClassName() + " failed.");
         }

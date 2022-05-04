@@ -15,7 +15,7 @@ public abstract class CAbstractBeanDefinition implements CBeanDefinition{
     }
 
     public CAbstractBeanDefinition(Class<?> beanClass) {
-        this(beanClass,CBeanScope.SINGLETON);
+        this(beanClass,CBeanScope.PROTOTYPE);
     }
 
     @Override

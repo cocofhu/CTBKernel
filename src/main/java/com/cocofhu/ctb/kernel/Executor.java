@@ -4,7 +4,7 @@ import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-public class Executor {
+public class  Executor {
     private Class<?> clazz;
     private String methodName;
     private Map<String,Object> args;

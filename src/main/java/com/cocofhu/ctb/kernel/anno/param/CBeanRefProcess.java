@@ -1,13 +1,12 @@
-package com.cocofhu.ctb.kernel.anno.process.param;
+package com.cocofhu.ctb.kernel.anno.param;
 
-import com.cocofhu.ctb.kernel.anno.process.CAnnotationProcess;
-import com.cocofhu.ctb.kernel.convert.ConverterUtils;
+import com.cocofhu.ctb.kernel.core.resolver.CProcess;
 import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
 
 
-public class CBeanRefProcess implements CAnnotationProcess {
+public class CBeanRefProcess implements CProcess<CParameterWrapper> {
 
     @Override
     public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {

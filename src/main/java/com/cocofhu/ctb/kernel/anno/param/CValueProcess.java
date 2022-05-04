@@ -1,13 +1,13 @@
-package com.cocofhu.ctb.kernel.anno.process.param;
+package com.cocofhu.ctb.kernel.anno.param;
 
-import com.cocofhu.ctb.kernel.anno.process.CAnnotationProcess;
 import com.cocofhu.ctb.kernel.convert.ConverterUtils;
 import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
+import com.cocofhu.ctb.kernel.core.resolver.CProcess;
 
 
-public class CValueProcess implements CAnnotationProcess {
+public class CValueProcess implements CProcess<CParameterWrapper> {
 
     @Override
     public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {
