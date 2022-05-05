@@ -1,5 +1,6 @@
-package com.cocofhu.ctb.kernel.core.factory.exec;
+package com.cocofhu.ctb.kernel.core.exec;
 
+import com.cocofhu.ctb.kernel.core.config.CDefinition;
 import com.cocofhu.ctb.kernel.core.config.CExecutableWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.exception.CExecutorExceptionUnhandledException;
@@ -12,6 +13,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * @author cocofhu
+ */
 public class CSimpleExecutor extends CAbstractExecutor {
 
     private final CExecutorMethod executorMethod;
@@ -25,6 +29,8 @@ public class CSimpleExecutor extends CAbstractExecutor {
     public CSimpleExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, CExecutorMethod executorMethod) {
         this(executorContext, beanFactoryContext, executorMethod, false);
     }
+
+
 
     @Override
     public void run() {
@@ -43,14 +49,19 @@ public class CSimpleExecutor extends CAbstractExecutor {
             // 设置执行状态, 开始执行
             setStatus(Status.Running);
 
-            Object bean = beanFactoryContext.getBeanFactory().getBean(executorMethod.getBeanName(), executorMethod.getBeanClass());
+
+            CDefinition beanDefinition = beanFactoryContext.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
+            Object bean = beanFactoryContext.getBeanFactory().getBean(beanDefinition);
+
             Method method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
             if (method == null) {
                 throw new CNoSuchMethodException(executorMethod.getBeanName() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
             }
             CTBContext ctx = beanFactoryContext.newCTBContext();
             ctx.put(EXEC_CONTEXT_KEY, executorContext);
-            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, ctx);
+
+            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, ctx, beanDefinition);
+
             try {
                 Object returnVal = executableWrapper.execute(bean);
                 executorContext.put(EXEC_RETURN_VAL_KEY, returnVal);

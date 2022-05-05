@@ -1,7 +1,10 @@
 package com.cocofhu.ctb.kernel.core.aware;
 
-import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
+import com.cocofhu.ctb.kernel.core.config.CDefinition;
 
+/**
+ * @author cocofhu
+ */
 public interface CBeanScopeAware {
-    void setScope(CBeanDefinition.CBeanScope scope);
+    void setScope(CDefinition.CBeanScope scope);
 }

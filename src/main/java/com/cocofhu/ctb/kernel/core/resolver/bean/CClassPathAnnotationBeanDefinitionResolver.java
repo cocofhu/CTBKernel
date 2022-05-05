@@ -1,8 +1,8 @@
 package com.cocofhu.ctb.kernel.core.resolver.bean;
 
 import com.cocofhu.ctb.kernel.anno.CBean;
-import com.cocofhu.ctb.kernel.core.config.CAbstractBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
+import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
+import com.cocofhu.ctb.kernel.core.config.CDefinition;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -12,10 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * @author cocofhu
+ */
 public class CClassPathAnnotationBeanDefinitionResolver implements CBeanDefinitionResolver {
     @Override
-    public List<CBeanDefinition> resolveAll() {
-        List<CBeanDefinition> beanDefinitions = new ArrayList<>();
+    public List<CDefinition> resolveAll() {
+        List<CDefinition> beanDefinitions = new ArrayList<>();
         try {
             String url = getClassPath();
             List<String> classes = getClassesList(url);
@@ -23,7 +26,7 @@ public class CClassPathAnnotationBeanDefinitionResolver implements CBeanDefiniti
                 Class<?> clazz = Class.forName(str);
                 CBean bean = clazz.getAnnotation(CBean.class);
                 if (bean != null) {
-                    beanDefinitions.add(new CAbstractBeanDefinition(clazz, CBeanDefinition.CBeanScope.SINGLETON) {
+                    beanDefinitions.add(new CAbstractDefinition(clazz, CDefinition.CBeanScope.SINGLETON) {
                         @Override
                         public String getBeanName() {
                             return bean.value();

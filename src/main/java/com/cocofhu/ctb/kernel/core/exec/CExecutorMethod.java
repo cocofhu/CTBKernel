@@ -1,5 +1,8 @@
-package com.cocofhu.ctb.kernel.core.factory.exec;
+package com.cocofhu.ctb.kernel.core.exec;
 
+/**
+ * @author cocofhu
+ */
 public class CExecutorMethod {
     private final String beanName;
     private final Class<?> clazz;

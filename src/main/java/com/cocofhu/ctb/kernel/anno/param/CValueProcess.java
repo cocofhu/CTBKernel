@@ -6,12 +6,14 @@ import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
 import com.cocofhu.ctb.kernel.core.resolver.CProcess;
 
-
+/**
+ * @author cocofhu
+ */
 public class CValueProcess implements CProcess<CParameterWrapper> {
 
     @Override
     public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {
-        CValue annotation = parameter.getParameter().getAnnotation(CValue.class);
+        CValue annotation = parameter.getAnnotation(CValue.class);
         if (annotation != null){
             String value = annotation.value();
             Object convert = ConverterUtils.convert(value, parameter.getParameter().getType());

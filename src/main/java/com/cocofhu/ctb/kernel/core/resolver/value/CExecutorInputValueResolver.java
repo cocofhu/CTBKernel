@@ -4,12 +4,12 @@ import com.cocofhu.ctb.kernel.convert.ConverterUtils;
 import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
-import com.cocofhu.ctb.kernel.core.config.CValueWrapper;
-import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
-import com.cocofhu.ctb.kernel.core.factory.exec.CExecutor;
-import com.cocofhu.ctb.kernel.core.factory.exec.CExecutorContext;
+import com.cocofhu.ctb.kernel.core.exec.CExecutor;
+import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
 
-
+/**
+ * @author cocofhu
+ */
 public class CExecutorInputValueResolver extends CAbstractValueResolver {
 
 

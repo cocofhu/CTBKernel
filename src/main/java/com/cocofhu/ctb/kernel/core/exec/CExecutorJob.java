@@ -1,7 +1,10 @@
-package com.cocofhu.ctb.kernel.core.factory.exec;
+package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 
+/**
+ * @author cocofhu
+ */
 public class CExecutorJob extends CAbstractExecutor {
     
     

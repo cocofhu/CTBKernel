@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author cocofhu
+ */
 public class CTBContext {
     private final CBeanFactory beanFactory;
     private final CBeanInstanceCreator instanceCreator;

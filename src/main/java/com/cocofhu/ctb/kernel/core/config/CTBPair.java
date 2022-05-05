@@ -1,5 +1,8 @@
 package com.cocofhu.ctb.kernel.core.config;
 
+/**
+ * @author cocofhu
+ */
 public class CTBPair<A,B> {
     private final A first;
     private final B second;

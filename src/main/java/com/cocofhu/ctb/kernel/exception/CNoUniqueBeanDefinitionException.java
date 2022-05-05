@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 /**
  * BeanDefinition 不唯一
+ * @author cocofhu
  */
 public class CNoUniqueBeanDefinitionException extends CNestedRuntimeException {
     private final String[] beanNamesFound;

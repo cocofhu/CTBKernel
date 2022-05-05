@@ -6,11 +6,14 @@ import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
 
 
+/**
+ * @author cocofhu
+ */
 public class CBeanRefProcess implements CProcess<CParameterWrapper> {
 
     @Override
     public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {
-        CBeanRef annotation = parameter.getParameter().getAnnotation(CBeanRef.class);
+        CBeanRef annotation = parameter.getAnnotation(CBeanRef.class);
         if (annotation != null){
             String value = annotation.value();
             return new CTBPair<>(context.getBeanFactory().getBean(value),true);

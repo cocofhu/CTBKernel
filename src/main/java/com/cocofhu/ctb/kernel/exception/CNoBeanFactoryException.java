@@ -1,7 +1,8 @@
 package com.cocofhu.ctb.kernel.exception;
 
 /**
- * BeanFactory创建时的异常
+ * 没有Bean工厂
+ * @author cocofhu
  */
 public class CNoBeanFactoryException extends CNestedRuntimeException{
     public CNoBeanFactoryException(String msg) {

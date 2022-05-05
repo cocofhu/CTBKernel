@@ -1,7 +1,8 @@
 package com.cocofhu.ctb.kernel.exception;
 
 /**
- * 有未处理的异常
+ * 任务执行过程中存在未处理的异常
+ * @author cocofhu
  */
 public class CExecutorExceptionUnhandledException extends CNestedRuntimeException {
     private final Throwable exception;

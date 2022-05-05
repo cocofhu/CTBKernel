@@ -1,10 +1,12 @@
-package com.cocofhu.ctb.kernel.core.factory.exec;
+package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
-import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.exception.CExecutorStatusException;
 import com.cocofhu.ctb.kernel.exception.CUnsupportedOperationException;
 
+/**
+ * @author cocofhu
+ */
 public abstract class CAbstractExecutor implements CExecutor {
 
     private volatile Status status;

@@ -10,6 +10,9 @@ import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
+/**
+ * @author cocofhu
+ */
 public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreator, CBeanFactoryAware, CTBContextAware {
 
     protected Queue<CConstructorResolver> resolvers;

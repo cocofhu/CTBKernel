@@ -3,6 +3,9 @@ package com.cocofhu.ctb.kernel.convert;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author cocofhu
+ */
 public class ConverterUtils {
     private static final Map<Class<?>,IConverter> converters = new HashMap<>();
     static {

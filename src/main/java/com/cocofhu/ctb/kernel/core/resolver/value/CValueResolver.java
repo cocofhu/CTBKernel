@@ -8,6 +8,9 @@ import com.cocofhu.ctb.kernel.core.config.CValueWrapper;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author cocofhu
+ */
 public interface CValueResolver {
 
     default List<CValueWrapper> singeValue(CValueWrapper cValueWrapper){

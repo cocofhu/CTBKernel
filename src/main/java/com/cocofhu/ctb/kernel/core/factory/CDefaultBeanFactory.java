@@ -10,7 +10,7 @@ import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.core.resolver.value.CValueResolver;
 import com.cocofhu.ctb.kernel.exception.*;
-import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
+import com.cocofhu.ctb.kernel.core.config.CDefinition;
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -47,13 +47,13 @@ public class CDefaultBeanFactory implements CBeanFactory {
     // 单例对象
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
     // BeanDefinition
-    private final Map<String, CBeanDefinition> beanDefinitionsForName = new ConcurrentHashMap<>(256);
+    private final Map<String, CDefinition> beanDefinitionsForName = new ConcurrentHashMap<>(256);
     // 上下文
     protected final CTBContext context;
 
 
 
-    protected void registerBeanDefinition(CBeanDefinition beanDefinition) {
+    protected void registerBeanDefinition(CDefinition beanDefinition) {
         if (beanDefinition == null) {
             throw new CBadBeanDefinitionException("bean definition is null.");
         }
@@ -82,9 +82,9 @@ public class CDefaultBeanFactory implements CBeanFactory {
         singletonObjects.clear();
         beanDefinitionsForName.clear();
 
-        List<CBeanDefinition> beanDefinitions = this.context.getBeanDefinitionResolver().resolveAll();
+        List<CDefinition> beanDefinitions = this.context.getBeanDefinitionResolver().resolveAll();
         // 注册获取到的Bean
-        for (CBeanDefinition bd : beanDefinitions) {
+        for (CDefinition bd : beanDefinitions) {
             registerBeanDefinition(bd);
         }
 
@@ -110,10 +110,10 @@ public class CDefaultBeanFactory implements CBeanFactory {
 //        contextLock.unlock();
     }
 
-    private void callInitMethods(CBeanDefinition b, Object o) {
+    private void callInitMethods(CDefinition b, Object o) {
         Method[] methods = b.initMethods();
         for (Method method: methods) {
-            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, context);
+            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, context, b);
             try {
                 executableWrapper.execute(o);
             } catch (IllegalAccessException | InvocationTargetException e) {
@@ -135,10 +135,10 @@ public class CDefaultBeanFactory implements CBeanFactory {
      * @throws CNoSuchBeanDefinitionException   没有找到指定的BeanDefinition、BeanDefinition为空或requiredType和name都为空
      * @throws CNoUniqueBeanDefinitionException 查找到的BeanDefinition不唯一
      */
-    protected CBeanDefinition doGetSingleBeanDefinition(String name, Class<?> requiredType) {
-        CBeanDefinition beanDefinition;
+    protected CDefinition doGetSingleBeanDefinition(String name, Class<?> requiredType) {
+        CDefinition beanDefinition;
         if (name != null) {
-            CBeanDefinition bd = beanDefinitionsForName.get(name);
+            CDefinition bd = beanDefinitionsForName.get(name);
             if (bd == null) {
                 throw new CNoSuchBeanDefinitionException(name + " of bean was not found by name.");
             }
@@ -148,13 +148,13 @@ public class CDefaultBeanFactory implements CBeanFactory {
             }
             beanDefinition = bd;
         } else if (requiredType != null) {
-            CBeanDefinition[] beansFound = beanDefinitionsForName.values().stream()
-                    .filter(cBeanDefinition -> requiredType.isAssignableFrom(cBeanDefinition.getBeanClass())).toArray(CBeanDefinition[]::new);
+            CDefinition[] beansFound = beanDefinitionsForName.values().stream()
+                    .filter(cBeanDefinition -> requiredType.isAssignableFrom(cBeanDefinition.getBeanClass())).toArray(CDefinition[]::new);
             if (beansFound.length == 0) {
                 throw new CNoSuchBeanDefinitionException(requiredType.getName() + " of bean was not found by type.");
             }
             if (beansFound.length != 1) {
-                throw new CNoUniqueBeanDefinitionException(Arrays.stream(beansFound).map(CBeanDefinition::getBeanName).toArray(String[]::new));
+                throw new CNoUniqueBeanDefinitionException(Arrays.stream(beansFound).map(CDefinition::getBeanName).toArray(String[]::new));
             }
             beanDefinition = beansFound[0];
             // 这里如果按照规范注册BeanDefinition，这里不会为空
@@ -176,13 +176,15 @@ public class CDefaultBeanFactory implements CBeanFactory {
      * @throws CNoUniqueBeanDefinitionException 查找到的BeanDefinition不唯一
      * @throws CInstantiationException          初始化Bean实例的时候出现错误或BeanScope是不支持的类型
      */
-    @SuppressWarnings("unchecked")
+
     protected <T> T doGetBean(String name, Class<T> requiredType) {
-
-
         // Find BeanDefinition
-        CBeanDefinition beanDefinition = doGetSingleBeanDefinition(name, requiredType);
+        CDefinition beanDefinition = doGetSingleBeanDefinition(name, requiredType);
+        return doGetBeanByBeanDefinition(beanDefinition);
+    }
 
+    @SuppressWarnings("unchecked")
+    private <T> T doGetBeanByBeanDefinition(CDefinition beanDefinition) {
         // Get instance of bean
         Object beanInstance;
         if (beanDefinition.isSingleton()) {
@@ -191,7 +193,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
             // Prototype
             beanInstance = doCreateBeanInstance(beanDefinition);
             // Call Init Method
-            callInitMethods(beanDefinition,beanDefinition);
+            callInitMethods(beanDefinition, beanDefinition);
 
             awareCallBack(beanInstance, beanDefinition);
         } else {
@@ -202,12 +204,12 @@ public class CDefaultBeanFactory implements CBeanFactory {
     }
 
 
-    private Object doCreateBeanInstance(CBeanDefinition beanDefinition) {
+    private Object doCreateBeanInstance(CDefinition beanDefinition) {
 
         return this.context.getInstanceCreator().newInstance(beanDefinition,context);
     }
 
-    private void awareCallBack(Object obj, CBeanDefinition beanDefinition) {
+    private void awareCallBack(Object obj, CDefinition beanDefinition) {
         if (obj instanceof CBeanFactoryAware) {
             ((CBeanFactoryAware) obj).setBeanFactory(this);
         }
@@ -218,22 +220,22 @@ public class CDefaultBeanFactory implements CBeanFactory {
             ((CBeanNameAware) obj).setBeanName(beanDefinition.getBeanName());
         }
         if (obj instanceof CBeanScopeAware && beanDefinition != null) {
-            ((CBeanScopeAware) obj).setScope(beanDefinition.isSingleton() ? CBeanDefinition.CBeanScope.SINGLETON : CBeanDefinition.CBeanScope.PROTOTYPE);
+            ((CBeanScopeAware) obj).setScope(beanDefinition.isSingleton() ? CDefinition.CBeanScope.SINGLETON : CDefinition.CBeanScope.PROTOTYPE);
         }
     }
 
     @Override
-    public Object getBean(String name) throws CBeansException {
+    public Object getBean(String name) {
         return doGetBean(name, null);
     }
 
     @Override
-    public <T> T getBean(String name, Class<T> requiredType) throws CBeansException {
+    public <T> T getBean(String name, Class<T> requiredType)  {
         return doGetBean(name, requiredType);
     }
 
     @Override
-    public <T> T getBean(Class<T> requiredType) throws CBeansException {
+    public <T> T getBean(Class<T> requiredType){
         return doGetBean(null, requiredType);
     }
 
@@ -261,4 +263,28 @@ public class CDefaultBeanFactory implements CBeanFactory {
     public CTBContext getContext() {
         return this.context;
     }
+
+    @Override
+    public CDefinition getBeanDefinition(String name) {
+        return doGetSingleBeanDefinition(name,null);
+    }
+
+    @Override
+    public CDefinition getBeanDefinition(String name, Class<?> requiredType) {
+        return doGetSingleBeanDefinition(name,requiredType);
+    }
+
+    @Override
+    public CDefinition getBeanDefinition(Class<?> requiredType) {
+        return doGetSingleBeanDefinition(null,requiredType);
+    }
+
+    @Override
+    public Object getBean(CDefinition beanDefinition) {
+        if(!beanDefinitionsForName.containsValue(beanDefinition)){
+            throw new CNoSuchBeanDefinitionException("no such bean definition found in bean factory, make sure acquired bean definition by using getBeanDefinition");
+        }
+        return doGetBeanByBeanDefinition(beanDefinition);
+    }
+
 }

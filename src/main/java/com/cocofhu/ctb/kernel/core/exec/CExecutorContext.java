@@ -1,8 +1,11 @@
-package com.cocofhu.ctb.kernel.core.factory.exec;
+package com.cocofhu.ctb.kernel.core.exec;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author cocofhu
+ */
 public class CExecutorContext {
 
     private final Map<String,Object> executionData = new ConcurrentHashMap<>();
@@ -18,6 +21,10 @@ public class CExecutorContext {
             return executionData.remove(key);
         }
         return executionData.put(key,val);
+    }
+
+    public Object remove(String key){
+        return this.put(key,null);
     }
 
 }

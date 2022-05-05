@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
  * 1、通过 registerConstructorResolvers 注册 ConstructorResolver 来寻找构造函数
  * 2、寻找到构造函数(CConstructorWrapper)后，调用 acquireParameterValues获得构造函数需要的参数
  * 3、调用 newInstance 实例化对象
+ * @author cocofhu
  */
 public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
 
@@ -27,7 +28,7 @@ public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
     }
 
     @Override
-    public Object newInstance(CBeanDefinition beanDefinition, CTBContext context)
+    public Object newInstance(CDefinition beanDefinition, CTBContext context)
             throws CNoBeanFactoryException, CNoConstructorResolverException, CNoSuchConstructorException, CInstantiationException {
 
         if (resolvers == null || resolvers.size() == 0) {

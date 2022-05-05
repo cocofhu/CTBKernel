@@ -1,22 +1,19 @@
 package com.cocofhu.ctb.kernel;
 
-import com.cocofhu.ctb.kernel.core.config.CAbstractBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
+import com.cocofhu.ctb.kernel.anno.param.CValue;
+import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
+import com.cocofhu.ctb.kernel.core.config.CDefinition;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
-import com.cocofhu.ctb.kernel.core.factory.exec.*;
+import com.cocofhu.ctb.kernel.core.exec.*;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
-import com.cocofhu.ctb.kernel.exception.CBadBeanDefinitionException;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 public class Startup{
 
-    public long f(String x, CBeanFactory factory) throws Exception {
-        System.out.println(x);
+    public long f(@CValue("10000") String xxx, CBeanFactory factory) throws Exception {
+        System.out.println(xxx);
         return 11;
     }
 
@@ -27,8 +24,8 @@ public class Startup{
     public static void main(String[] args) throws Exception {
         CMethodBeanFactory factory = new CMethodBeanFactory(new CBeanDefinitionResolver() {
             @Override
-            public List<CBeanDefinition> resolveAll() {
-                return singeValue(new CAbstractBeanDefinition(Startup.class) {
+            public List<CDefinition> resolveAll() {
+                return singeValue(new CAbstractDefinition(Startup.class) {
                     @Override
                     public String getBeanName() {
                         return "abc";
@@ -56,11 +53,11 @@ public class Startup{
             System.out.println("Exception: " + executor.getThrowable().toString());
         }
 
-        try {
-            throw new RuntimeException("ttt");
-        }finally {
-            System.out.println(111);
-        }
+//        try {
+//            throw new RuntimeException("ttt");
+//        }finally {
+//            System.out.println(111);
+//        }
 
 
     }

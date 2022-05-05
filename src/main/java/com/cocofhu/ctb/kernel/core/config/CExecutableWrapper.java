@@ -1,32 +1,34 @@
 package com.cocofhu.ctb.kernel.core.config;
 
 
-import com.cocofhu.ctb.kernel.anno.CConstructor;
-import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.exception.CNoParameterValueException;
 import com.cocofhu.ctb.kernel.exception.CNoUniqueParameterValueException;
 import com.cocofhu.ctb.kernel.exception.CUnsupportedExecutableTypeException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.List;
 
-
-public class CExecutableWrapper {
+/**
+ * @author cocofhu
+ */
+public class CExecutableWrapper implements CMateData {
 
     private final Executable executor;
     private final CTBContext context;
+    private final CDefinition beanDefinition;
 
-    public CExecutableWrapper(Executable executor, CTBContext context) {
+    public CExecutableWrapper(Executable executor, CTBContext context, CDefinition beanDefinition) {
         this.executor = executor;
         this.context = context;
-
+        this.beanDefinition = beanDefinition;
     }
 
     private CParameterWrapper[] acquireParameterWrappers(){
         Parameter[] parameters = executor.getParameters();
         CParameterWrapper[] parameterWrappers = new CParameterWrapper[parameters.length];
         for (int i = 0 ; i< parameters.length ;++i){
-            parameterWrappers[i] = new CParameterWrapper(parameters[i],context);
+            parameterWrappers[i] = new CParameterWrapper(parameters[i],context, this);
         }
         return parameterWrappers;
     }
@@ -62,5 +64,18 @@ public class CExecutableWrapper {
         }
     }
 
+    @Override
+    public Annotation[] getAnnotations() {
+        return executor.getAnnotations();
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> clazz) {
+        return executor.getAnnotation(clazz);
+    }
+
+    public CDefinition getBeanDefinition() {
+        return beanDefinition;
+    }
 }
 

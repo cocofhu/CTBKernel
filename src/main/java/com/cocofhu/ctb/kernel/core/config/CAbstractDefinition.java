@@ -1,20 +1,23 @@
 package com.cocofhu.ctb.kernel.core.config;
 
-import java.util.Map;
+import java.lang.annotation.Annotation;
 
-public abstract class CAbstractBeanDefinition implements CBeanDefinition{
+/**
+ * @author cocofhu
+ */
+public abstract class CAbstractDefinition implements CDefinition {
 
 
 
     protected volatile Class<?> beanClass;
     protected final CBeanScope scope;
 
-    public CAbstractBeanDefinition(Class<?> beanClass, CBeanScope scope) {
+    public CAbstractDefinition(Class<?> beanClass, CBeanScope scope) {
         this.beanClass = beanClass;
         this.scope = scope;
     }
 
-    public CAbstractBeanDefinition(Class<?> beanClass) {
+    public CAbstractDefinition(Class<?> beanClass) {
         this(beanClass,CBeanScope.PROTOTYPE);
     }
 
@@ -38,4 +41,19 @@ public abstract class CAbstractBeanDefinition implements CBeanDefinition{
         return scope.equals(CBeanScope.PROTOTYPE);
     }
 
+    @Override
+    public Annotation[] getAnnotations() {
+        if(beanClass !=null){
+            return beanClass.getAnnotations();
+        }
+        return new Annotation[0];
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> clazz) {
+        if(beanClass == null){
+            return null;
+        }
+        return beanClass.getAnnotation(clazz);
+    }
 }

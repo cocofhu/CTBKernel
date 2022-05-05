@@ -3,7 +3,10 @@ package com.cocofhu.ctb.kernel.core.config;
 
 import java.lang.reflect.Method;
 
-public interface CBeanDefinition {
+/**
+ * @author cocofhu
+ */
+public interface CDefinition extends CMateData {
 
     enum CBeanScope{
         /**

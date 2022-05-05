@@ -9,6 +9,9 @@ import com.cocofhu.ctb.kernel.core.resolver.CProcess;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author cocofhu
+ */
 public class CAnnotationValueResolver implements CValueResolver{
 
     private final CProcess<CParameterWrapper>[] annotationProcesses;
@@ -23,7 +26,7 @@ public class CAnnotationValueResolver implements CValueResolver{
         for (CProcess<CParameterWrapper> process:annotationProcesses){
             CTBPair<Object, Boolean> pair = process.process(parameter, context);
             if(pair != null && pair.getSecond()){
-                candidateValues.add(new CValueWrapper(process,pair,context));
+                candidateValues.add(new CValueWrapper(process,pair,context, parameter));
             }
         }
         return candidateValues;

@@ -9,7 +9,9 @@ import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultConstructorResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CDefaultNoParameterConstructorResolver;
 import com.cocofhu.ctb.kernel.core.resolver.value.*;
 
-
+/**
+ * @author cocofhu
+ */
 public class CMethodBeanFactory extends CDefaultBeanFactory {
 
 

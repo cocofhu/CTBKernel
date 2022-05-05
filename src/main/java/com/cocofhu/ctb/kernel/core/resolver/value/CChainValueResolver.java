@@ -7,6 +7,9 @@ import com.cocofhu.ctb.kernel.core.config.CValueWrapper;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author cocofhu
+ */
 public class CChainValueResolver implements CValueResolver{
 
     private final CValueResolver[] resolvers;
