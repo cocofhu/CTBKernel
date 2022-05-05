@@ -1,38 +1,45 @@
 package com.cocofhu.ctb.kernel.core.factory.exec;
 
+import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.exception.CExecutorStatusException;
 import com.cocofhu.ctb.kernel.exception.CUnsupportedOperationException;
 
 public abstract class CAbstractExecutor implements CExecutor {
 
-    protected volatile Status status;
+    private volatile Status status;
 
-    protected final CExecutorContext context;
-    protected final CMethodBeanFactory beanFactory;
+    protected final CExecutorContext executorContext;
+    protected final CTBContext beanFactoryContext;
     protected final boolean ignoreException;
 
-    protected CAbstractExecutor(CExecutorContext context, CMethodBeanFactory beanFactory, boolean ignoreException) {
-        this.context = context;
-        this.beanFactory = beanFactory;
+    /**
+     *
+     * @param executorContext       执行器的上下文，用于存放执行过程中的参数
+     * @param beanFactoryContext    BeanFactory的上下文，用于获得框架的支持
+     * @param ignoreException       是否忽略上一次执行出现的异常
+     */
+    protected CAbstractExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, boolean ignoreException) {
+        this.executorContext = executorContext;
+        this.beanFactoryContext = beanFactoryContext;
         this.ignoreException = ignoreException;
         this.status = Status.NotReady;
     }
 
     @Override
     public Object getReturnVal() {
-        if (status != Status.Stop) {
+        if (getStatus() != Status.Stop) {
             throw new CExecutorStatusException("executor not executed successfully.");
         }
-        return context.get(CMethodBeanFactory.EXEC_RETURN_VAL_KEY);
+        return executorContext.get(EXEC_RETURN_VAL_KEY);
     }
 
     @Override
     public Throwable getThrowable() {
-        if (status != Status.Exception) {
+        if (getStatus() != Status.Exception) {
             throw new CExecutorStatusException("executor has not encountered an exception.");
         }
-        return (Throwable) context.get(CMethodBeanFactory.EXEC_EXCEPTION_KEY);
+        return (Throwable) executorContext.get(EXEC_EXCEPTION_KEY);
     }
 
     @Override
@@ -42,7 +49,7 @@ public abstract class CAbstractExecutor implements CExecutor {
 
     @Override
     public boolean isExceptionInContext() {
-        return context.get(CMethodBeanFactory.EXEC_EXCEPTION_KEY) != null;
+        return executorContext.get(EXEC_EXCEPTION_KEY) != null;
     }
 
     @Override

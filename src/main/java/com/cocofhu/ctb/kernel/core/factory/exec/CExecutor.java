@@ -2,6 +2,10 @@ package com.cocofhu.ctb.kernel.core.factory.exec;
 
 public interface CExecutor extends Runnable{
 
+    public static final String EXEC_CONTEXT_KEY = "EXEC_CONTEXT_KEY";
+    public static final String EXEC_RETURN_VAL_KEY = "EXEC_RETURN_VAL_KEY";
+    public static final String EXEC_EXCEPTION_KEY = "EXEC_EXCEPTION_KEY";
+
     enum Status{
         // 未就绪，任务的执行可能需要必要条件
         NotReady,

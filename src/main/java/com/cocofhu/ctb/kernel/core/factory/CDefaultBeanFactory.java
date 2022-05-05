@@ -256,4 +256,9 @@ public class CDefaultBeanFactory implements CBeanFactory {
     public Class<?> getType(String name) throws CNoSuchBeanDefinitionException {
         return doGetSingleBeanDefinition(name, null).getBeanClass();
     }
+
+    @Override
+    public CTBContext getContext() {
+        return this.context;
+    }
 }

@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.factory.exec;
 
-import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
+import com.cocofhu.ctb.kernel.core.config.CTBContext;
 
 public class CExecutorJob extends CAbstractExecutor {
     
@@ -8,10 +8,11 @@ public class CExecutorJob extends CAbstractExecutor {
     private final CExecutor[] executors;
     private int which = 0;
 
-    protected CExecutorJob(CExecutorContext context, CMethodBeanFactory beanFactory, boolean ignoreException, CExecutor[] executors) {
-        super(context, beanFactory, ignoreException);
+    protected CExecutorJob(CExecutorContext executorContext, CTBContext beanFactoryContext, boolean ignoreException, CExecutor[] executors) {
+        super(executorContext, beanFactoryContext, ignoreException);
         this.executors = executors;
     }
+
 
     @Override
     public void run() {

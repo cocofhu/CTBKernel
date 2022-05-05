@@ -1,5 +1,6 @@
 package com.cocofhu.ctb.kernel.core.factory;
 
+import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.exception.CBeansException;
 import com.cocofhu.ctb.kernel.exception.CNoSuchBeanDefinitionException;
 
@@ -12,6 +13,8 @@ public interface CBeanFactory {
     boolean isSingleton(String name) throws CNoSuchBeanDefinitionException;
     boolean isPrototype(String name) throws CNoSuchBeanDefinitionException;
     Class<?> getType(String name) throws CNoSuchBeanDefinitionException;
+
+    CTBContext getContext();
 
 
 
