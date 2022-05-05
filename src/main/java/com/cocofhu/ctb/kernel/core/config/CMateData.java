@@ -17,4 +17,19 @@ public interface CMateData {
      */
     <T extends Annotation> T getAnnotation(Class<T> clazz) ;
 
+    default CMateData getParent(){
+        return null;
+    }
+
+    default <T extends Annotation> T acquireNearAnnotation(Class<T> clazz){
+        CMateData current = this;
+        while(current != null){
+            T annotation = current.getAnnotation(clazz);
+            if(annotation != null){
+                return annotation;
+            }
+            current = current.getParent();
+        }
+        return null;
+    }
 }

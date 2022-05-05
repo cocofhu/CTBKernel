@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 /**
  * @author cocofhu
  */
-public interface CDefinition extends CMateData {
+public interface CBeanDefinition extends CMateData {
 
     enum CBeanScope{
         /**

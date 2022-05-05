@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
-import com.cocofhu.ctb.kernel.core.config.CDefinition;
+import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CExecutableWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.exception.CBadBeanDefinitionException;
@@ -16,7 +16,7 @@ public interface CConstructorResolver extends Comparable<CConstructorResolver>{
     /**
      * 寻找失败将返回空，继续寻找，寻找成功返回后终止
      */
-    CExecutableWrapper resolveConstructor(CDefinition beanDefinition, CTBContext context);
+    CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CTBContext context);
 
     /**
      * 优先级 优先级越高排在越前面
@@ -30,7 +30,7 @@ public interface CConstructorResolver extends Comparable<CConstructorResolver>{
         return o.priority() - this.priority();
     }
 
-    default void checkEmpty(CDefinition beanDefinition, CTBContext context){
+    default void checkEmpty(CBeanDefinition beanDefinition, CTBContext context){
         if(beanDefinition == null){
             throw new CBadBeanDefinitionException("empty bean definition.");
         }

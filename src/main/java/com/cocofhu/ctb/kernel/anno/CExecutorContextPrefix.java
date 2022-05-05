@@ -8,7 +8,8 @@ import java.lang.annotation.Target;
 /**
  * @author cocofhu
  */
-@Target({ElementType.TYPE})
+@Target({ElementType.TYPE,ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CExecutorContextPrefix {
+    String value();
 }

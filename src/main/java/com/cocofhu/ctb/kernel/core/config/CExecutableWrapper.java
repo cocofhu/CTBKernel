@@ -16,9 +16,9 @@ public class CExecutableWrapper implements CMateData {
 
     private final Executable executor;
     private final CTBContext context;
-    private final CDefinition beanDefinition;
+    private final CBeanDefinition beanDefinition;
 
-    public CExecutableWrapper(Executable executor, CTBContext context, CDefinition beanDefinition) {
+    public CExecutableWrapper(Executable executor, CTBContext context, CBeanDefinition beanDefinition) {
         this.executor = executor;
         this.context = context;
         this.beanDefinition = beanDefinition;
@@ -45,8 +45,9 @@ public class CExecutableWrapper implements CMateData {
                 throw new CNoParameterValueException("no value resolved for parameter :" +
                         parameterWrappers[i].getParameter().getName() + " on class constructor or method : " + executor.getName());
             }else if(cValueWrappers.size() != 1){
+
                 throw new CNoUniqueParameterValueException("no unique value resolved for parameter :" +
-                        parameterWrappers[i].getParameter().getName() + " on class constructor or method : " + executor.getName());
+                        parameterWrappers[i].getParameter().getName() + " on class constructor or method : " + executor.getName() + "(" + cValueWrappers + ")");
             }else{
                 values[i] = cValueWrappers.get(0).getValue().getFirst();
             }
@@ -74,8 +75,10 @@ public class CExecutableWrapper implements CMateData {
         return executor.getAnnotation(clazz);
     }
 
-    public CDefinition getBeanDefinition() {
+    @Override
+    public CMateData getParent() {
         return beanDefinition;
     }
+
 }
 

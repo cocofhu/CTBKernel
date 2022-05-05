@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.factory;
 
-import com.cocofhu.ctb.kernel.core.config.CDefinition;
+import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.exception.CNoSuchBeanDefinitionException;
 
@@ -19,11 +19,11 @@ public interface CBeanFactory {
 
     CTBContext getContext();
 
-    CDefinition getBeanDefinition(String name);
-    CDefinition getBeanDefinition(String name, Class<?> requiredType);
-    CDefinition getBeanDefinition(Class<?> requiredType);
+    CBeanDefinition getBeanDefinition(String name);
+    CBeanDefinition getBeanDefinition(String name, Class<?> requiredType);
+    CBeanDefinition getBeanDefinition(Class<?> requiredType);
 
-    Object getBean(CDefinition beanDefinition) ;
+    Object getBean(CBeanDefinition beanDefinition) ;
 
 
 

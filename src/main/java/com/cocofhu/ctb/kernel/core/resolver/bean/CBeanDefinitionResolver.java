@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.resolver.bean;
 
-import com.cocofhu.ctb.kernel.core.config.CDefinition;
+import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +10,10 @@ import java.util.List;
  */
 public interface CBeanDefinitionResolver {
 
-    default List<CDefinition> singeValue(CDefinition beanDefinition){
-        List<CDefinition> cBeanDefinitions = new ArrayList<>();
+    default List<CBeanDefinition> singeValue(CBeanDefinition beanDefinition){
+        List<CBeanDefinition> cBeanDefinitions = new ArrayList<>();
         cBeanDefinitions.add(beanDefinition);
         return cBeanDefinitions;
     }
-    List<CDefinition> resolveAll();
+    List<CBeanDefinition> resolveAll();
 }

@@ -28,10 +28,6 @@ public class CParameterWrapper implements CMateData {
         return parameter;
     }
 
-    public CExecutableWrapper getExecutableWrapper() {
-        return executor;
-    }
-
     @Override
     public Annotation[] getAnnotations() {
         return parameter.getAnnotations();
@@ -40,6 +36,11 @@ public class CParameterWrapper implements CMateData {
     @Override
     public <T extends Annotation> T getAnnotation(Class<T> clazz) {
         return parameter.getAnnotation(clazz);
+    }
+
+    @Override
+    public CMateData getParent() {
+        return executor;
     }
 
 }

@@ -32,6 +32,8 @@ public class ConverterUtils {
         converters.put(Boolean.TYPE,new BooleanConverter());
 
         converters.put(String.class,new StringConverter());
+
+        converters.put(Object.class,new ObjectConverter());
     }
 
     public static Object convert(Object raw, Class<?> type){

@@ -19,4 +19,12 @@ public class CTBPair<A,B> {
     public B getSecond() {
         return second;
     }
+
+    @Override
+    public String toString() {
+        return "CTBPair{" +
+                "first=" + first +
+                ", second=" + second +
+                '}';
+    }
 }

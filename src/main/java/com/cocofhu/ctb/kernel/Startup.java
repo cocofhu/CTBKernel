@@ -1,8 +1,9 @@
 package com.cocofhu.ctb.kernel;
 
+import com.cocofhu.ctb.basic.param.CParamExecutor;
 import com.cocofhu.ctb.kernel.anno.param.CValue;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
-import com.cocofhu.ctb.kernel.core.config.CDefinition;
+import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.core.exec.*;
@@ -12,10 +13,6 @@ import java.util.List;
 
 public class Startup{
 
-    public long f(@CValue("10000") String xxx, CBeanFactory factory) throws Exception {
-        System.out.println(xxx);
-        return 11;
-    }
 
 
 
@@ -24,8 +21,8 @@ public class Startup{
     public static void main(String[] args) throws Exception {
         CMethodBeanFactory factory = new CMethodBeanFactory(new CBeanDefinitionResolver() {
             @Override
-            public List<CDefinition> resolveAll() {
-                return singeValue(new CAbstractDefinition(Startup.class) {
+            public List<CBeanDefinition> resolveAll() {
+                return singeValue(new CAbstractDefinition(CParamExecutor.class) {
                     @Override
                     public String getBeanName() {
                         return "abc";
@@ -37,21 +34,29 @@ public class Startup{
 
 
         CExecutorContext context = new CExecutorContext();
-        context.put("x","C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src");
+        context.put("inx","1000");
+        context.put("#CParamExecutor_source","inx");
+        context.put("#CParamExecutor_dist","out");
 
         CExecutorBuilder executorBuilder = new CExecutorBuilder(context,factory.getContext());
 
-        CExecutor executor = executorBuilder.newExecutor("abc","f");
-        executor.setStatus(CExecutor.Status.Ready);
-        executor.run();
+        CExecutor transform = executorBuilder.newExecutor("abc","transform");
+        CExecutor removeKey = executorBuilder.newExecutor("abc","removeKey");
+        CExecutor putKey = executorBuilder.newExecutor("abc","putKey");
+        CExecutor output = executorBuilder.newExecutor("abc","output");
 
 
-        if(executor.isExecutedSuccessfully()){
-            System.out.println("ReturnVal: " + executor.getReturnVal());
-        }
-        if(executor.isExceptionInContext()){
-            System.out.println("Exception: " + executor.getThrowable().toString());
-        }
+
+
+        transform.setStatus(CExecutor.Status.Ready);
+        putKey.setStatus(CExecutor.Status.Ready);
+        removeKey.setStatus(CExecutor.Status.Ready);
+        output.setStatus(CExecutor.Status.Ready);
+
+        transform.run();
+        output.run();
+
+
 
 //        try {
 //            throw new RuntimeException("ttt");

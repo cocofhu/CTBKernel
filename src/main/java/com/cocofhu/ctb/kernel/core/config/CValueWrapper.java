@@ -44,4 +44,14 @@ public class CValueWrapper {
     public CTBContext getContext() {
         return context;
     }
+
+    @Override
+    public String toString() {
+        return "CValueWrapper{" +
+                "valueProcess=" + valueProcess +
+                ", value=" + value +
+                ", context=" + context +
+                ", parameterWrapper=" + parameterWrapper +
+                '}';
+    }
 }

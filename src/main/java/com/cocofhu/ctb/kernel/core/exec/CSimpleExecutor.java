@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.core.config.CDefinition;
+import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CExecutableWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.exception.CExecutorExceptionUnhandledException;
@@ -50,7 +50,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
             setStatus(Status.Running);
 
 
-            CDefinition beanDefinition = beanFactoryContext.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
+            CBeanDefinition beanDefinition = beanFactoryContext.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
             Object bean = beanFactoryContext.getBeanFactory().getBean(beanDefinition);
 
             Method method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());

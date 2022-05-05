@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
-import com.cocofhu.ctb.kernel.core.config.CDefinition;
+import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CExecutableWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 
@@ -10,7 +10,7 @@ import com.cocofhu.ctb.kernel.core.config.CTBContext;
  */
 public class CDefaultNoParameterConstructorResolver implements CConstructorResolver {
     @Override
-    public CExecutableWrapper resolveConstructor(CDefinition beanDefinition, CTBContext context) {
+    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CTBContext context) {
         checkEmpty(beanDefinition,context);
         Class<?> clazz = beanDefinition.getBeanClass();
         try {

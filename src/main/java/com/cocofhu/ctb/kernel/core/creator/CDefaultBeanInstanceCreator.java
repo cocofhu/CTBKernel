@@ -28,7 +28,7 @@ public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
     }
 
     @Override
-    public Object newInstance(CDefinition beanDefinition, CTBContext context)
+    public Object newInstance(CBeanDefinition beanDefinition, CTBContext context)
             throws CNoBeanFactoryException, CNoConstructorResolverException, CNoSuchConstructorException, CInstantiationException {
 
         if (resolvers == null || resolvers.size() == 0) {

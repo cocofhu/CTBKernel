@@ -5,7 +5,7 @@ import java.lang.annotation.Annotation;
 /**
  * @author cocofhu
  */
-public abstract class CAbstractDefinition implements CDefinition {
+public abstract class CAbstractDefinition implements CBeanDefinition {
 
 
 
