@@ -1,6 +1,10 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
+import com.cocofhu.ctb.kernel.core.config.CTBPair;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author cocofhu
@@ -14,10 +18,14 @@ public class CExecutorBuilder {
         this.beanFactoryContext = beanFactoryContext;
     }
 
-    public CExecutor newExecutor(String beanName,String methodName,boolean ignoreException){
-        return new CSimpleExecutor(executorContext,beanFactoryContext,new CExecutorMethod(beanName,null,methodName,null),ignoreException);
+    public CExecutor newExecutor(String beanName, String methodName, boolean ignoreException, CTBPair<String,Object>... attachments){
+        Map<String,Object> attach = new HashMap<>();
+        for (CTBPair<String, Object> attachment : attachments) {
+            attach.put(attachment.getFirst(), attachment.getSecond());
+        }
+        return new CSimpleExecutor(executorContext,beanFactoryContext,new CExecutorMethod(beanName,null,methodName,null),ignoreException, attach);
     }
-    public CExecutor newExecutor(String beanName,String methodName){
-        return newExecutor(beanName,methodName,false);
+    public CExecutor newExecutor(String beanName,String methodName,CTBPair<String,Object>... attachments){
+        return newExecutor(beanName,methodName,false,attachments);
     }
 }

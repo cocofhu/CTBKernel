@@ -1,5 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
+import java.util.Arrays;
+
 /**
  * @author cocofhu
  */
@@ -33,4 +35,14 @@ public class CExecutorMethod {
         return parameterTypes;
     }
 
+
+    @Override
+    public String toString() {
+        return "CExecutorMethod{" +
+                "beanName='" + beanName + '\'' +
+                ", clazz=" + clazz +
+                ", methodName='" + methodName + '\'' +
+                ", parameterTypes=" + Arrays.toString(parameterTypes) +
+                '}';
+    }
 }

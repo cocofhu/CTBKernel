@@ -4,6 +4,8 @@ import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.exception.CExecutorStatusException;
 import com.cocofhu.ctb.kernel.exception.CUnsupportedOperationException;
 
+import java.util.Map;
+
 /**
  * @author cocofhu
  */
@@ -15,17 +17,21 @@ public abstract class CAbstractExecutor implements CExecutor {
     protected final CTBContext beanFactoryContext;
     protected final boolean ignoreException;
 
+    protected Map<String,Object> attachment;
+
     /**
-     *
-     * @param executorContext       执行器的上下文，用于存放执行过程中的参数
-     * @param beanFactoryContext    BeanFactory的上下文，用于获得框架的支持
-     * @param ignoreException       是否忽略上一次执行出现的异常
+     * @param executorContext    执行器的上下文，用于存放执行过程中的参数
+     * @param beanFactoryContext BeanFactory的上下文，用于获得框架的支持
+     * @param ignoreException    是否忽略上一次执行出现的异常
+     * @param attachment         附加参数
      */
-    protected CAbstractExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, boolean ignoreException) {
+    protected CAbstractExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, boolean ignoreException, Map<String, Object> attachment) {
         this.executorContext = executorContext;
         this.beanFactoryContext = beanFactoryContext;
         this.ignoreException = ignoreException;
+        this.attachment = attachment;
         this.status = Status.NotReady;
+
     }
 
     @Override
@@ -77,5 +83,10 @@ public abstract class CAbstractExecutor implements CExecutor {
     @Override
     public void loadState() {
         throw new CUnsupportedOperationException("load state unsupported.");
+    }
+
+    @Override
+    public void setAttachment(Map<String, Object> attachment) {
+        this.attachment = attachment;
     }
 }

@@ -11,6 +11,7 @@ import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -18,16 +19,30 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class CSimpleExecutor extends CAbstractExecutor {
 
-    private final CExecutorMethod executorMethod;
     private final ReentrantLock lock = new ReentrantLock();
 
-    public CSimpleExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, CExecutorMethod executorMethod, boolean ignoreException) {
-        super(executorContext, beanFactoryContext, ignoreException);
-        this.executorMethod = executorMethod;
+    private final CBeanDefinition beanDefinition;
+    private final Object bean;
+    private final Method method;
+
+    public CSimpleExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, CExecutorMethod executorMethod, boolean ignoreException, Map<String, Object> attachment) {
+
+        super(executorContext, beanFactoryContext, ignoreException, attachment);
+
+        // 获取执行信息 这里可能会抛出 CNoSuchBeanDefinitionException
+        beanDefinition = beanFactoryContext.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
+        bean = beanFactoryContext.getBeanFactory().getBean(beanDefinition);
+        method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
+        // 检查方法是否存在
+        if (method == null) {
+            throw new CNoSuchMethodException( bean.getClass() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
+        }
+
+
     }
 
     public CSimpleExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, CExecutorMethod executorMethod) {
-        this(executorContext, beanFactoryContext, executorMethod, false);
+        this(executorContext, beanFactoryContext, executorMethod, false, null);
     }
 
 
@@ -50,15 +65,12 @@ public class CSimpleExecutor extends CAbstractExecutor {
             setStatus(Status.Running);
 
 
-            CBeanDefinition beanDefinition = beanFactoryContext.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-            Object bean = beanFactoryContext.getBeanFactory().getBean(beanDefinition);
-
-            Method method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
-            if (method == null) {
-                throw new CNoSuchMethodException(executorMethod.getBeanName() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
-            }
+            // 创建新的上下文
             CTBContext ctx = beanFactoryContext.newCTBContext();
+            // 设置全局上下文
             ctx.put(EXEC_CONTEXT_KEY, executorContext);
+            // 设置当前执行的上下文，线程安全
+            ctx.put(EXEC_ATTACHMENT_KEY, new CExecutorContext(attachment));
 
             CExecutableWrapper executableWrapper = new CExecutableWrapper(method, ctx, beanDefinition);
 

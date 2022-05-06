@@ -1,0 +1,27 @@
+{
+  "outputs": [
+    {
+      "nullable": false,
+      "name": "EXEC_RETURN_VAL_KEY",
+      "type": "com.cocofhu.ctb.kernel.core.exec.CExecutor",
+      "info": "executor"
+    }
+  ],
+  "attachment": {},
+  "method": {
+    "methodName": "readJobFromJson",
+    "beanName": "CJobExecutor"
+  },
+  "inputs": [
+    {
+      "nullable": false,
+      "name": "json",
+      "type": "java.lang.String",
+      "info": "json"
+    }
+  ],
+  "name": "readJobFromJson",
+  "ignoreException": false,
+  "type": 2,
+  "version": 0
+}

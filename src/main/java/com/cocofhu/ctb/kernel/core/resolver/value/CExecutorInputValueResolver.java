@@ -14,23 +14,31 @@ import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
 public class CExecutorInputValueResolver extends CAbstractValueResolver {
 
 
-    @Override
-    public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {
-        CAttachmentArgs executorContextPrefix = parameter.acquireNearAnnotation(CAttachmentArgs.class);
-        String prefix = "";
-        if(executorContextPrefix != null){
-            prefix = executorContextPrefix.value() ;
-        }
-        Object obj = context.get(CExecutor.EXEC_CONTEXT_KEY);
+    private CTBPair<Object, Boolean> getFromKey(CParameterWrapper parameter, CTBContext context, String key) {
+        Object obj = context.get(key);
         if (obj instanceof CExecutorContext) {
             CExecutorContext executorContext = (CExecutorContext) obj;
             String name = parameter.getParameter().getName();
-            Object param = executorContext.get(prefix + name);
+            Object param = executorContext.get(name);
             if (param != null) {
+                if(parameter.getParameter().getType().isAssignableFrom(param.getClass())){
+                    return new CTBPair<>(param, true);
+                }
                 return new CTBPair<>(ConverterUtils.convert(param, parameter.getParameter().getType()), true);
             }
         }
-
         return null;
+    }
+    @Override
+    public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {
+        CAttachmentArgs attachmentArgs = parameter.acquireNearAnnotation(CAttachmentArgs.class);
+        CTBPair<Object,Boolean> obj = null;
+        if(attachmentArgs != null){
+            obj = getFromKey(parameter,context,CExecutor.EXEC_ATTACHMENT_KEY);
+        }
+        if(obj == null){
+            obj =  getFromKey(parameter,context,CExecutor.EXEC_CONTEXT_KEY);
+        }
+        return obj;
     }
 }

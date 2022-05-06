@@ -4,12 +4,26 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ *
  * @author cocofhu
  */
 public class CExecutorContext {
 
-    private final Map<String,Object> executionData = new ConcurrentHashMap<>();
-    private final CExecutorContext attachment = new CExecutorContext();
+    /**
+     * 执行作用域的参数
+     */
+    private final Map<String,Object> executionData;
+
+    public CExecutorContext(Map<String,Object> executionData) {
+        this.executionData = new ConcurrentHashMap<>();
+        // 这里拷贝一份数据，避免并发时出现问题
+        if(executionData != null){
+            this.executionData.putAll(executionData);
+        }
+    }
+    public CExecutorContext() {
+        this(null);
+    }
 
     public Object get(String key){
         return executionData.get(key);
@@ -26,14 +40,5 @@ public class CExecutorContext {
 
     public Object remove(String key){
         return this.put(key,null);
-    }
-
-    public void newAttachment(Map<String,Object> attachment){
-        this.attachment.executionData.clear();
-        this.attachment.executionData.putAll(attachment);
-    }
-
-    public Object getAttachment(String key) {
-        return attachment.get(key);
     }
 }

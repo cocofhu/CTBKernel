@@ -25,8 +25,7 @@ public class CMethodBeanFactory extends CDefaultBeanFactory {
                         new CValueResolver[]{
                                 new CAnnotationValueResolver(new CProcess[]{new com.cocofhu.ctb.kernel.anno.param.CValueProcess(), new CBeanRefProcess()}),
                                 new CExecutorInputValueResolver(),
-                                new CBeanFactoryValueResolver(),
-                                new CExecutorContextValueResolver()
+                                new CAutowiredValueResolver(),
                         })
         );
     }

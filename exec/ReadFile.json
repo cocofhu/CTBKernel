@@ -1,0 +1,27 @@
+{
+  "outputs": [
+    {
+      "nullable": false,
+      "name": "EXEC_RETURN_VAL_KEY",
+      "type": "java.lang.String",
+      "info": "text"
+    }
+  ],
+  "attachment": {},
+  "method": {
+    "methodName": "readText",
+    "beanName": "CUtilExecutor"
+  },
+  "inputs": [
+    {
+      "nullable": false,
+      "name": "source",
+      "type": "java.lang.String",
+      "info": "path"
+    }
+  ],
+  "name": "Read Text File",
+  "ignoreException": false,
+  "type": 2,
+  "version": 0
+}

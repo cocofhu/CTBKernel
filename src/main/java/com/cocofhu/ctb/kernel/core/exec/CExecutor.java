@@ -1,11 +1,14 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
+import java.util.Map;
+
 /**
  * @author cocofhu
  */
 public interface CExecutor extends Runnable{
 
     String EXEC_CONTEXT_KEY = "EXEC_CONTEXT_KEY";
+    String EXEC_ATTACHMENT_KEY = "EXEC_ATTACHMENT_KEY";
     String EXEC_RETURN_VAL_KEY = "EXEC_RETURN_VAL_KEY";
     String EXEC_EXCEPTION_KEY = "EXEC_EXCEPTION_KEY";
 
@@ -49,14 +52,7 @@ public interface CExecutor extends Runnable{
     Throwable getThrowable();
     Object getReturnVal();
 
-
-
-
-
-
-
-
-
+    void setAttachment(Map<String,Object> attachment);
 
 
 }
