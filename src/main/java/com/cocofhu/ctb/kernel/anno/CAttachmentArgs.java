@@ -10,6 +10,5 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE,ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CExecutorContextPrefix {
-    String value();
+public @interface CAttachmentArgs {
 }

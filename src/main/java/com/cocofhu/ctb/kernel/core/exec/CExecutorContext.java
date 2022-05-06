@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CExecutorContext {
 
     private final Map<String,Object> executionData = new ConcurrentHashMap<>();
+    private final CExecutorContext attachment = new CExecutorContext();
 
     public Object get(String key){
         return executionData.get(key);
@@ -27,5 +28,12 @@ public class CExecutorContext {
         return this.put(key,null);
     }
 
+    public void newAttachment(Map<String,Object> attachment){
+        this.attachment.executionData.clear();
+        this.attachment.executionData.putAll(attachment);
+    }
 
+    public Object getAttachment(String key) {
+        return attachment.get(key);
+    }
 }

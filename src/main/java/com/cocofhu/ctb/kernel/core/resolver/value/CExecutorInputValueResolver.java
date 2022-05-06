@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.resolver.value;
 
-import com.cocofhu.ctb.kernel.anno.CExecutorContextPrefix;
+import com.cocofhu.ctb.kernel.anno.CAttachmentArgs;
 import com.cocofhu.ctb.kernel.convert.ConverterUtils;
 import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
@@ -16,7 +16,7 @@ public class CExecutorInputValueResolver extends CAbstractValueResolver {
 
     @Override
     public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {
-        CExecutorContextPrefix executorContextPrefix = parameter.acquireNearAnnotation(CExecutorContextPrefix.class);
+        CAttachmentArgs executorContextPrefix = parameter.acquireNearAnnotation(CAttachmentArgs.class);
         String prefix = "";
         if(executorContextPrefix != null){
             prefix = executorContextPrefix.value() ;
