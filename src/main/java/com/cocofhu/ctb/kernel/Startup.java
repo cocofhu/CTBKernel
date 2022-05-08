@@ -13,6 +13,11 @@ import com.cocofhu.ctb.kernel.core.config.CTBPair;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.core.exec.*;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 public class Startup {
@@ -121,7 +126,7 @@ public class Startup {
 
         }
 
-
+        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
 //        System.out.println(JSON.toJSON(jobs));
 
     }
@@ -148,6 +153,27 @@ public class Startup {
 
 
 
+    }
+
+    public static long f(String x) throws Exception {
+        File file = new File(x);
+//        System.out.println(x);
+        BasicFileAttributes basicFileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+        if(basicFileAttributes.isRegularFile()){
+            try (
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(file))
+            ){
+                return bufferedReader.lines().count();
+            }
+        }else if(basicFileAttributes.isDirectory()){
+            File[] files = file.listFiles();
+            long ret = 0;
+            for (int i = 0; i < files.length; i++) {
+                ret += f(files[i].getAbsolutePath());
+            }
+            return ret;
+        }
+        return 0L;
     }
 
 }
