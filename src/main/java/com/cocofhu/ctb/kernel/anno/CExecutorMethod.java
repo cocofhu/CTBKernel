@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * @author cocofhu
  */
-@Target({ElementType.CONSTRUCTOR, ElementType.METHOD})
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CConstructor {
+public @interface CExecutorMethod {
 }

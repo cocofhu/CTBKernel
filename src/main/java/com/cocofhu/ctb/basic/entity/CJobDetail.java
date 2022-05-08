@@ -2,12 +2,14 @@ package com.cocofhu.ctb.basic.entity;
 
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
+import com.cocofhu.ctb.kernel.util.CCloneable;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JobDetail {
+public class CJobDetail implements CCloneable {
 
     // 任务类型：多个任务
     public static final int TYPE_SCHEDULE = 1;
@@ -35,12 +37,15 @@ public class JobDetail {
     private Map<String, Object> attachment;
 
     // 多任务时的子任务
-    private JobDetail[] subJobs;
+    private CJobDetail[] subJobs;
 
     // 任务的输入参数
-    private JobParam[] inputs;
+    private CJobParam[] inputs;
     // 任务的输出参数
-    private JobParam[] outputs;
+    private CJobParam[] outputs;
+
+    // 任务执行完毕后会清除的参数
+    private CJobParam[] removals;
 
     // 说明
     private String info;
@@ -48,21 +53,26 @@ public class JobDetail {
     // 分组
     private String group;
 
+    // 任务属性
+    private Map<String, Object> attributes;
+
 
     /**
      * 创建一个默认的单任务
      *
      * @param name            任务名称
      * @param info            任务说明
+     * @param group           任务分组
      * @param inputs          输入参数
      * @param outputs         输出参数
      * @param ignoreException 是否忽略异常
      * @param method          任务实现方法
+     * @param attributes      任务属性
      * @param attachment      任务附加参数
      */
     @SuppressWarnings("unchecked")
-    public JobDetail(String name, String info, JobParam[] inputs,
-                     JobParam[] outputs, boolean ignoreException, CExecutorMethod method, CTBPair<String, Object>... attachment) {
+    public CJobDetail(String name, String info, String group, CJobParam[] inputs,
+                      CJobParam[] outputs, CJobParam[] removals, boolean ignoreException, CExecutorMethod method, Map<String, Object> attributes, CTBPair<String, Object>... attachment) {
         this.name = name;
         this.version = VERSION;
         this.type = TYPE_EXEC;
@@ -75,6 +85,27 @@ public class JobDetail {
         this.outputs = outputs;
         this.ignoreException = ignoreException;
         this.info = info;
+        this.group = group;
+        this.attributes = attributes;
+        this.removals = removals;
+    }
+
+    /**
+     * 创建一个默认的单任务，不忽略异常, 不清除任何参数
+     *
+     * @param name       任务名称
+     * @param info       任务说明
+     * @param group      任务分组
+     * @param inputs     输入参数
+     * @param outputs    输出参数
+     * @param method     任务实现方法
+     * @param attributes 任务属性
+     * @param attachment 任务附加参数
+     */
+    @SuppressWarnings("unchecked")
+    public CJobDetail(String name, String info, String group, CJobParam[] inputs,
+                      CJobParam[] outputs, CExecutorMethod method, Map<String, Object> attributes, CTBPair<String, Object>... attachment) {
+        this(name, info, group, inputs, outputs, null, false, method, attributes, attachment);
     }
 
     /**
@@ -82,74 +113,41 @@ public class JobDetail {
      *
      * @param name       任务名称
      * @param info       任务说明
+     * @param group      任务分组
      * @param inputs     输入参数
      * @param outputs    输出参数
+     * @param removals   参数清除
      * @param method     任务实现方法
+     * @param attributes 任务属性
      * @param attachment 任务附加参数
      */
     @SuppressWarnings("unchecked")
-    public JobDetail(String name, String info, JobParam[] inputs,
-                     JobParam[] outputs, CExecutorMethod method, CTBPair<String, Object>... attachment) {
-        this(name, info, inputs, outputs, false, method, attachment);
+    public CJobDetail(String name, String info, String group, CJobParam[] inputs,
+                      CJobParam[] outputs,CJobParam[] removals, CExecutorMethod method, Map<String, Object> attributes, CTBPair<String, Object>... attachment) {
+        this(name, info, group, inputs, outputs, removals, false, method, attributes, attachment);
     }
 
-    /**
-     * 创建一个默认的单任务，不忽略异常，没有输入参数
-     *
-     * @param name       任务名称
-     * @param info       任务说明
-     * @param inputs     输入参数
-     * @param method     任务实现方法
-     * @param attachment 任务附加参数
-     */
     @SuppressWarnings("unchecked")
-    public JobDetail(String name, String info, JobParam[] inputs, CExecutorMethod method, CTBPair<String, Object>... attachment) {
-        this(name, info, inputs, null, false, method, attachment);
-    }
-
-
-    /**
-     * 创建多个任务(任务组)
-     *
-     * @param name            任务名称
-     * @param info            任务说明
-     * @param inputs          输入参数
-     * @param outputs         输出参数
-     * @param subJobs         子任务
-     * @param ignoreException 是否忽略异常
-     * @param attachment      任务附加参数，附加参数只会传到第一个子任务中
-     */
-    @SuppressWarnings("unchecked")
-    public JobDetail(String name, String info, JobParam[] inputs,
-                     JobParam[] outputs, JobDetail[] subJobs, boolean ignoreException, CTBPair<String, Object>... attachment) {
-        this.name = name;
-        this.subJobs = subJobs;
-        this.type = TYPE_SCHEDULE;
+    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs,Map<String, Object> attributes, CTBPair<String, Object>... attachment) {
         this.version = VERSION;
-        this.inputs = inputs;
-        this.outputs = outputs;
-        this.ignoreException = ignoreException;
+        this.type = TYPE_SCHEDULE;
+        this.name = name;
+        this.info = info;
+        this.group = group;
+        this.subJobs = subJobs;
         this.attachment = new HashMap<>();
         for (CTBPair<String, Object> pair : attachment) {
             this.attachment.put(pair.getFirst(), pair.getSecond());
         }
-        this.info = info;
     }
 
-    /**
-     * 创建多个任务(任务组),不忽略异常
-     *
-     * @param name       任务名称
-     * @param info       任务说明
-     * @param inputs     输入参数
-     * @param outputs    输出参数
-     * @param subJobs    子任务
-     * @param attachment 任务附加参数，附加参数只会传到第一个子任务中
-     */
-    @SuppressWarnings("unchecked")
-    public JobDetail(String name, String info, JobParam[] inputs,
-                     JobParam[] outputs, JobDetail[] subJobs, CTBPair<String, Object>... attachment) {
-        this(name, info, inputs, outputs, subJobs, false, attachment);
+
+    public CJobParam[] getRemovals() {
+        return removals;
+    }
+
+    public void setRemovals(CJobParam[] removals) {
+        this.removals = removals;
     }
 
     public String getName() {
@@ -200,27 +198,27 @@ public class JobDetail {
         this.attachment = attachment;
     }
 
-    public JobDetail[] getSubJobs() {
+    public CJobDetail[] getSubJobs() {
         return subJobs;
     }
 
-    public void setSubJobs(JobDetail[] subJobs) {
+    public void setSubJobs(CJobDetail[] subJobs) {
         this.subJobs = subJobs;
     }
 
-    public JobParam[] getInputs() {
+    public CJobParam[] getInputs() {
         return inputs;
     }
 
-    public void setInputs(JobParam[] inputs) {
+    public void setInputs(CJobParam[] inputs) {
         this.inputs = inputs;
     }
 
-    public JobParam[] getOutputs() {
+    public CJobParam[] getOutputs() {
         return outputs;
     }
 
-    public void setOutputs(JobParam[] outputs) {
+    public void setOutputs(CJobParam[] outputs) {
         this.outputs = outputs;
     }
 
@@ -232,12 +230,28 @@ public class JobDetail {
         this.info = info;
     }
 
-    public JobDetail() {
+    public CJobDetail() {
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 
     @Override
     public String toString() {
-        return "JobDetail{" +
+        return "CJobDetail{" +
                 "name='" + name + '\'' +
                 ", ignoreException=" + ignoreException +
                 ", version=" + version +
@@ -247,6 +261,10 @@ public class JobDetail {
                 ", subJobs=" + Arrays.toString(subJobs) +
                 ", inputs=" + Arrays.toString(inputs) +
                 ", outputs=" + Arrays.toString(outputs) +
+                ", removals=" + Arrays.toString(removals) +
+                ", info='" + info + '\'' +
+                ", group='" + group + '\'' +
+                ", attributes=" + attributes +
                 '}';
     }
 }

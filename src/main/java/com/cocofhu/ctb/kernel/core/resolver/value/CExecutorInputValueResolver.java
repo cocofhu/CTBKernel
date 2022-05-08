@@ -1,6 +1,7 @@
 package com.cocofhu.ctb.kernel.core.resolver.value;
 
 import com.cocofhu.ctb.kernel.anno.CAttachmentArgs;
+import com.cocofhu.ctb.kernel.anno.CExecutorMethod;
 import com.cocofhu.ctb.kernel.convert.ConverterUtils;
 import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
@@ -31,6 +32,10 @@ public class CExecutorInputValueResolver extends CAbstractValueResolver {
     }
     @Override
     public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {
+        CExecutorMethod executorMethod = parameter.acquireNearAnnotation(CExecutorMethod.class);
+        if(executorMethod == null){
+            return null;
+        }
         CAttachmentArgs attachmentArgs = parameter.acquireNearAnnotation(CAttachmentArgs.class);
         CTBPair<Object,Boolean> obj = null;
         if(attachmentArgs != null){

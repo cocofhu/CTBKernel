@@ -1,11 +1,13 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
+import com.cocofhu.ctb.kernel.util.CCloneable;
+
 import java.util.Arrays;
 
 /**
  * @author cocofhu
  */
-public class CExecutorMethod {
+public class CExecutorMethod implements CCloneable {
     private final String beanName;
     private final Class<?> clazz;
     private final String methodName;
