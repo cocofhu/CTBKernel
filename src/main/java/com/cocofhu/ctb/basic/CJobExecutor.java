@@ -119,15 +119,19 @@ public class CJobExecutor {
                     output.setType(parameter.getSecond());
                     output.setName(parameter.getFirst());
                 }
-
+                List<CJobParam> newOutput = new LinkedList<>(Arrays.asList(outputs));
                 CJobParam[] removals = subJob.getRemovals();
                 for (CJobParam removal : removals) {
                     CTBPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef);
 
                     CTBPair<Boolean, List<CJobParam>> checked = hasParam(lastOutput, parameter);
-                    System.out.println(Arrays.toString(lastOutput));
                     if (!checked.getFirst()) {
                         throw new CJobParamNotFoundException(parameter, checked.getSecond());
+                    }
+                    CTBPair<Boolean, List<CJobParam>> matchedOutput = hasParam(outputs, parameter);
+
+                    if(matchedOutput.getFirst()){
+                        newOutput.remove(matchedOutput.getSecond().get(0));
                     }
 
                     if (parameter.getFirst() != null && parameter.getSecond() != null) {
@@ -137,7 +141,9 @@ public class CJobExecutor {
                     removal.setType(parameter.getSecond());
                     removal.setName(parameter.getFirst());
                 }
-                lastOutput = outputs;
+                // set real output
+                lastOutput = newOutput.toArray(new CJobParam[0]);
+
                 executors[i] = build(factory, subJob, context).getFirst();
                 everyContextTypes.add(new HashMap<>(contextTypes));
             }
@@ -172,6 +178,8 @@ public class CJobExecutor {
         for (CJobParam param : params) {
             if (pair.getSecond().isAssignableFrom((Class<?>) param.getType())
                     && pair.getFirst().equals(param.getName())) {
+                candidates.clear();
+                candidates.add(param);
                 return new CTBPair<>(true, candidates);
             }
             if (pair.getSecond().isAssignableFrom((Class<?>) param.getType())

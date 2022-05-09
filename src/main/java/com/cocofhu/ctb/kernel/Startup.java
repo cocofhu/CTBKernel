@@ -85,6 +85,8 @@ public class Startup {
                 new CJobParam("source", "source", false, "source"),
                 new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
         },new CJobParam[]{
+                new CJobParam("source", "source", false, "source"),
+                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
         }, new CExecutorMethod("CUtilExecutor", null, "readText", null), null);
 
 
@@ -95,9 +97,11 @@ public class Startup {
                 new CJobParam("*source", "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
         }, new CJobParam[]{
                 // 这里的name引用attachment里dist的值，type引用attachment里source的的类型
-                new CJobParam("*dist", "source", false, CExecutor.EXEC_RETURN_VAL_KEY)
+                new CJobParam("*dist", "source", false, "*source")
         },new CJobParam[]{
-                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "source", false, CExecutor.EXEC_RETURN_VAL_KEY)
+                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
+//                new CJobParam("ABC", "source", false, "ABC"),
+                new CJobParam("*dist", "source", false, "*dist"),
         }, new CExecutorMethod("CParamExecutor", null, "transform", null), null);
 
         Map<String,Object> attachment = new HashMap<>();
@@ -125,7 +129,7 @@ public class Startup {
             System.out.println("Context:" + remainTypes.get(i));
 
         }
-
+        new CJobExecutor().toExecutor(factory, newJob);
 //        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
 //        System.out.println(JSON.toJSON(jobs));
 
