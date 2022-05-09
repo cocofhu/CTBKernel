@@ -1,19 +1,15 @@
-package com.cocofhu.ctb.kernel.core.resolver.value;
+package com.cocofhu.ctb.kernel.anno.param.process;
 
-import com.cocofhu.ctb.kernel.anno.CAttachmentArgs;
-import com.cocofhu.ctb.kernel.anno.CExecutorMethod;
+import com.cocofhu.ctb.kernel.anno.param.CExecutorInput;
 import com.cocofhu.ctb.kernel.convert.ConverterUtils;
 import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
+import com.cocofhu.ctb.kernel.core.resolver.CProcess;
 
-/**
- * @author cocofhu
- */
-public class CExecutorInputValueResolver extends CAbstractValueResolver {
-
+public class CExecutorInputProcess implements CProcess<CParameterWrapper> {
 
     private CTBPair<Object, Boolean> getFromKey(CParameterWrapper parameter, CTBContext context, String key) {
         Object obj = context.get(key);
@@ -22,7 +18,7 @@ public class CExecutorInputValueResolver extends CAbstractValueResolver {
             String name = parameter.getParameter().getName();
             Object param = executorContext.get(name);
             if (param != null) {
-                if(parameter.getParameter().getType().isAssignableFrom(param.getClass())){
+                if (parameter.getParameter().getType().isAssignableFrom(param.getClass())) {
                     return new CTBPair<>(param, true);
                 }
                 return new CTBPair<>(ConverterUtils.convert(param, parameter.getParameter().getType()), true);
@@ -30,19 +26,17 @@ public class CExecutorInputValueResolver extends CAbstractValueResolver {
         }
         return null;
     }
+
     @Override
     public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {
-        CExecutorMethod executorMethod = parameter.acquireNearAnnotation(CExecutorMethod.class);
-        if(executorMethod == null){
-            return null;
+
+        CExecutorInput attachmentArgs = parameter.acquireNearAnnotation(CExecutorInput.class);
+        CTBPair<Object, Boolean> obj = null;
+        if (attachmentArgs != null) {
+            obj = getFromKey(parameter, context, CExecutor.EXEC_ATTACHMENT_KEY);
         }
-        CAttachmentArgs attachmentArgs = parameter.acquireNearAnnotation(CAttachmentArgs.class);
-        CTBPair<Object,Boolean> obj = null;
-        if(attachmentArgs != null){
-            obj = getFromKey(parameter,context,CExecutor.EXEC_ATTACHMENT_KEY);
-        }
-        if(obj == null){
-            obj =  getFromKey(parameter,context,CExecutor.EXEC_CONTEXT_KEY);
+        if (obj == null) {
+            obj = getFromKey(parameter, context, CExecutor.EXEC_CONTEXT_KEY);
         }
         return obj;
     }

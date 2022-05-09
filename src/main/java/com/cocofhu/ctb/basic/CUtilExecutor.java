@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.basic;
 
-import com.cocofhu.ctb.kernel.anno.CAttachmentArgs;
+import com.cocofhu.ctb.kernel.anno.param.CExecutorInput;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -10,7 +10,7 @@ public class CUtilExecutor {
 
 
 
-    public String readText(@CAttachmentArgs String source) throws Exception {
+    public String readText(@CExecutorInput String source) throws Exception {
         try (
                 BufferedReader br = new BufferedReader(new FileReader(source))
         ) {

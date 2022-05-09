@@ -1,4 +1,4 @@
-package com.cocofhu.ctb.kernel.anno;
+package com.cocofhu.ctb.kernel.anno.param;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE,ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CAutowired {
+public @interface CExecutorInput {
 }

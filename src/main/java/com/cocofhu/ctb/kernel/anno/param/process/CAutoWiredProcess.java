@@ -1,20 +1,18 @@
-package com.cocofhu.ctb.kernel.core.resolver.value;
+package com.cocofhu.ctb.kernel.anno.param.process;
 
-import com.cocofhu.ctb.kernel.anno.CAutowired;
+import com.cocofhu.ctb.kernel.anno.param.CAutowired;
 import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
 import com.cocofhu.ctb.kernel.core.config.CTBContext;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
+import com.cocofhu.ctb.kernel.core.resolver.CProcess;
 import com.cocofhu.ctb.kernel.exception.CNoSuchBeanDefinitionException;
 
 import java.lang.annotation.Annotation;
 
-/**
- * @author cocofhu
- */
-public class CAutowiredValueResolver extends CAbstractValueResolver {
+public class CAutoWiredProcess implements CProcess<CParameterWrapper> {
     @Override
     public CTBPair<Object, Boolean> process(CParameterWrapper parameter, CTBContext context) {
         Annotation annotation = parameter.acquireNearAnnotation(CAutowired.class);
@@ -27,15 +25,12 @@ public class CAutowiredValueResolver extends CAbstractValueResolver {
                 return new CTBPair<>(obj, true);
             }
         }
-
         try {
             Object bean = context.getBeanFactory().getBean(parameter.getParameter().getType());
             return new CTBPair<>(bean, true);
         } catch (CNoSuchBeanDefinitionException ignored) {
 
         }
-
-
         return null;
     }
 }

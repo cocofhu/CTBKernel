@@ -3,8 +3,8 @@ package com.cocofhu.ctb.basic;
 import com.alibaba.fastjson.JSON;
 import com.cocofhu.ctb.basic.entity.CJobDetail;
 import com.cocofhu.ctb.basic.entity.CJobParam;
-import com.cocofhu.ctb.kernel.anno.CAttachmentArgs;
-import com.cocofhu.ctb.kernel.anno.CAutowired;
+import com.cocofhu.ctb.kernel.anno.param.CExecutorInput;
+import com.cocofhu.ctb.kernel.anno.param.CAutowired;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
@@ -192,8 +192,8 @@ public class CJobExecutor {
 
 
     public CExecutor forceRun(@CAutowired CBeanFactory factory,
-                              @CAttachmentArgs CJobDetail job,
-                              @CAttachmentArgs Map<String, Object> input) {
+                              @CExecutorInput CJobDetail job,
+                              @CExecutorInput Map<String, Object> input) {
         CExecutor executor = toExecutor(factory, job).getFirst();
         executor.setAttachment(input);
         executor.setStatus(CExecutor.Status.Ready);
@@ -202,13 +202,13 @@ public class CJobExecutor {
     }
 
     public CTBPair<CExecutor, CTBPair<List<Map<String, Class<?>>>, CJobDetail>> toExecutor(@CAutowired CBeanFactory factory,
-                                                                                           @CAttachmentArgs CJobDetail job) {
+                                                                                           @CExecutorInput CJobDetail job) {
         CJobDetail newJob = (CJobDetail) job.cloneSelf();
         CTBPair<CExecutor, List<Map<String, Class<?>>>> build = build(factory, newJob, new CExecutorContext());
         return new CTBPair<>(build.getFirst(), new CTBPair<>(build.getSecond(), newJob));
     }
 
-    public CJobDetail readJobFromJson(@CAttachmentArgs String json) {
+    public CJobDetail readJobFromJson(@CExecutorInput String json) {
         return JSON.parseObject(json, CJobDetail.class);
     }
 

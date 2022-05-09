@@ -1,7 +1,10 @@
 package com.cocofhu.ctb.kernel.core.factory;
 
+import com.cocofhu.ctb.kernel.anno.param.process.CAutoWiredProcess;
+import com.cocofhu.ctb.kernel.anno.param.process.CExecutorInputProcess;
+import com.cocofhu.ctb.kernel.anno.param.process.CValueProcess;
 import com.cocofhu.ctb.kernel.core.resolver.CProcess;
-import com.cocofhu.ctb.kernel.anno.param.CBeanRefProcess;
+import com.cocofhu.ctb.kernel.anno.param.process.CBeanRefProcess;
 import com.cocofhu.ctb.kernel.core.creator.CDefaultBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
@@ -23,9 +26,7 @@ public class CMethodBeanFactory extends CDefaultBeanFactory {
                 beanDefinitionResolver,
                 new CChainValueResolver(
                         new CValueResolver[]{
-                                new CAnnotationValueResolver(new CProcess[]{new com.cocofhu.ctb.kernel.anno.param.CValueProcess(), new CBeanRefProcess()}),
-                                new CExecutorInputValueResolver(),
-                                new CAutowiredValueResolver(),
+                                new CAnnotationValueResolver(new CProcess[]{new CValueProcess(), new CBeanRefProcess(), new CAutoWiredProcess(), new CExecutorInputProcess()})
                         })
         );
     }
