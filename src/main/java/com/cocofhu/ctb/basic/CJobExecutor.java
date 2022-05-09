@@ -14,10 +14,7 @@ import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.exception.CJobParamNotFoundException;
 import com.cocofhu.ctb.kernel.exception.CUnsupportedOperationException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CJobExecutor {
 
@@ -102,9 +99,15 @@ public class CJobExecutor {
                     input.setType(parameter.getSecond());
                     input.setName(parameter.getFirst());
                 }
-                // 解析输出参数
+                // 解析输出参数, 这里需要合并这一次和上一次的输出
+                // 因为在Removal中可能会引用这一次和上一次的输出
                 CJobParam[] outputs = subJob.getOutputs();
-                lastOutput = new CJobParam[outputs.length];
+                if(lastOutput == null){
+                    lastOutput = new CJobParam[outputs.length];
+                }else{
+                    lastOutput = Arrays.copyOf(lastOutput,lastOutput.length + outputs.length);
+                }
+
                 for (int j = 0; j < outputs.length; ++j) {
                     CJobParam output = outputs[j];
                     CTBPair<String, Class<?>> parameter = resolveParameter(output, valRef, typeRef);
@@ -112,7 +115,7 @@ public class CJobExecutor {
                         contextTypes.put(parameter.getFirst(), parameter.getSecond());
                         typeRef.put(parameter.getFirst(), parameter.getSecond());
                     }
-                    lastOutput[j] = new CJobParam(parameter.getFirst(), output.getInfo(), output.isNullable(), parameter.getSecond());
+                    lastOutput[j + lastOutput.length - outputs.length] = output;//new CJobParam(parameter.getFirst(), output.getInfo(), output.isNullable(), parameter.getSecond());
                     output.setType(parameter.getSecond());
                     output.setName(parameter.getFirst());
                 }
@@ -120,6 +123,13 @@ public class CJobExecutor {
                 CJobParam[] removals = subJob.getRemovals();
                 for (CJobParam removal : removals) {
                     CTBPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef);
+
+                    CTBPair<Boolean, List<CJobParam>> checked = hasParam(lastOutput, parameter);
+                    System.out.println(Arrays.toString(lastOutput));
+                    if (!checked.getFirst()) {
+                        throw new CJobParamNotFoundException(parameter, checked.getSecond());
+                    }
+
                     if (parameter.getFirst() != null && parameter.getSecond() != null) {
                         contextTypes.remove(parameter.getFirst());
                         typeRef.remove(parameter.getFirst());
@@ -127,6 +137,7 @@ public class CJobExecutor {
                     removal.setType(parameter.getSecond());
                     removal.setName(parameter.getFirst());
                 }
+                lastOutput = outputs;
                 executors[i] = build(factory, subJob, context).getFirst();
                 everyContextTypes.add(new HashMap<>(contextTypes));
             }
