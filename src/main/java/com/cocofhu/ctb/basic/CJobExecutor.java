@@ -1,8 +1,8 @@
 package com.cocofhu.ctb.basic;
 
 import com.alibaba.fastjson.JSON;
-import com.cocofhu.ctb.basic.entity.CJobDetail;
-import com.cocofhu.ctb.basic.entity.CJobParam;
+import com.cocofhu.ctb.kernel.core.exec.entity.CJobDetail;
+import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
 import com.cocofhu.ctb.kernel.anno.param.CExecutorInput;
 import com.cocofhu.ctb.kernel.anno.param.CAutowired;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
@@ -10,6 +10,7 @@ import com.cocofhu.ctb.kernel.core.exec.CExecutor;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorJob;
 import com.cocofhu.ctb.kernel.core.exec.CSimpleExecutor;
+import com.cocofhu.ctb.kernel.core.exec.entity.CJobSummary;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.exception.CJobParamNotFoundException;
 import com.cocofhu.ctb.kernel.exception.CUnsupportedOperationException;
@@ -74,8 +75,13 @@ public class CJobExecutor {
                 //
                 CJobDetail subJob = job.getSubJobs()[i];
                 // set current context
-                Map<String, Object> valRef = new HashMap<>(subJob.getAttachment());
+
+                Map<String, Object> valRef = new HashMap<>();
                 Map<String, Class<?>> typeRef = new HashMap<>(contextTypes);
+
+                if(subJob.getAttachment() != null){
+                    valRef.putAll(subJob.getAttachment());
+                }
 
                 valRef.forEach((k, v) -> {
                     if (v != null && k != null) {
@@ -201,11 +207,11 @@ public class CJobExecutor {
         return executor;
     }
 
-    public CTBPair<CExecutor, CTBPair<List<Map<String, Class<?>>>, CJobDetail>> toExecutor(@CAutowired CBeanFactory factory,
-                                                                                           @CExecutorInput CJobDetail job) {
+    public CTBPair<CExecutor, CJobSummary> toExecutor(@CAutowired CBeanFactory factory,
+                                                      @CExecutorInput CJobDetail job) {
         CJobDetail newJob = (CJobDetail) job.cloneSelf();
         CTBPair<CExecutor, List<Map<String, Class<?>>>> build = build(factory, newJob, new CExecutorContext());
-        return new CTBPair<>(build.getFirst(), new CTBPair<>(build.getSecond(), newJob));
+        return new CTBPair<>(build.getFirst(), new CJobSummary(build.getSecond(),newJob));
     }
 
     public CJobDetail readJobFromJson(@CExecutorInput String json) {

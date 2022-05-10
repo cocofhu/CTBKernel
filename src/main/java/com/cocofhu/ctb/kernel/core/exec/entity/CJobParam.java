@@ -1,4 +1,4 @@
-package com.cocofhu.ctb.basic.entity;
+package com.cocofhu.ctb.kernel.core.exec.entity;
 
 import com.cocofhu.ctb.kernel.util.CCloneable;
 

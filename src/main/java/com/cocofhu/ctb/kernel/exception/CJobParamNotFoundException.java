@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.exception;
 
-import com.cocofhu.ctb.basic.entity.CJobParam;
+import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
 
 import java.util.Arrays;

@@ -1,15 +1,15 @@
 package com.cocofhu.ctb.kernel;
 
-import com.alibaba.fastjson.JSON;
 import com.cocofhu.ctb.basic.CDebugExecutor;
 import com.cocofhu.ctb.basic.CParamExecutor;
 import com.cocofhu.ctb.basic.CUtilExecutor;
-import com.cocofhu.ctb.basic.entity.CJobDetail;
-import com.cocofhu.ctb.basic.entity.CJobParam;
+import com.cocofhu.ctb.kernel.core.exec.entity.CJobDetail;
+import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
 import com.cocofhu.ctb.basic.CJobExecutor;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
+import com.cocofhu.ctb.kernel.core.exec.entity.CJobSummary;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.core.exec.*;
 
@@ -86,7 +86,7 @@ public class Startup {
                 new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
         },new CJobParam[]{
                 new CJobParam("source", "source", false, "source"),
-                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
+//                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
         }, new CExecutorMethod("CUtilExecutor", null, "readText", null), null);
 
 
@@ -109,27 +109,11 @@ public class Startup {
         attachment.put("dist","ABC");
         job1.setAttachment(attachment);
 
-        CJobDetail jobs = new CJobDetail("SY","SY","SY",new CJobDetail[]{job0,job1},null);
+        CJobDetail jobs = new CJobDetail("SimpleJob","a simple job",group,new CJobDetail[]{job0,job1},null);
 
-        CTBPair<CExecutor, CTBPair<List<Map<String, Class<?>>>, CJobDetail>> pair = new CJobExecutor().toExecutor(factory, jobs);
-        CJobDetail newJob = pair.getSecond().getSecond();
-        List<Map<String, Class<?>>> remainTypes = pair.getSecond().getFirst();
-
-        CJobDetail[] subJobs = newJob.getSubJobs();
-
-        for(int i = 0 ; i < subJobs.length ;++i){
-            CJobDetail subJob = subJobs[i];
-            System.out.println("Layer " + i);
-            System.out.println("Input:");
-            outParams(subJob.getInputs());
-            System.out.println("Output:");
-            outParams(subJob.getOutputs());
-            System.out.println("Removals:");
-            outParams(subJob.getRemovals());
-            System.out.println("Context:" + remainTypes.get(i));
-
-        }
-        new CJobExecutor().toExecutor(factory, newJob);
+        CTBPair<CExecutor, CJobSummary> pair = new CJobExecutor().toExecutor(factory, jobs);
+        System.out.println(pair.getSecond());
+        new CJobExecutor().toExecutor(factory, pair.getSecond().getJobDetail());
 //        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
 //        System.out.println(JSON.toJSON(jobs));
 

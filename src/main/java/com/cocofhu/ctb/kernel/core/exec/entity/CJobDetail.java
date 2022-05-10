@@ -1,10 +1,9 @@
-package com.cocofhu.ctb.basic.entity;
+package com.cocofhu.ctb.kernel.core.exec.entity;
 
 import com.cocofhu.ctb.kernel.core.config.CTBPair;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
 import com.cocofhu.ctb.kernel.util.CCloneable;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,17 +69,13 @@ public class CJobDetail implements CCloneable {
      * @param attributes      任务属性
      * @param attachment      任务附加参数
      */
-    @SuppressWarnings("unchecked")
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, boolean ignoreException, CExecutorMethod method, Map<String, Object> attributes, CTBPair<String, Object>... attachment) {
+                      CJobParam[] outputs, CJobParam[] removals, boolean ignoreException, CExecutorMethod method, Map<String, Object> attributes, Map<String, Object> attachment) {
         this.name = name;
         this.version = VERSION;
         this.type = TYPE_EXEC;
         this.method = method;
-        this.attachment = new HashMap<>();
-        for (CTBPair<String, Object> pair : attachment) {
-            this.attachment.put(pair.getFirst(), pair.getSecond());
-        }
+        this.attachment = attachment;
         this.inputs = inputs;
         this.outputs = outputs;
         this.ignoreException = ignoreException;
@@ -102,9 +97,8 @@ public class CJobDetail implements CCloneable {
      * @param attributes 任务属性
      * @param attachment 任务附加参数
      */
-    @SuppressWarnings("unchecked")
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CExecutorMethod method, Map<String, Object> attributes, CTBPair<String, Object>... attachment) {
+                      CJobParam[] outputs, CExecutorMethod method, Map<String, Object> attributes, Map<String, Object> attachment) {
         this(name, info, group, inputs, outputs, null, false, method, attributes, attachment);
     }
 
@@ -121,24 +115,30 @@ public class CJobDetail implements CCloneable {
      * @param attributes 任务属性
      * @param attachment 任务附加参数
      */
-    @SuppressWarnings("unchecked")
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs,CJobParam[] removals, CExecutorMethod method, Map<String, Object> attributes, CTBPair<String, Object>... attachment) {
+                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, Map<String, Object> attributes, Map<String, Object> attachment) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, attachment);
     }
 
-    @SuppressWarnings("unchecked")
-    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs,Map<String, Object> attributes, CTBPair<String, Object>... attachment) {
+    public CJobDetail(String name, String info, String group, CJobParam[] inputs,
+                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, Map<String, Object> attributes) {
+        this(name, info, group, inputs, outputs, removals, false, method, attributes, null);
+    }
+
+
+    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, Map<String, Object> attributes, Map<String, Object> attachment) {
         this.version = VERSION;
         this.type = TYPE_SCHEDULE;
         this.name = name;
         this.info = info;
         this.group = group;
         this.subJobs = subJobs;
-        this.attachment = new HashMap<>();
-        for (CTBPair<String, Object> pair : attachment) {
-            this.attachment.put(pair.getFirst(), pair.getSecond());
-        }
+        this.attributes = attributes;
+        this.attachment = attachment;
+    }
+
+    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, Map<String, Object> attributes) {
+        this(name, info, group, subJobs, attributes, null);
     }
 
 
