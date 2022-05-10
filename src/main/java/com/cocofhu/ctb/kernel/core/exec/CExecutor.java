@@ -1,5 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
+import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
+
 import java.util.Map;
 
 /**
@@ -52,7 +54,7 @@ public interface CExecutor extends Runnable{
     Throwable getThrowable();
     Object getReturnVal();
 
-    void setAttachment(Map<String,Object> attachment);
+    void setAttachment(CDefaultDefaultReadOnlyDataSet attachment);
 
 
 }

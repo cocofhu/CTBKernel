@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.core.config.CTBContext;
+import com.cocofhu.ctb.kernel.core.config.CConfig;
 
 /**
  * @author cocofhu
@@ -10,7 +10,7 @@ public class CExecutorJob extends CAbstractExecutor {
     
     private final CExecutor[] executors;
 
-    public CExecutorJob(CExecutorContext executorContext, CTBContext beanFactoryContext, boolean ignoreException, CExecutor... executors) {
+    public CExecutorJob(CExecutorContext executorContext, CConfig beanFactoryContext, boolean ignoreException, CExecutor... executors) {
         super(executorContext, beanFactoryContext, ignoreException, null);
         this.executors = executors;
     }

@@ -1,7 +1,8 @@
 package com.cocofhu.ctb.kernel.core.factory;
 
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CTBContext;
+import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.exception.CNoSuchBeanDefinitionException;
 
 /**
@@ -17,7 +18,7 @@ public interface CBeanFactory {
     boolean isPrototype(String name) throws CNoSuchBeanDefinitionException;
     Class<?> getType(String name) throws CNoSuchBeanDefinitionException;
 
-    CTBContext getContext();
+    CConfig getConfig();
 
     CBeanDefinition getBeanDefinition(String name);
     CBeanDefinition getBeanDefinition(String name, Class<?> requiredType);
@@ -25,7 +26,11 @@ public interface CBeanFactory {
 
     Object getBean(CBeanDefinition beanDefinition) ;
 
+    Object getBean(String name, CDefaultDefaultReadOnlyDataSet dataSet) ;
+    <T> T getBean(String name, Class<T> requiredType, CDefaultDefaultReadOnlyDataSet dataSet) ;
+    <T> T getBean(Class<T> requiredType, CDefaultDefaultReadOnlyDataSet dataSet);
 
+    Object getBean(CBeanDefinition beanDefinition, CDefaultDefaultReadOnlyDataSet dataSet) ;
 
 
 }

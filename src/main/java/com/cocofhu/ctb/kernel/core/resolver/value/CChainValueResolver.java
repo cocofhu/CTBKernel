@@ -1,8 +1,6 @@
 package com.cocofhu.ctb.kernel.core.resolver.value;
 
-import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
-import com.cocofhu.ctb.kernel.core.config.CTBContext;
-import com.cocofhu.ctb.kernel.core.config.CValueWrapper;
+import com.cocofhu.ctb.kernel.core.config.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,22 +8,22 @@ import java.util.List;
 /**
  * @author cocofhu
  */
-public class CChainValueResolver implements CValueResolver{
+public class CChainValueResolver implements CValueResolver {
 
     private final CValueResolver[] resolvers;
 
     public CChainValueResolver(CValueResolver[] resolvers) {
-        if(resolvers == null){
+        if (resolvers == null) {
             resolvers = new CValueResolver[0];
         }
         this.resolvers = resolvers;
     }
 
     @Override
-    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CTBContext context) {
+    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet) {
         List<CValueWrapper> values = new ArrayList<>();
         for (CValueResolver resolver : resolvers) {
-            List<CValueWrapper> cValueWrappers = resolver.resolveValues(parameter, context);
+            List<CValueWrapper> cValueWrappers = resolver.resolveValues(parameter, config, dataSet);
             if (cValueWrappers != null) {
                 values.addAll(cValueWrappers);
             }

@@ -8,7 +8,7 @@ import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
 import com.cocofhu.ctb.basic.CJobExecutor;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CTBPair;
+import com.cocofhu.ctb.kernel.core.config.CPair;
 import com.cocofhu.ctb.kernel.core.exec.entity.CJobSummary;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.core.exec.*;
@@ -111,10 +111,10 @@ public class Startup {
 
         CJobDetail jobs = new CJobDetail("SimpleJob","a simple job",group,new CJobDetail[]{job0,job1},null);
 
-        CTBPair<CExecutor, CJobSummary> pair = new CJobExecutor().toExecutor(factory, jobs);
+        CPair<CExecutor, CJobSummary> pair = new CJobExecutor().toExecutor(factory, jobs);
         System.out.println(pair.getSecond());
         new CJobExecutor().toExecutor(factory, pair.getSecond().getJobDetail());
-//        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
+        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
 //        System.out.println(JSON.toJSON(jobs));
 
     }

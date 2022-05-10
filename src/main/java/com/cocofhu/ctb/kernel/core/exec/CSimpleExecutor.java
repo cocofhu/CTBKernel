@@ -1,8 +1,6 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CExecutableWrapper;
-import com.cocofhu.ctb.kernel.core.config.CTBContext;
+import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.exception.CExecutorExceptionUnhandledException;
 import com.cocofhu.ctb.kernel.exception.CExecutorStatusException;
 import com.cocofhu.ctb.kernel.exception.CBeanMethodInvokeException;
@@ -25,13 +23,17 @@ public class CSimpleExecutor extends CAbstractExecutor {
     private final Object bean;
     private final Method method;
 
-    public CSimpleExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, CExecutorMethod executorMethod, boolean ignoreException, Map<String, Object> attachment) {
+    public CSimpleExecutor(CExecutorContext executorContext, CConfig beanFactoryContext, CExecutorMethod executorMethod, boolean ignoreException, CDefaultDefaultReadOnlyDataSet attachment) {
 
         super(executorContext, beanFactoryContext, ignoreException, attachment);
 
         // 获取执行信息 这里可能会抛出 CNoSuchBeanDefinitionException
         beanDefinition = beanFactoryContext.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-        bean = beanFactoryContext.getBeanFactory().getBean(beanDefinition);
+
+//        CExecutorContext newContext = executorContext;//.newLayer();
+//        newContext.putAll(attachment);
+
+        bean = beanFactoryContext.getBeanFactory().getBean(beanDefinition, executorContext);
         method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
         // 检查方法是否存在
         if (method == null) {
@@ -41,7 +43,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
     }
 
-    public CSimpleExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, CExecutorMethod executorMethod) {
+    public CSimpleExecutor(CExecutorContext executorContext, CConfig beanFactoryContext, CExecutorMethod executorMethod) {
         this(executorContext, beanFactoryContext, executorMethod, false, null);
     }
 
@@ -65,14 +67,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
             setStatus(Status.Running);
 
 
-            // 创建新的上下文
-            CTBContext ctx = beanFactoryContext.newCTBContext();
-            // 设置全局上下文
-            ctx.put(EXEC_CONTEXT_KEY, executorContext);
-            // 设置当前执行的上下文，线程安全
-            ctx.put(EXEC_ATTACHMENT_KEY, new CExecutorContext(attachment));
-
-            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, ctx, beanDefinition);
+            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, executorContext);
 
             try {
                 Object returnVal = executableWrapper.execute(bean);

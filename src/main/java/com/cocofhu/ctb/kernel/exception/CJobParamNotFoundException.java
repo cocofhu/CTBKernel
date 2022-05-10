@@ -1,7 +1,7 @@
 package com.cocofhu.ctb.kernel.exception;
 
 import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
-import com.cocofhu.ctb.kernel.core.config.CTBPair;
+import com.cocofhu.ctb.kernel.core.config.CPair;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +15,7 @@ public class CJobParamNotFoundException extends CNestedRuntimeException {
         super(msg);
     }
 
-    public CJobParamNotFoundException(CTBPair<String,Class<?>> required, List<CJobParam> candidates) {
+    public CJobParamNotFoundException(CPair<String,Class<?>> required, List<CJobParam> candidates) {
         super("parameter not match in this job, " +
                 "require ( type: " + required.getSecond() + ", name: " + required.getFirst() + "), " +
                 "but found(s) " + Arrays.toString(candidates.stream().map(param -> "( type: " + param.getType() + ", name: " + param.getName() + ")").toArray(String[]::new)));

@@ -1,11 +1,9 @@
 package com.cocofhu.ctb.kernel.core.exec.entity;
 
-import com.cocofhu.ctb.kernel.core.config.CTBPair;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
 import com.cocofhu.ctb.kernel.util.CCloneable;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 public class CJobDetail implements CCloneable {

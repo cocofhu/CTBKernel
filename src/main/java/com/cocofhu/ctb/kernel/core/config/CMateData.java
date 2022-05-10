@@ -17,10 +17,15 @@ public interface CMateData {
      */
     <T extends Annotation> T getAnnotation(Class<T> clazz) ;
 
-    default CMateData getParent(){
-        return null;
-    }
+    /**
+     * 获得父级的原信息
+     * 这里不要用默认实现，某些实现类可能忘记实现该接口，导致意外的BUG (●'◡'●)
+     */
+    /*default*/ CMateData getParent();
 
+    /**
+     * 获取该结构上的指定注解，如果寻找不到，则向父级寻找
+     */
     default <T extends Annotation> T acquireNearAnnotation(Class<T> clazz){
         CMateData current = this;
         while(current != null){

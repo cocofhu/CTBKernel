@@ -9,19 +9,22 @@ import java.util.List;
  */
 public class CParameterWrapper implements CMateData {
     private final Parameter parameter;
-    private final CTBContext context;
+    private final CConfig config;
 
     private final CExecutableWrapper executor;
 
-    public CParameterWrapper(Parameter parameter, CTBContext context, CExecutableWrapper executor) {
+    private final CDefaultDefaultReadOnlyDataSet dataSet;
+
+    public CParameterWrapper(Parameter parameter, CConfig config, CExecutableWrapper executor, CDefaultDefaultReadOnlyDataSet dataSet) {
         this.parameter = parameter;
-        this.context = context;
+        this.config = config;
         this.executor = executor;
+        this.dataSet = dataSet;
     }
 
 
     public List<CValueWrapper> resolveParameterValues(){
-        return context.getValueResolver().resolveValues(this,context);
+        return config.getValueResolver().resolveValues(this, config, dataSet);
     }
 
     public Parameter getParameter() {

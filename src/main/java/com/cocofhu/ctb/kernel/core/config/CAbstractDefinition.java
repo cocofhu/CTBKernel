@@ -8,9 +8,8 @@ import java.lang.annotation.Annotation;
 public abstract class CAbstractDefinition implements CBeanDefinition {
 
 
-
-    protected volatile Class<?> beanClass;
     protected final CBeanScope scope;
+    protected volatile Class<?> beanClass;
 
     public CAbstractDefinition(Class<?> beanClass, CBeanScope scope) {
         this.beanClass = beanClass;
@@ -18,7 +17,7 @@ public abstract class CAbstractDefinition implements CBeanDefinition {
     }
 
     public CAbstractDefinition(Class<?> beanClass) {
-        this(beanClass,CBeanScope.PROTOTYPE);
+        this(beanClass, CBeanScope.PROTOTYPE);
     }
 
     @Override
@@ -43,7 +42,7 @@ public abstract class CAbstractDefinition implements CBeanDefinition {
 
     @Override
     public Annotation[] getAnnotations() {
-        if(beanClass !=null){
+        if (beanClass != null) {
             return beanClass.getAnnotations();
         }
         return new Annotation[0];
@@ -51,9 +50,14 @@ public abstract class CAbstractDefinition implements CBeanDefinition {
 
     @Override
     public <T extends Annotation> T getAnnotation(Class<T> clazz) {
-        if(beanClass == null){
+        if (beanClass == null) {
             return null;
         }
         return beanClass.getAnnotation(clazz);
+    }
+
+    @Override
+    public CMateData getParent() {
+        return null;
     }
 }

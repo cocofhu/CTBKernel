@@ -1,6 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.core.config.CTBContext;
+import com.cocofhu.ctb.kernel.core.config.CConfig;
+import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.exception.CExecutorStatusException;
 import com.cocofhu.ctb.kernel.exception.CUnsupportedOperationException;
 
@@ -14,20 +15,20 @@ public abstract class CAbstractExecutor implements CExecutor {
     private volatile Status status;
 
     protected final CExecutorContext executorContext;
-    protected final CTBContext beanFactoryContext;
+    protected final CConfig config;
     protected final boolean ignoreException;
 
-    protected Map<String,Object> attachment;
+    protected CDefaultDefaultReadOnlyDataSet attachment;
 
     /**
      * @param executorContext    执行器的上下文，用于存放执行过程中的参数
-     * @param beanFactoryContext BeanFactory的上下文，用于获得框架的支持
+     * @param config             BeanFactory的上下文，用于获得框架的支持
      * @param ignoreException    是否忽略上一次执行出现的异常
      * @param attachment         附加参数
      */
-    protected CAbstractExecutor(CExecutorContext executorContext, CTBContext beanFactoryContext, boolean ignoreException, Map<String, Object> attachment) {
+    protected CAbstractExecutor(CExecutorContext executorContext, CConfig config, boolean ignoreException, CDefaultDefaultReadOnlyDataSet attachment) {
         this.executorContext = executorContext;
-        this.beanFactoryContext = beanFactoryContext;
+        this.config = config;
         this.ignoreException = ignoreException;
         this.attachment = attachment;
         this.status = Status.NotReady;
@@ -86,7 +87,7 @@ public abstract class CAbstractExecutor implements CExecutor {
     }
 
     @Override
-    public void setAttachment(Map<String, Object> attachment) {
+    public void setAttachment(CDefaultDefaultReadOnlyDataSet attachment) {
         this.attachment = attachment;
     }
 }

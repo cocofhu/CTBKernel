@@ -1,9 +1,6 @@
 package com.cocofhu.ctb.kernel.core.resolver.value;
 
-import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
-import com.cocofhu.ctb.kernel.core.config.CTBContext;
-import com.cocofhu.ctb.kernel.core.config.CTBPair;
-import com.cocofhu.ctb.kernel.core.config.CValueWrapper;
+import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.resolver.CProcess;
 
 import java.util.ArrayList;
@@ -12,21 +9,21 @@ import java.util.List;
 /**
  * @author cocofhu
  */
-public class CAnnotationValueResolver implements CValueResolver{
+public class CAnnotationValueResolver implements CValueResolver {
 
-    private final CProcess<CParameterWrapper>[] annotationProcesses;
+    private final List<CProcess<CPair<CParameterWrapper, CDefaultDefaultReadOnlyDataSet>>> annotationProcesses;
 
-    public CAnnotationValueResolver(CProcess<CParameterWrapper>[] annotationProcesses) {
+    public CAnnotationValueResolver(List<CProcess<CPair<CParameterWrapper, CDefaultDefaultReadOnlyDataSet>>> annotationProcesses) {
         this.annotationProcesses = annotationProcesses;
     }
 
     @Override
-    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CTBContext context) {
+    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet) {
         List<CValueWrapper> candidateValues = new ArrayList<>();
-        for (CProcess<CParameterWrapper> process:annotationProcesses){
-            CTBPair<Object, Boolean> pair = process.process(parameter, context);
-            if(pair != null && pair.getSecond()){
-                candidateValues.add(new CValueWrapper(process,pair,context, parameter));
+        for (CProcess<CPair<CParameterWrapper, CDefaultDefaultReadOnlyDataSet>> process : annotationProcesses) {
+            CPair<Object, Boolean> pair = process.process(new CPair<>(parameter, dataSet), config);
+            if (pair != null && pair.getSecond()) {
+                candidateValues.add(new CValueWrapper(process, pair, config, parameter));
             }
         }
         return candidateValues;

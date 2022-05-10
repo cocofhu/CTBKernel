@@ -1,8 +1,6 @@
 package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
-import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CExecutableWrapper;
-import com.cocofhu.ctb.kernel.core.config.CTBContext;
+import com.cocofhu.ctb.kernel.core.config.*;
 
 /**
  * 寻找默认的无参构造函数
@@ -10,11 +8,11 @@ import com.cocofhu.ctb.kernel.core.config.CTBContext;
  */
 public class CDefaultNoParameterConstructorResolver implements CConstructorResolver {
     @Override
-    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CTBContext context) {
-        checkEmpty(beanDefinition,context);
+    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet) {
+        checkEmpty(beanDefinition, config);
         Class<?> clazz = beanDefinition.getBeanClass();
         try {
-            return new CExecutableWrapper(clazz.getConstructor(),context, beanDefinition);
+            return new CExecutableWrapper(clazz.getConstructor(), config, beanDefinition, dataSet);
         } catch (NoSuchMethodException e) {
             return null;
         }

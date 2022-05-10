@@ -10,25 +10,29 @@ import java.lang.reflect.*;
 import java.util.List;
 
 /**
+ *
  * @author cocofhu
  */
 public class CExecutableWrapper implements CMateData {
 
     private final Executable executor;
-    private final CTBContext context;
+    private final CConfig config;
     private final CBeanDefinition beanDefinition;
 
-    public CExecutableWrapper(Executable executor, CTBContext context, CBeanDefinition beanDefinition) {
+    private final CDefaultDefaultReadOnlyDataSet dataSet;
+
+    public CExecutableWrapper(Executable executor, CConfig config, CBeanDefinition beanDefinition, CDefaultDefaultReadOnlyDataSet dataSet) {
         this.executor = executor;
-        this.context = context;
+        this.config = config;
         this.beanDefinition = beanDefinition;
+        this.dataSet = dataSet;
     }
 
     private CParameterWrapper[] acquireParameterWrappers(){
         Parameter[] parameters = executor.getParameters();
         CParameterWrapper[] parameterWrappers = new CParameterWrapper[parameters.length];
         for (int i = 0 ; i< parameters.length ;++i){
-            parameterWrappers[i] = new CParameterWrapper(parameters[i],context, this);
+            parameterWrappers[i] = new CParameterWrapper(parameters[i], config, this, dataSet);
         }
         return parameterWrappers;
     }
