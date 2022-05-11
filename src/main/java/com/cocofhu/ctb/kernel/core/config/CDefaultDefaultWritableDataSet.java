@@ -1,6 +1,8 @@
 package com.cocofhu.ctb.kernel.core.config;
 
 
+import java.util.Map;
+
 public class CDefaultDefaultWritableDataSet extends CDefaultDefaultReadOnlyDataSet implements CWritableDataSet<String, Object> {
 
     public CDefaultDefaultWritableDataSet(CDefaultDefaultReadOnlyDataSet dataset) {
@@ -9,6 +11,10 @@ public class CDefaultDefaultWritableDataSet extends CDefaultDefaultReadOnlyDataS
 
     public CDefaultDefaultWritableDataSet() {
         this(null);
+    }
+
+    protected CDefaultDefaultWritableDataSet(Map<String,Object> dataImpl, CDefaultDefaultWritableDataSet dataset){
+        super(dataImpl,dataset);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.cocofhu.ctb.kernel.core.exec.entity;
 
+import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
 import com.cocofhu.ctb.kernel.util.CCloneable;
 
@@ -31,7 +32,7 @@ public class CJobDetail implements CCloneable {
     private CExecutorMethod method;
 
     // 任务的附加参数
-    private Map<String, Object> attachment;
+    private CDefaultDefaultReadOnlyDataSet attachment;
 
     // 多任务时的子任务
     private CJobDetail[] subJobs;
@@ -51,7 +52,7 @@ public class CJobDetail implements CCloneable {
     private String group;
 
     // 任务属性
-    private Map<String, Object> attributes;
+    private CDefaultDefaultReadOnlyDataSet attributes;
 
 
     /**
@@ -68,7 +69,7 @@ public class CJobDetail implements CCloneable {
      * @param attachment      任务附加参数
      */
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, boolean ignoreException, CExecutorMethod method, Map<String, Object> attributes, Map<String, Object> attachment) {
+                      CJobParam[] outputs, CJobParam[] removals, boolean ignoreException, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet attributes, CDefaultDefaultReadOnlyDataSet attachment) {
         this.name = name;
         this.version = VERSION;
         this.type = TYPE_EXEC;
@@ -96,7 +97,7 @@ public class CJobDetail implements CCloneable {
      * @param attachment 任务附加参数
      */
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CExecutorMethod method, Map<String, Object> attributes, Map<String, Object> attachment) {
+                      CJobParam[] outputs, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet attributes, CDefaultDefaultReadOnlyDataSet attachment) {
         this(name, info, group, inputs, outputs, null, false, method, attributes, attachment);
     }
 
@@ -114,17 +115,17 @@ public class CJobDetail implements CCloneable {
      * @param attachment 任务附加参数
      */
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, Map<String, Object> attributes, Map<String, Object> attachment) {
+                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet attributes, CDefaultDefaultReadOnlyDataSet attachment) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, attachment);
     }
 
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, Map<String, Object> attributes) {
+                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet attributes) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, null);
     }
 
 
-    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, Map<String, Object> attributes, Map<String, Object> attachment) {
+    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, CDefaultDefaultReadOnlyDataSet attributes, CDefaultDefaultReadOnlyDataSet attachment) {
         this.version = VERSION;
         this.type = TYPE_SCHEDULE;
         this.name = name;
@@ -135,7 +136,7 @@ public class CJobDetail implements CCloneable {
         this.attachment = attachment;
     }
 
-    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, Map<String, Object> attributes) {
+    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, CDefaultDefaultReadOnlyDataSet attributes) {
         this(name, info, group, subJobs, attributes, null);
     }
 
@@ -188,14 +189,6 @@ public class CJobDetail implements CCloneable {
         this.method = method;
     }
 
-    public Map<String, Object> getAttachment() {
-        return attachment;
-    }
-
-    public void setAttachment(Map<String, Object> attachment) {
-        this.attachment = attachment;
-    }
-
     public CJobDetail[] getSubJobs() {
         return subJobs;
     }
@@ -239,11 +232,19 @@ public class CJobDetail implements CCloneable {
         this.group = group;
     }
 
-    public Map<String, Object> getAttributes() {
+    public CDefaultDefaultReadOnlyDataSet getAttachment() {
+        return attachment;
+    }
+
+    public void setAttachment(CDefaultDefaultReadOnlyDataSet attachment) {
+        this.attachment = attachment;
+    }
+
+    public CDefaultDefaultReadOnlyDataSet getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Map<String, Object> attributes) {
+    public void setAttributes(CDefaultDefaultReadOnlyDataSet attributes) {
         this.attributes = attributes;
     }
 

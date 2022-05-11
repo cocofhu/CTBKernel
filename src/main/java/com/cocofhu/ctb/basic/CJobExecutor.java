@@ -2,6 +2,7 @@ package com.cocofhu.ctb.basic;
 
 import com.alibaba.fastjson.JSON;
 import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultWritableDataSet;
 import com.cocofhu.ctb.kernel.core.exec.entity.CJobDetail;
 import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
 import com.cocofhu.ctb.kernel.anno.param.CExecutorInput;
@@ -77,10 +78,11 @@ public class CJobExecutor {
                 CJobDetail subJob = job.getSubJobs()[i];
                 // set current context
 
-                Map<String, Object> valRef = new HashMap<>();
+//                CDefaultDefaultWritableDataSet valRef = new HashMap<>();
                 Map<String, Class<?>> typeRef = new HashMap<>(contextTypes);
 
                 if(subJob.getAttachment() != null){
+
                     valRef.putAll(subJob.getAttachment());
                 }
 

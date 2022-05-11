@@ -3,6 +3,7 @@ package com.cocofhu.ctb.kernel;
 import com.cocofhu.ctb.basic.CDebugExecutor;
 import com.cocofhu.ctb.basic.CParamExecutor;
 import com.cocofhu.ctb.basic.CUtilExecutor;
+import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultWritableDataSet;
 import com.cocofhu.ctb.kernel.core.exec.entity.CJobDetail;
 import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
 import com.cocofhu.ctb.basic.CJobExecutor;
@@ -104,7 +105,7 @@ public class Startup {
                 new CJobParam("*dist", "source", false, "*dist"),
         }, new CExecutorMethod("CParamExecutor", null, "transform", null), null);
 
-        Map<String,Object> attachment = new HashMap<>();
+        CDefaultDefaultWritableDataSet attachment = new CDefaultDefaultWritableDataSet();
         attachment.put("source",CExecutor.EXEC_RETURN_VAL_KEY);
         attachment.put("dist","ABC");
         job1.setAttachment(attachment);
