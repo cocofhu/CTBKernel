@@ -3,7 +3,7 @@ package com.cocofhu.ctb.kernel.core.config;
 import java.util.Set;
 
 public interface CReadOnlyDataSet<K,V> {
-    V get(String K);
+    V get(String key);
 
     Set<? extends CReadOnlyEntry<K,V>> entries();
 

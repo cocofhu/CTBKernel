@@ -23,8 +23,4 @@ public interface CLayerDataSet<K,V> {
      */
     CLayerDataSet<K,V> newLayer();
 
-    /**
-     * 回退层
-     */
-    void backLayer(int layer);
 }

@@ -1,30 +1,36 @@
 package com.cocofhu.ctb.kernel.core.config;
 
-import java.util.Set;
 
-public class CDefaultDefaultWritableDataSet implements CDefaultDefaultReadOnlyDataSet, CWritableDataSet<String, Object> {
-    @Override
-    public Object get(String K) {
-        return null;
+public class CDefaultDefaultWritableDataSet extends CDefaultDefaultReadOnlyDataSet implements CWritableDataSet<String, Object> {
+
+    public CDefaultDefaultWritableDataSet(CDefaultDefaultReadOnlyDataSet dataset) {
+        super(dataset);
     }
 
-    @Override
-    public Set<? extends CReadOnlyEntry<String, Object>> entries() {
-        return null;
+    public CDefaultDefaultWritableDataSet() {
+        this(null);
     }
 
     @Override
     public Object put(String key, Object val) {
-        return null;
+        if(key == null) {
+            return null;
+        }
+        if(val == null) {
+            return dataset.remove(key);
+        }
+        return dataset.put(key,val);
     }
 
     @Override
     public Object remove(String key) {
-        return null;
+        return dataset.remove(key);
     }
 
     @Override
-    public void putAll(CReadOnlyDataSet<? extends String, ?> m) {
-
+    public void putAll(CReadOnlyDataSet<? extends String, ?> dataSet) {
+        if(dataSet != null){
+            dataSet.entries().forEach(e -> this.put(e.getKey(),e.getValue()));
+        }
     }
 }
