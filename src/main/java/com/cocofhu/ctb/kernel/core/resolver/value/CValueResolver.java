@@ -10,5 +10,5 @@ import java.util.List;
  */
 public interface CValueResolver {
 
-    List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig context, CDefaultDefaultReadOnlyDataSet dataSet);
+    List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig context, CReadOnlyDataSet<String, Object> dataSet);
 }

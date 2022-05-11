@@ -10,7 +10,7 @@ import java.lang.reflect.Constructor;
  */
 public class CDefaultConstructorResolver implements CConstructorResolver {
     @Override
-    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
         checkEmpty(beanDefinition, config);
         Class<?> clazz = beanDefinition.getBeanClass();
         Constructor<?>[] constructors = clazz.getConstructors();

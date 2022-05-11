@@ -3,6 +3,7 @@ package com.cocofhu.ctb.kernel.anno.param.process;
 import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
 import com.cocofhu.ctb.kernel.core.config.CPair;
+import com.cocofhu.ctb.kernel.core.config.CReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.core.resolver.CProcess;
 
 /**
@@ -11,5 +12,5 @@ import com.cocofhu.ctb.kernel.core.resolver.CProcess;
  * CDefaultDefaultReadOnlyDataSet：      附加的参数，通过使用该参数，配合不同的处理器，可以完成一些自定义的处理
  * @author cocofhu
  */
-public interface CAnnoProcess extends CProcess<CPair<CParameterWrapper, CDefaultDefaultReadOnlyDataSet>> {
+public interface CAnnoProcess extends CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> {
 }

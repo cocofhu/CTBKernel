@@ -36,7 +36,7 @@ public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreat
     }
 
     @Override
-    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
         if (resolvers == null || resolvers.size() == 0) {
             throw new CNoConstructorResolverException("ConstructorResolver set was not set.");
         }

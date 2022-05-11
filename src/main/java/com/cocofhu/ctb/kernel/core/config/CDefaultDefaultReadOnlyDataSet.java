@@ -2,27 +2,28 @@ package com.cocofhu.ctb.kernel.core.config;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CDefaultDefaultReadOnlyDataSet implements CReadOnlyDataSet<String, Object> {
+public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, V> {
 
-    protected Map<String,Object> dataset;
+    protected Map<K,V> dataset;
 
-    protected CDefaultDefaultReadOnlyDataSet(Map<String,Object> dataImpl, CDefaultDefaultReadOnlyDataSet dataset) {
+    protected CDefaultDefaultReadOnlyDataSet(Map<K,V> dataImpl, CDefaultDefaultReadOnlyDataSet<K,V> dataset) {
         this.dataset = dataImpl;
         if(this.dataset == null){
             this.dataset = new ConcurrentHashMap<>();
         }
         if(dataset != null) {
-            Set<? extends CReadOnlyDataSet.CReadOnlyEntry<String, Object>> entries = dataset.entries();
+            Set<CDefaultReadOnlyEntry<K, V>> entries = dataset.entries();
             if (entries != null) {
                 entries.forEach(e->this.dataset.put(e.getKey(), e.getValue()));
             }
         }
     }
 
-    public CDefaultDefaultReadOnlyDataSet(CDefaultDefaultReadOnlyDataSet dataset) {
+    public CDefaultDefaultReadOnlyDataSet(CDefaultDefaultReadOnlyDataSet<K,V> dataset) {
         this(null,dataset);
     }
 
@@ -32,29 +33,38 @@ public class CDefaultDefaultReadOnlyDataSet implements CReadOnlyDataSet<String, 
 
 
 
-    public static class CReadOnlyEntry extends CPair<String,Object> implements CReadOnlyDataSet.CReadOnlyEntry<String,Object> {
-        public CReadOnlyEntry(String first, Object second) {
+    public static class CDefaultReadOnlyEntry<K,V> extends CPair<K,V> implements CReadOnlyDataSet.CReadOnlyEntry<K,V> {
+        public CDefaultReadOnlyEntry(K first, V second) {
             super(first, second);
         }
         @Override
-        public String getKey() {
+        public K getKey() {
             return first;
         }
         @Override
-        public Object getValue() {
+        public V getValue() {
             return second;
+        }
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof CReadOnlyDataSet.CReadOnlyEntry
+                    && Objects.equals(getKey() ,((CReadOnlyEntry<?, ?>)o).getKey());
+        }
+        @Override
+        public int hashCode() {
+            return Objects.hash(getKey());
         }
     }
 
     @Override
-    public Object get(String key) {
+    public V get(K key) {
         return dataset.get(key);
     }
 
     @Override
-    public Set<? extends CReadOnlyDataSet.CReadOnlyEntry<String, Object>> entries() {
-        Set<CDefaultDefaultReadOnlyDataSet.CReadOnlyEntry> entries = new HashSet<>();
-        dataset.forEach((k,v)->entries.add(new CDefaultDefaultReadOnlyDataSet.CReadOnlyEntry(k,v)));
+    public Set<CDefaultDefaultReadOnlyDataSet.CDefaultReadOnlyEntry<K, V>> entries() {
+        Set<CDefaultReadOnlyEntry<K,V>> entries = new HashSet<>();
+        dataset.forEach((k,v)->entries.add(new CDefaultReadOnlyEntry<>(k,v)));
         return entries;
     }
 

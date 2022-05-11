@@ -126,22 +126,22 @@ public class CDefaultBeanFactory implements CBeanFactory {
     }
 
     @Override
-    public Object getBean(String name, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public Object getBean(String name, CReadOnlyDataSet<String, Object> dataSet) {
         return doGetBean(name, null, dataSet);
     }
 
     @Override
-    public <T> T getBean(String name, Class<T> requiredType, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public <T> T getBean(String name, Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) {
         return doGetBean(name, requiredType, dataSet);
     }
 
     @Override
-    public <T> T getBean(Class<T> requiredType, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public <T> T getBean(Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) {
         return doGetBean(null, requiredType, dataSet);
     }
 
     @Override
-    public Object getBean(CBeanDefinition beanDefinition, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public Object getBean(CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) {
         if (!beanDefinitionsForName.containsValue(beanDefinition)) {
             throw new CNoSuchBeanDefinitionException("no such bean definition found in bean factory, make sure acquired bean definition by using getBeanDefinition");
         }
@@ -199,7 +199,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
      * @throws CInstantiationException          初始化Bean实例的时候出现错误或BeanScope是不支持的类型
      */
 
-    protected <T> T doGetBean(String name, Class<T> requiredType, CDefaultDefaultReadOnlyDataSet dataSet) {
+    protected <T> T doGetBean(String name, Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) {
         // Find BeanDefinition
         CBeanDefinition beanDefinition = doGetSingleBeanDefinition(name, requiredType);
         return doGetBeanByBeanDefinition(beanDefinition, dataSet);
@@ -261,12 +261,12 @@ public class CDefaultBeanFactory implements CBeanFactory {
         }
     }
 
-    private Object doCreateBeanInstance(CBeanDefinition beanDefinition, CDefaultDefaultReadOnlyDataSet dataSet) {
+    private Object doCreateBeanInstance(CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) {
 
         return this.config.getInstanceCreator().newInstance(beanDefinition, config, dataSet);
     }
 
-    private void callInitMethods(CBeanDefinition b, Object o, CDefaultDefaultReadOnlyDataSet dataSet) {
+    private void callInitMethods(CBeanDefinition b, Object o, CReadOnlyDataSet<String, Object> dataSet) {
         Method[] methods = b.initMethods();
         for (Method method : methods) {
             CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, b, dataSet);
@@ -282,7 +282,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T doGetBeanByBeanDefinition(CBeanDefinition beanDefinition, CDefaultDefaultReadOnlyDataSet dataSet) {
+    private <T> T doGetBeanByBeanDefinition(CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) {
         // Get instance of bean
         Object beanInstance;
         if (beanDefinition.isSingleton()) {

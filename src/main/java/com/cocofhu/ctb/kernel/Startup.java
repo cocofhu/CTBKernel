@@ -13,6 +13,7 @@ import com.cocofhu.ctb.kernel.core.config.CPair;
 import com.cocofhu.ctb.kernel.core.exec.entity.CJobSummary;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.core.exec.*;
+import com.cocofhu.ctb.kernel.test.Power;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -55,6 +56,12 @@ public class Startup {
                 }
             });
 
+            result.add(new CAbstractDefinition(Power.class) {
+                @Override
+                public String getBeanName() {
+                    return "Power";
+                }
+            });
             return result;
         });
 
@@ -76,46 +83,57 @@ public class Startup {
         //  2) 允许Type和Name引用：用户自定义的attachment(函数柯里化参数)
         //  3) 只允许Type引用：Context对象
         //
-        //
 
 
-        CJobDetail job0 = new CJobDetail("X", "Y", group, new CJobParam[]{
-                new CJobParam("source", "source", false, String.class),
-        }, new CJobParam[]{
-                // 这里的type引用input里的type
-                new CJobParam("source", "source", false, "source"),
-                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
-        },new CJobParam[]{
-                new CJobParam("source", "source", false, "source"),
+//        CJobDetail job0 = new CJobDetail("X", "Y", group, new CJobParam[]{
+//                new CJobParam("source", "source", false, String.class),
+//        }, new CJobParam[]{
+//                // 这里的type引用input里的type
+//                new CJobParam("source", "source", false, "source"),
 //                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
-        }, new CExecutorMethod("CUtilExecutor", null, "readText", null), null);
+//        },new CJobParam[]{
+//                new CJobParam("source", "source", false, "source"),
+////                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
+//        }, new CExecutorMethod("CUtilExecutor", null, "readText", null), null);
+//
+//
+//        // 定义JOB1
+//        // 输入参数为    (Name: source,              Type: class java.lang.String)
+//        CJobDetail job1 = new CJobDetail("ParamTransformer", "ParamTransformer", group, new CJobParam[]{
+//                // 这里的name引用attachment里source的值，type引用attachment里source的的类型
+//                new CJobParam("*source", "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
+//        }, new CJobParam[]{
+//                // 这里的name引用attachment里dist的值，type引用attachment里source的的类型
+//                new CJobParam("*dist", "source", false, "*source")
+//        },new CJobParam[]{
+//                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
+////                new CJobParam("ABC", "source", false, "ABC"),
+//                new CJobParam("*dist", "source", false, "*dist"),
+//        }, new CExecutorMethod("CParamExecutor", null, "transform", null), null);
+//
+//        CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
+//        attachment.put("source",CExecutor.EXEC_RETURN_VAL_KEY);
+//        attachment.put("dist","ABC");
+//        job1.setAttachment(attachment);
+//
+//        CJobDetail jobs = new CJobDetail("SimpleJob","a simple job",group,new CJobDetail[]{job0,job1},null);
 
-
-        // 定义JOB1
-        // 输入参数为    (Name: source,              Type: class java.lang.String)
-        CJobDetail job1 = new CJobDetail("ParamTransformer", "ParamTransformer", group, new CJobParam[]{
-                // 这里的name引用attachment里source的值，type引用attachment里source的的类型
-                new CJobParam("*source", "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
-        }, new CJobParam[]{
-                // 这里的name引用attachment里dist的值，type引用attachment里source的的类型
-                new CJobParam("*dist", "source", false, "*source")
-        },new CJobParam[]{
-                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
-//                new CJobParam("ABC", "source", false, "ABC"),
-                new CJobParam("*dist", "source", false, "*dist"),
-        }, new CExecutorMethod("CParamExecutor", null, "transform", null), null);
-
-        CDefaultDefaultWritableDataSet attachment = new CDefaultDefaultWritableDataSet();
-        attachment.put("source",CExecutor.EXEC_RETURN_VAL_KEY);
-        attachment.put("dist","ABC");
-        job1.setAttachment(attachment);
-
-        CJobDetail jobs = new CJobDetail("SimpleJob","a simple job",group,new CJobDetail[]{job0,job1},null);
-
-        CPair<CExecutor, CJobSummary> pair = new CJobExecutor().toExecutor(factory, jobs);
-        System.out.println(pair.getSecond());
-        new CJobExecutor().toExecutor(factory, pair.getSecond().getJobDetail());
+//        CExecutor executor = new CJobExecutor().toExecutor(factory, jobs);
+//        System.out.println(pair.getSecond());
+//        new CJobExecutor().toExecutor(factory, pair.getSecond().getJobDetail());
         System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
+
+        CJobDetail job = new CJobExecutor().toJobDetail(factory, new CExecutorMethod("Power", null, "mul", null));
+
+        System.out.println(new CJobExecutor().toSummary(factory,job));
+        CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
+        attachment.put("x",100);
+        attachment.put("y","99");
+
+
+        CExecutor executor = new CJobExecutor().forceRun(factory, job, attachment);
+        System.out.println(executor.getReturnVal());
+
 //        System.out.println(JSON.toJSON(jobs));
 
     }
@@ -157,8 +175,8 @@ public class Startup {
         }else if(basicFileAttributes.isDirectory()){
             File[] files = file.listFiles();
             long ret = 0;
-            for (int i = 0; i < files.length; i++) {
-                ret += f(files[i].getAbsolutePath());
+            for (File value : files) {
+                ret += f(value.getAbsolutePath());
             }
             return ret;
         }

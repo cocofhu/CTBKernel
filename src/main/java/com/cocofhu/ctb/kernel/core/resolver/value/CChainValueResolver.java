@@ -20,7 +20,7 @@ public class CChainValueResolver implements CValueResolver {
     }
 
     @Override
-    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
         List<CValueWrapper> values = new ArrayList<>();
         for (CValueResolver resolver : resolvers) {
             List<CValueWrapper> cValueWrappers = resolver.resolveValues(parameter, config, dataSet);

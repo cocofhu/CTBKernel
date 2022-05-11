@@ -14,7 +14,7 @@ public interface CConstructorResolver extends Comparable<CConstructorResolver>{
     /**
      * 寻找失败将返回空，继续寻找，寻找成功返回后终止
      */
-    CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet);
+    CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet);
 
     /**
      * 优先级 优先级越高排在越前面

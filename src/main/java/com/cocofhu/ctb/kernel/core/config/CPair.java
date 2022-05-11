@@ -24,9 +24,9 @@ public class CPair<A,B> {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof CPair<?, ?> cp
-                && Objects.equals(first,cp.getFirst())
-                && Objects.equals(second,cp.getSecond());
+        return o instanceof CPair<?, ?>
+                && Objects.equals(first,((CPair<?, ?>)o).getFirst())
+                && Objects.equals(second,((CPair<?, ?>)o).getSecond());
     }
 
     @Override

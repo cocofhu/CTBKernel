@@ -19,16 +19,16 @@ public class CExecutableWrapper implements CMateData {
     private final CConfig config;
     private final CBeanDefinition beanDefinition;
 
-    private final CDefaultDefaultReadOnlyDataSet dataSet;
+    private final CReadOnlyDataSet<String, Object> dataSet;
 
-    public CExecutableWrapper(Executable executor, CConfig config, CBeanDefinition beanDefinition, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public CExecutableWrapper(Executable executor, CConfig config, CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) {
         this.executor = executor;
         this.config = config;
         this.beanDefinition = beanDefinition;
         this.dataSet = dataSet;
     }
 
-    private CParameterWrapper[] acquireParameterWrappers(){
+    public CParameterWrapper[] acquireParameterWrappers(){
         Parameter[] parameters = executor.getParameters();
         CParameterWrapper[] parameterWrappers = new CParameterWrapper[parameters.length];
         for (int i = 0 ; i< parameters.length ;++i){

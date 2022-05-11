@@ -32,7 +32,7 @@ public class CJobDetail implements CCloneable {
     private CExecutorMethod method;
 
     // 任务的附加参数
-    private CDefaultDefaultReadOnlyDataSet attachment;
+    private CDefaultDefaultReadOnlyDataSet<String, Object> attachment;
 
     // 多任务时的子任务
     private CJobDetail[] subJobs;
@@ -52,7 +52,7 @@ public class CJobDetail implements CCloneable {
     private String group;
 
     // 任务属性
-    private CDefaultDefaultReadOnlyDataSet attributes;
+    private CDefaultDefaultReadOnlyDataSet<String, Object> attributes;
 
 
     /**
@@ -69,7 +69,7 @@ public class CJobDetail implements CCloneable {
      * @param attachment      任务附加参数
      */
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, boolean ignoreException, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet attributes, CDefaultDefaultReadOnlyDataSet attachment) {
+                      CJobParam[] outputs, CJobParam[] removals, boolean ignoreException, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this.name = name;
         this.version = VERSION;
         this.type = TYPE_EXEC;
@@ -97,7 +97,7 @@ public class CJobDetail implements CCloneable {
      * @param attachment 任务附加参数
      */
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet attributes, CDefaultDefaultReadOnlyDataSet attachment) {
+                      CJobParam[] outputs, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this(name, info, group, inputs, outputs, null, false, method, attributes, attachment);
     }
 
@@ -115,17 +115,17 @@ public class CJobDetail implements CCloneable {
      * @param attachment 任务附加参数
      */
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet attributes, CDefaultDefaultReadOnlyDataSet attachment) {
+                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, attachment);
     }
 
     public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet attributes) {
+                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, null);
     }
 
 
-    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, CDefaultDefaultReadOnlyDataSet attributes, CDefaultDefaultReadOnlyDataSet attachment) {
+    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this.version = VERSION;
         this.type = TYPE_SCHEDULE;
         this.name = name;
@@ -136,7 +136,7 @@ public class CJobDetail implements CCloneable {
         this.attachment = attachment;
     }
 
-    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, CDefaultDefaultReadOnlyDataSet attributes) {
+    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
         this(name, info, group, subJobs, attributes, null);
     }
 
@@ -232,19 +232,19 @@ public class CJobDetail implements CCloneable {
         this.group = group;
     }
 
-    public CDefaultDefaultReadOnlyDataSet getAttachment() {
+    public CDefaultDefaultReadOnlyDataSet<String, Object> getAttachment() {
         return attachment;
     }
 
-    public void setAttachment(CDefaultDefaultReadOnlyDataSet attachment) {
+    public void setAttachment(CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this.attachment = attachment;
     }
 
-    public CDefaultDefaultReadOnlyDataSet getAttributes() {
+    public CDefaultDefaultReadOnlyDataSet<String, Object> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(CDefaultDefaultReadOnlyDataSet attributes) {
+    public void setAttributes(CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
         this.attributes = attributes;
     }
 

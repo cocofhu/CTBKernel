@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.basic;
 
-import com.cocofhu.ctb.kernel.anno.param.CExecutorInput;
+import com.cocofhu.ctb.kernel.anno.exec.CExecutorInput;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

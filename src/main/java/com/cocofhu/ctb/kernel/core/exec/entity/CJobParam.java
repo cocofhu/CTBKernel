@@ -29,6 +29,20 @@ public class CJobParam implements CCloneable {
         this.type = type;
     }
 
+    public CJobParam(String name, String info, Class<?> type) {
+        this.name = name;
+        this.info = info;
+        this.nullable = false;
+        this.type = type;
+    }
+
+    public CJobParam(String name, String info, String type) {
+        this.name = name;
+        this.info = info;
+        this.nullable = false;
+        this.type = type;
+    }
+
 
     public String getName() {
         return name;

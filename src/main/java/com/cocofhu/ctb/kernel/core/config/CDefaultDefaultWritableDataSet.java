@@ -3,9 +3,9 @@ package com.cocofhu.ctb.kernel.core.config;
 
 import java.util.Map;
 
-public class CDefaultDefaultWritableDataSet extends CDefaultDefaultReadOnlyDataSet implements CWritableDataSet<String, Object> {
+public class CDefaultDefaultWritableDataSet<K,V> extends CDefaultDefaultReadOnlyDataSet<K,V> implements CWritableDataSet<K,V> {
 
-    public CDefaultDefaultWritableDataSet(CDefaultDefaultReadOnlyDataSet dataset) {
+    public CDefaultDefaultWritableDataSet(CDefaultDefaultReadOnlyDataSet<K,V> dataset) {
         super(dataset);
     }
 
@@ -13,12 +13,12 @@ public class CDefaultDefaultWritableDataSet extends CDefaultDefaultReadOnlyDataS
         this(null);
     }
 
-    protected CDefaultDefaultWritableDataSet(Map<String,Object> dataImpl, CDefaultDefaultWritableDataSet dataset){
+    protected CDefaultDefaultWritableDataSet(Map<K,V> dataImpl, CDefaultDefaultWritableDataSet<K,V> dataset){
         super(dataImpl,dataset);
     }
 
     @Override
-    public Object put(String key, Object val) {
+    public V put(K key, V val) {
         if(key == null) {
             return null;
         }
@@ -29,12 +29,12 @@ public class CDefaultDefaultWritableDataSet extends CDefaultDefaultReadOnlyDataS
     }
 
     @Override
-    public Object remove(String key) {
+    public V remove(K key) {
         return dataset.remove(key);
     }
 
     @Override
-    public void putAll(CReadOnlyDataSet<? extends String, ?> dataSet) {
+    public void putAll(CReadOnlyDataSet<? extends K, ? extends V> dataSet) {
         if(dataSet != null){
             dataSet.entries().forEach(e -> this.put(e.getKey(),e.getValue()));
         }

@@ -10,7 +10,7 @@ import com.cocofhu.ctb.kernel.core.config.*;
 public class CBeanRefProcess extends CAbstractAnnoProcess {
 
     @Override
-    public CPair<Object, Boolean> process(CParameterWrapper parameter, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public CPair<Object, Boolean> process(CParameterWrapper parameter, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
         CBeanRef annotation = parameter.getAnnotation(CBeanRef.class);
         if (annotation != null){
             String value = annotation.value();

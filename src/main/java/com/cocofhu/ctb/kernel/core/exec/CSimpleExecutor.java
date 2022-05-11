@@ -9,7 +9,6 @@ import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -22,7 +21,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
     private final CExecutorMethod executorMethod;
 
 
-    public CSimpleExecutor(CExecutorContext executorContext, CConfig config, CExecutorMethod executorMethod, boolean ignoreException, CDefaultDefaultReadOnlyDataSet attachment) {
+    public CSimpleExecutor(CExecutorContext executorContext, CConfig config, CExecutorMethod executorMethod, boolean ignoreException, CDefaultDefaultReadOnlyDataSet<String,Object> attachment) {
         super(executorContext, config, ignoreException, attachment);
         this.executorMethod = executorMethod;
     }
@@ -52,8 +51,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
             // 获取执行信息 这里可能会抛出 CNoSuchBeanDefinitionException
             CBeanDefinition beanDefinition = config.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-
-            CExecutorContext newContext = executorContext.newLayer();
+            CDefaultLayerDataSet<String, Object> newContext = executorContext.newLayer();
             newContext.putAll(attachment);
 
             Object bean = config.getBeanFactory().getBean(beanDefinition, newContext);
@@ -64,7 +62,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
             }
 
 
-            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, executorContext);
+            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, newContext);
 
             try {
                 Object returnVal = executableWrapper.execute(bean);

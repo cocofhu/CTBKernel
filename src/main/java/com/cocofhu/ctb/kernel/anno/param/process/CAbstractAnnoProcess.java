@@ -8,10 +8,10 @@ import com.cocofhu.ctb.kernel.core.config.*;
  */
 public abstract class CAbstractAnnoProcess implements CAnnoProcess {
     @Override
-    public CPair<Object, Boolean> process(CPair<CParameterWrapper, CDefaultDefaultReadOnlyDataSet> target, CConfig config) {
+    public CPair<Object, Boolean> process(CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>> target, CConfig config) {
         return process(target.getFirst(), config, target.getSecond());
     }
 
-    public abstract CPair<Object, Boolean> process(CParameterWrapper parameterWrapper, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet);
+    public abstract CPair<Object, Boolean> process(CParameterWrapper parameterWrapper, CConfig config, CReadOnlyDataSet<String, Object> dataSet);
 
 }

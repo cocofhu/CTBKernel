@@ -9,7 +9,7 @@ public class CValueWrapper {
     /**
      * 该值是由哪一个值处理器处理出来的
      */
-    private final CProcess<CPair<CParameterWrapper,CDefaultDefaultReadOnlyDataSet>> valueProcess;
+    private final CProcess<CPair<CParameterWrapper,CReadOnlyDataSet<String, Object>>> valueProcess;
     /**
      * 第二个参数用于表示是否处理成功
      */
@@ -21,7 +21,7 @@ public class CValueWrapper {
 
     private final CParameterWrapper parameterWrapper;
 
-    public CValueWrapper(CProcess<CPair<CParameterWrapper,CDefaultDefaultReadOnlyDataSet>> valueProcess, CPair<Object, Boolean> value, CConfig context, CParameterWrapper parameterWrapper) {
+    public CValueWrapper(CProcess<CPair<CParameterWrapper,CReadOnlyDataSet<String, Object>>> valueProcess, CPair<Object, Boolean> value, CConfig context, CParameterWrapper parameterWrapper) {
         this.valueProcess = valueProcess;
         this.value = value;
         this.context = context;
@@ -29,7 +29,7 @@ public class CValueWrapper {
     }
 
 
-    public CProcess<CPair<CParameterWrapper,CDefaultDefaultReadOnlyDataSet>> getValueProcess() {
+    public CProcess<CPair<CParameterWrapper,CReadOnlyDataSet<String, Object>>> getValueProcess() {
         return valueProcess;
     }
 

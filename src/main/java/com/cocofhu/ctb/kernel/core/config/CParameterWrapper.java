@@ -13,9 +13,9 @@ public class CParameterWrapper implements CMateData {
 
     private final CExecutableWrapper executor;
 
-    private final CDefaultDefaultReadOnlyDataSet dataSet;
+    private final CReadOnlyDataSet<String, Object> dataSet;
 
-    public CParameterWrapper(Parameter parameter, CConfig config, CExecutableWrapper executor, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public CParameterWrapper(Parameter parameter, CConfig config, CExecutableWrapper executor, CReadOnlyDataSet<String, Object> dataSet) {
         this.parameter = parameter;
         this.config = config;
         this.executor = executor;

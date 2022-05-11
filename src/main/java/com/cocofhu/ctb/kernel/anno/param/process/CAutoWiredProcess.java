@@ -11,15 +11,14 @@ import java.lang.annotation.Annotation;
 
 public class CAutoWiredProcess extends CAbstractAnnoProcess {
     @Override
-    public CPair<Object, Boolean> process(CParameterWrapper parameter, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet) {
+    public CPair<Object, Boolean> process(CParameterWrapper parameter, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
         Annotation annotation = parameter.acquireNearAnnotation(CAutowired.class);
         if (annotation != null && parameter.getParameter().getType().isAssignableFrom(CBeanFactory.class)) {
             return new CPair<>(config.getBeanFactory(), true);
         }
         if (annotation != null && parameter.getParameter().getType().isAssignableFrom(CExecutorContext.class)) {
-            Object obj = dataSet.get(CExecutor.EXEC_CONTEXT_KEY);
-            if (obj instanceof CExecutorContext) {
-                return new CPair<>(obj, true);
+            if (dataSet instanceof CExecutorContext) {
+                return new CPair<>(dataSet, true);
             }
         }
         try {

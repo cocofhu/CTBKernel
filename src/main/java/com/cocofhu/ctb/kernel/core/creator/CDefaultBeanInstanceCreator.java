@@ -28,7 +28,7 @@ public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
     }
 
     @Override
-    public Object newInstance(CBeanDefinition beanDefinition, CConfig config, CDefaultDefaultReadOnlyDataSet dataSet)
+    public Object newInstance(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet)
             throws CNoBeanFactoryException, CNoConstructorResolverException, CNoSuchConstructorException, CInstantiationException {
         try {
             return resolveConstructor(beanDefinition, config,dataSet).execute(null);
