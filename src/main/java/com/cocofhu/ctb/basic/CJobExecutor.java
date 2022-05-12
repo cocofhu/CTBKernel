@@ -10,7 +10,7 @@ import com.cocofhu.ctb.kernel.anno.param.CAutowired;
 import com.cocofhu.ctb.kernel.core.exec.entity.CJobSummary;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.exception.job.CJobParamNotFoundException;
-import com.cocofhu.ctb.kernel.exception.CUnsupportedOperationException;
+import com.cocofhu.ctb.kernel.exception.job.CJobUnsupportedOperationException;
 import com.cocofhu.ctb.kernel.util.CStringUtils;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 
@@ -201,7 +201,7 @@ public class CJobExecutor {
         } else if (input.getType() instanceof Class<?>) {
             exactlyType = (Class<?>) input.getType();
         } else {
-            throw new CUnsupportedOperationException("can not parse type of input, " + input.getType());
+            throw new CJobUnsupportedOperationException("can not parse type of input, " + input.getType());
         }
         // dereference 找到真正的参数类型
         if (typeRefPair != null) {
@@ -307,7 +307,7 @@ public class CJobExecutor {
             }
             return new CPair<>(new CExecutorJob(context, factory.getConfig(), job.isIgnoreException(), executors), everyContextTypes);
         }
-        throw new CUnsupportedOperationException("unsupported job type: " + job.getType());
+        throw new CJobUnsupportedOperationException("unsupported job type: " + job.getType());
     }
 
     private String dereferenceOfName(CDefaultLayerDataSet<String, Object> ref, CPair<String, Integer> pair) {
@@ -320,7 +320,7 @@ public class CJobExecutor {
             } else if (obj instanceof String) {
                 name = (String) obj;
             } else {
-                throw new CUnsupportedOperationException("can not dereference of " + pair + " from type which is not instanceof string, " + obj);
+                throw new CJobUnsupportedOperationException("can not dereference of " + pair + " from type which is not instanceof string, " + obj);
             }
         }
         return name;

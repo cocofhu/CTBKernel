@@ -1,9 +1,8 @@
 package com.cocofhu.ctb.kernel.core.config;
 
 
-import com.cocofhu.ctb.kernel.exception.exec.CNoParameterValueException;
-import com.cocofhu.ctb.kernel.exception.exec.CNoUniqueParameterValueException;
-import com.cocofhu.ctb.kernel.exception.exec.CUnsupportedExecutableTypeException;
+import com.cocofhu.ctb.kernel.exception.CBeanException;
+import com.cocofhu.ctb.kernel.exception.bean.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -21,14 +20,26 @@ public class CExecutableWrapper implements CMateData {
 
     private final CReadOnlyDataSet<String, Object> dataSet;
 
-    public CExecutableWrapper(Executable executor, CConfig config, CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) {
+    public CExecutableWrapper(Executable executor, CConfig config, CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
+
+        if (executor == null) {
+            throw new CEmptyExecutableException("empty executable object, maybe method or constructor not found.");
+        }
+        if (config == null) {
+            throw new CEmptyConfigException();
+        }
+        if (beanDefinition == null) {
+            throw new CEmptyBeanDefinitionException();
+        }
+
+
         this.executor = executor;
         this.config = config;
         this.beanDefinition = beanDefinition;
         this.dataSet = dataSet;
     }
 
-    public CParameterWrapper[] acquireParameterWrappers(){
+    public CParameterWrapper[] acquireParameterWrappers() {
         Parameter[] parameters = executor.getParameters();
         CParameterWrapper[] parameterWrappers = new CParameterWrapper[parameters.length];
         for (int i = 0 ; i< parameters.length ;++i){
@@ -37,36 +48,18 @@ public class CExecutableWrapper implements CMateData {
         return parameterWrappers;
     }
 
-    private Object[] acquireParameterValues() {
-        CParameterWrapper[] parameterWrappers = acquireParameterWrappers();
-        Object[] values = new Object[parameterWrappers.length];
-        for (int i = 0; i < parameterWrappers.length; i++) {
-            List<CValueWrapper> cValueWrappers = parameterWrappers[i].resolveParameterValues();
-
-
-            // 以后增加更多实现
-            if(cValueWrappers.size() == 0){
-                throw new CNoParameterValueException("no value resolved for parameter :" +
-                        parameterWrappers[i].getParameter().getName() + " on class constructor or method : " + executor.getName());
-            }else if(cValueWrappers.size() != 1){
-
-                throw new CNoUniqueParameterValueException("no unique value resolved for parameter :" +
-                        parameterWrappers[i].getParameter().getName() + " on class constructor or method : " + executor.getName() + "(" + cValueWrappers + ")");
-            }else{
-                values[i] = cValueWrappers.get(0).getValue().getFirst();
-            }
-        }
-        return values;
-    }
-
     public Object execute(Object obj) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         if(executor instanceof Constructor) {
             return ((Constructor<?>) executor).newInstance(acquireParameterValues());
         }else if(executor instanceof  Method){
             return ((Method) executor).invoke(obj,acquireParameterValues());
         }else{
-            throw new CUnsupportedExecutableTypeException("unsupported executable type of " + executor.getClass());
+            throw new CUnsupportedExecutableTypeException(this);
         }
+    }
+
+    public Executable getExecutor() {
+        return executor;
     }
 
     @Override
@@ -84,5 +77,23 @@ public class CExecutableWrapper implements CMateData {
         return beanDefinition;
     }
 
+    private Object[] acquireParameterValues() {
+        CParameterWrapper[] parameterWrappers = acquireParameterWrappers();
+        Object[] values = new Object[parameterWrappers.length];
+        for (int i = 0; i < parameterWrappers.length; i++) {
+            List<CValueWrapper> cValueWrappers = parameterWrappers[i].resolveParameterValues();
+
+
+            // 以后增加更多实现
+            if(cValueWrappers.size() == 0){
+                throw new CNoParameterValueException(parameterWrappers[i], this);
+            }else if(cValueWrappers.size() != 1){
+                throw new CNoUniqueParameterValueException(parameterWrappers[i], this, cValueWrappers);
+            }else{
+                values[i] = cValueWrappers.get(0).getValue().getFirst();
+            }
+        }
+        return values;
+    }
 }
 

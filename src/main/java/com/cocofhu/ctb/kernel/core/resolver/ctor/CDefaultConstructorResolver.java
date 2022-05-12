@@ -1,6 +1,7 @@
 package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
 import com.cocofhu.ctb.kernel.core.config.*;
+import com.cocofhu.ctb.kernel.exception.CBeanException;
 
 import java.lang.reflect.Constructor;
 
@@ -10,7 +11,7 @@ import java.lang.reflect.Constructor;
  */
 public class CDefaultConstructorResolver implements CConstructorResolver {
     @Override
-    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
+    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
         checkEmpty(beanDefinition, config);
         Class<?> clazz = beanDefinition.getBeanClass();
         Constructor<?>[] constructors = clazz.getConstructors();

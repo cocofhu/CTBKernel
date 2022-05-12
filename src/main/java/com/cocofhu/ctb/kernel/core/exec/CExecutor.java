@@ -2,6 +2,7 @@ package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.core.config.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.exception.CJobException;
 
 import java.util.Map;
 
@@ -10,8 +11,7 @@ import java.util.Map;
  */
 public interface CExecutor extends Runnable{
 
-    String EXEC_CONTEXT_KEY = "EXEC_CONTEXT_KEY";
-    String EXEC_ATTACHMENT_KEY = "EXEC_ATTACHMENT_KEY";
+
     String EXEC_RETURN_VAL_KEY = "EXEC_RETURN_VAL_KEY";
     String EXEC_EXCEPTION_KEY = "EXEC_EXCEPTION_KEY";
 
@@ -52,10 +52,12 @@ public interface CExecutor extends Runnable{
 
     boolean isExecutedSuccessfully();
 
-    Throwable getThrowable();
-    Object getReturnVal();
+    Throwable getThrowable() throws CJobException;
+    Object getReturnVal() throws CJobException;
 
     void setAttachment(CReadOnlyDataSet<String, Object> attachment);
 
 
+    @Override
+    void run() throws CJobException;
 }

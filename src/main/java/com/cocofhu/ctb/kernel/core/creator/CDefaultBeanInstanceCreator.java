@@ -2,10 +2,8 @@ package com.cocofhu.ctb.kernel.core.creator;
 
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
-import com.cocofhu.ctb.kernel.exception.exec.CInstantiationException;
-import com.cocofhu.ctb.kernel.exception.exec.CNoBeanFactoryException;
-import com.cocofhu.ctb.kernel.exception.exec.CNoConstructorResolverException;
-import com.cocofhu.ctb.kernel.exception.exec.CNoSuchConstructorException;
+import com.cocofhu.ctb.kernel.exception.CBeanException;
+import com.cocofhu.ctb.kernel.exception.bean.CInstantiationException;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -19,8 +17,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
 
-    public CDefaultBeanInstanceCreator() {
-    }
+
     public CDefaultBeanInstanceCreator(CConstructorResolver[] constructorResolvers) {
         for (CConstructorResolver ctorResolver: constructorResolvers) {
             registerConstructorResolvers(ctorResolver);
@@ -29,11 +26,11 @@ public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
 
     @Override
     public Object newInstance(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet)
-            throws CNoBeanFactoryException, CNoConstructorResolverException, CNoSuchConstructorException, CInstantiationException {
+            throws CBeanException {
         try {
             return resolveConstructor(beanDefinition, config,dataSet).execute(null);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new CInstantiationException("Instantiating for " + beanDefinition.getBeanClassName() + " failed.");
+            throw new CInstantiationException("Instantiating for " + beanDefinition.getBeanClassName() + " failed.", beanDefinition);
         }
     }
 

@@ -1,4 +1,4 @@
-package com.cocofhu.ctb.kernel.exception.exec;
+package com.cocofhu.ctb.kernel.exception.bean;
 
 import com.cocofhu.ctb.kernel.exception.CBeanException;
 
@@ -7,7 +7,7 @@ import com.cocofhu.ctb.kernel.exception.CBeanException;
  * @author cocofhu
  */
 public class CNoConstructorResolverException extends CBeanException {
-    public CNoConstructorResolverException(String msg) {
-        super(msg);
+    public CNoConstructorResolverException() {
+        super("constructor resolver set was not set.");
     }
 }

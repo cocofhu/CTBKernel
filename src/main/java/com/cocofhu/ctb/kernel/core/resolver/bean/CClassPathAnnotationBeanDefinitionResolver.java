@@ -3,6 +3,7 @@ package com.cocofhu.ctb.kernel.core.resolver.bean;
 import com.cocofhu.ctb.kernel.anno.CBean;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
+import com.cocofhu.ctb.kernel.core.config.CConfig;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -17,7 +18,7 @@ import java.util.Objects;
  */
 public class CClassPathAnnotationBeanDefinitionResolver implements CBeanDefinitionResolver {
     @Override
-    public List<CBeanDefinition> resolveAll() {
+    public List<CBeanDefinition> resolveAll(CConfig config) {
         List<CBeanDefinition> beanDefinitions = new ArrayList<>();
         try {
             String url = getClassPath();
@@ -58,9 +59,7 @@ public class CClassPathAnnotationBeanDefinitionResolver implements CBeanDefiniti
     private static List<String> getClassesList(String url) {
         File file = new File(url);
         List<String> classes = getAllClass(file);
-        for (int i = 0; i < classes.size(); i++) {
-            classes.set(i, classes.get(i).replace(url, "").replace(".class", "").replace("/", ".").replace("\\","."));
-        }
+        classes.replaceAll(s -> s.replace(url, "").replace(".class", "").replace("/", ".").replace("\\", "."));
         return classes;
     }
 

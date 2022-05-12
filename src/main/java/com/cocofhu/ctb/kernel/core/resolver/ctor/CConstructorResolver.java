@@ -1,8 +1,9 @@
 package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
 import com.cocofhu.ctb.kernel.core.config.*;
+import com.cocofhu.ctb.kernel.exception.CBeanException;
 import com.cocofhu.ctb.kernel.exception.bean.CEmptyBeanDefinitionException;
-import com.cocofhu.ctb.kernel.exception.exec.CEmptyConfigException;
+import com.cocofhu.ctb.kernel.exception.bean.CEmptyConfigException;
 
 /**
  * 为指定的BeanDefinition寻找构造函数
@@ -14,7 +15,7 @@ public interface CConstructorResolver extends Comparable<CConstructorResolver>{
     /**
      * 寻找失败将返回空，继续寻找，寻找成功返回后终止
      */
-    CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet);
+    CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException;
 
     /**
      * 优先级 优先级越高排在越前面
@@ -28,7 +29,7 @@ public interface CConstructorResolver extends Comparable<CConstructorResolver>{
         return o.priority() - this.priority();
     }
 
-    default void checkEmpty(CBeanDefinition beanDefinition, CConfig config){
+    default void checkEmpty(CBeanDefinition beanDefinition, CConfig config) throws CBeanException{
         if(beanDefinition == null){
             throw new CEmptyBeanDefinitionException();
         }

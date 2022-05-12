@@ -1,5 +1,9 @@
 package com.cocofhu.ctb.kernel.core.config;
 
+import com.cocofhu.ctb.kernel.exception.bean.CEmptyConfigException;
+import com.cocofhu.ctb.kernel.exception.bean.CEmptyExecutableException;
+import com.cocofhu.ctb.kernel.exception.bean.CEmptyParameterException;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.util.List;
@@ -16,6 +20,17 @@ public class CParameterWrapper implements CMateData {
     private final CReadOnlyDataSet<String, Object> dataSet;
 
     public CParameterWrapper(Parameter parameter, CConfig config, CExecutableWrapper executor, CReadOnlyDataSet<String, Object> dataSet) {
+
+        if(parameter == null){
+            throw new CEmptyParameterException("empty parameter on build a parameter wrapper. ");
+        }
+        if(config == null){
+            throw new CEmptyConfigException();
+        }
+        if(executor == null){
+            throw new CEmptyExecutableException("empty executable object on build a parameter wrapper. ");
+        }
+
         this.parameter = parameter;
         this.config = config;
         this.executor = executor;

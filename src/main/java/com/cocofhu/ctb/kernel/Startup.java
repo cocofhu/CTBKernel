@@ -9,8 +9,6 @@ import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
 import com.cocofhu.ctb.basic.CJobExecutor;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CPair;
-import com.cocofhu.ctb.kernel.core.exec.entity.CJobSummary;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.core.exec.*;
 import com.cocofhu.ctb.kernel.test.Power;
@@ -26,7 +24,7 @@ public class Startup {
 
 
     public static void main(String[] args) throws Exception {
-        CMethodBeanFactory factory = new CMethodBeanFactory(() -> {
+        CMethodBeanFactory factory = new CMethodBeanFactory((config) -> {
             List<CBeanDefinition> result = new ArrayList<>();
             result.add(new CAbstractDefinition(CParamExecutor.class) {
                 @Override
@@ -175,6 +173,7 @@ public class Startup {
         }else if(basicFileAttributes.isDirectory()){
             File[] files = file.listFiles();
             long ret = 0;
+            assert files != null;
             for (File value : files) {
                 ret += f(value.getAbsolutePath());
             }

@@ -6,5 +6,5 @@ import com.cocofhu.ctb.kernel.core.config.CConfig;
  * @author cocofhu
  */
 public interface CConfigAware {
-    void setCTBContext(CConfig config);
+    void setConfig(CConfig config);
 }

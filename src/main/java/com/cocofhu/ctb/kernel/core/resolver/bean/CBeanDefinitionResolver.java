@@ -1,6 +1,8 @@
 package com.cocofhu.ctb.kernel.core.resolver.bean;
 
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
+import com.cocofhu.ctb.kernel.core.config.CConfig;
+import com.cocofhu.ctb.kernel.exception.CBeanException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +12,5 @@ import java.util.List;
  */
 public interface CBeanDefinitionResolver {
 
-    default List<CBeanDefinition> singeValue(CBeanDefinition beanDefinition){
-        List<CBeanDefinition> cBeanDefinitions = new ArrayList<>();
-        cBeanDefinitions.add(beanDefinition);
-        return cBeanDefinitions;
-    }
-    List<CBeanDefinition> resolveAll();
+    List<CBeanDefinition> resolveAll(CConfig config) throws CBeanException;
 }

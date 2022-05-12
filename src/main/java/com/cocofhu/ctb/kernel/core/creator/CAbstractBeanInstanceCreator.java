@@ -5,8 +5,8 @@ import com.cocofhu.ctb.kernel.core.aware.CConfigAware;
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
-import com.cocofhu.ctb.kernel.exception.exec.CNoConstructorResolverException;
-import com.cocofhu.ctb.kernel.exception.exec.CNoSuchConstructorException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoConstructorResolverException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoConstructorException;
 
 
 import java.util.PriorityQueue;
@@ -15,16 +15,9 @@ import java.util.Queue;
 /**
  * @author cocofhu
  */
-public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreator, CBeanFactoryAware, CConfigAware {
+public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreator {
 
     protected Queue<CConstructorResolver> resolvers;
-    protected CBeanFactory beanFactory;
-    protected CConfig context;
-
-    @Override
-    public void setBeanFactory(CBeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
 
 
     @Override
@@ -38,7 +31,7 @@ public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreat
     @Override
     public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
         if (resolvers == null || resolvers.size() == 0) {
-            throw new CNoConstructorResolverException("ConstructorResolver set was not set.");
+            throw new CNoConstructorResolverException();
         }
         CExecutableWrapper ctorWrapper = null;
         for (CConstructorResolver resolver : resolvers) {
@@ -47,13 +40,9 @@ public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreat
         }
 
         if (ctorWrapper == null) {
-            throw new CNoSuchConstructorException("No constructor was found for " + beanDefinition.getBeanClassName() + ".");
+            throw new CNoConstructorException(beanDefinition);
         }
         return ctorWrapper;
     }
 
-    @Override
-    public void setCTBContext(CConfig context) {
-        this.context = context;
-    }
 }

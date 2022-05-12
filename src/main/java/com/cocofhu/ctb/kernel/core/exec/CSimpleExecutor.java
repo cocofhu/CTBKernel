@@ -1,9 +1,9 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.*;
-import com.cocofhu.ctb.kernel.exception.job.CExecutorExceptionUnhandledException;
-import com.cocofhu.ctb.kernel.exception.job.CExecutorStatusException;
-import com.cocofhu.ctb.kernel.exception.exec.CBeanMethodInvokeException;
+import com.cocofhu.ctb.kernel.exception.job.CJobExceptionUnhandledException;
+import com.cocofhu.ctb.kernel.exception.job.CJobStatusException;
+import com.cocofhu.ctb.kernel.exception.job.CJobBeanMethodInvokeException;
 import com.cocofhu.ctb.kernel.exception.job.CNoSuchMethodException;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 
@@ -37,12 +37,12 @@ public class CSimpleExecutor extends CAbstractExecutor {
         try {
             lock.lock();
             if (getStatus() != Status.Ready) {
-                throw new CExecutorStatusException("executor is not ready.");
+                throw new CJobStatusException(this, "executor is not ready.");
             }
             if (!isIgnoreException() && isExceptionInContext()) {
                 // 有未处理的异常
                 setStatus(Status.Exception);
-                throw new CExecutorExceptionUnhandledException(getThrowable());
+                throw new CJobExceptionUnhandledException(getThrowable());
             }
             // 清除上一次的异常
             executorContext.put(EXEC_EXCEPTION_KEY,null);
@@ -68,7 +68,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
                 Object returnVal = executableWrapper.execute(bean);
                 executorContext.put(EXEC_RETURN_VAL_KEY, returnVal);
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new CBeanMethodInvokeException("cannot call method of " + method.getName() + ", exception message : " + e.getMessage());
+                throw new CJobBeanMethodInvokeException(executorMethod, e);
             } catch (InvocationTargetException e) {
                 executorContext.put(EXEC_EXCEPTION_KEY,e.getTargetException());
             }

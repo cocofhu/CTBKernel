@@ -1,35 +1,53 @@
 package com.cocofhu.ctb.kernel.core.config;
 
 import com.cocofhu.ctb.kernel.core.resolver.CProcess;
+import com.cocofhu.ctb.kernel.exception.bean.CEmptyConfigException;
+import com.cocofhu.ctb.kernel.exception.bean.CEmptyParameterException;
+import com.cocofhu.ctb.kernel.exception.bean.CEmptyValueException;
+
+import java.lang.annotation.Annotation;
 
 /**
  * @author cocofhu
  */
-public class CValueWrapper {
+public class CValueWrapper implements CMateData {
     /**
      * 该值是由哪一个值处理器处理出来的
      */
-    private final CProcess<CPair<CParameterWrapper,CReadOnlyDataSet<String, Object>>> valueProcess;
+    private final CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> valueProcess;
     /**
      * 第二个参数用于表示是否处理成功
      */
-    private final CPair<Object,Boolean> value;
+    private final CPair<Object, Boolean> value;
     /**
      * 上下文
      */
-    private final CConfig context;
+    private final CConfig config;
 
     private final CParameterWrapper parameterWrapper;
 
-    public CValueWrapper(CProcess<CPair<CParameterWrapper,CReadOnlyDataSet<String, Object>>> valueProcess, CPair<Object, Boolean> value, CConfig context, CParameterWrapper parameterWrapper) {
+    public CValueWrapper(CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> valueProcess,
+                         CPair<Object, Boolean> value, CConfig config, CParameterWrapper parameterWrapper) {
+
+
+        if (value == null) {
+            throw new CEmptyValueException(valueProcess);
+        }
+        if (config == null) {
+            throw new CEmptyConfigException();
+        }
+        if (parameterWrapper == null) {
+            throw new CEmptyParameterException("empty parameter on build a value wrapper, where do you find this value: + " + value + ".");
+        }
+
         this.valueProcess = valueProcess;
         this.value = value;
-        this.context = context;
+        this.config = config;
         this.parameterWrapper = parameterWrapper;
     }
 
 
-    public CProcess<CPair<CParameterWrapper,CReadOnlyDataSet<String, Object>>> getValueProcess() {
+    public CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> getValueProcess() {
         return valueProcess;
     }
 
@@ -37,21 +55,28 @@ public class CValueWrapper {
         return value;
     }
 
-    public CParameterWrapper getParameterWrapper() {
-        return parameterWrapper;
-    }
-
-    public CConfig getContext() {
-        return context;
-    }
-
     @Override
     public String toString() {
         return "CValueWrapper{" +
                 "valueProcess=" + valueProcess +
                 ", value=" + value +
-                ", context=" + context +
+                ", config=" + config +
                 ", parameterWrapper=" + parameterWrapper +
                 '}';
+    }
+
+    @Override
+    public Annotation[] getAnnotations() {
+        return new Annotation[0];
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> clazz) {
+        return null;
+    }
+
+    @Override
+    public CMateData getParent() {
+        return parameterWrapper;
     }
 }

@@ -8,15 +8,15 @@ import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.core.resolver.value.CValueResolver;
+import com.cocofhu.ctb.kernel.exception.CBeanException;
 import com.cocofhu.ctb.kernel.exception.bean.CEmptyBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoUniqueBeanDefinitionException;
-import com.cocofhu.ctb.kernel.exception.exec.CInstantiationException;
+import com.cocofhu.ctb.kernel.exception.bean.CInstantiationException;
 
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,17 +69,17 @@ public class CDefaultBeanFactory implements CBeanFactory {
     }
 
     @Override
-    public Object getBean(String name) {
+    public Object getBean(String name) throws CBeanException {
         return doGetBean(name, null, null);
     }
 
     @Override
-    public <T> T getBean(String name, Class<T> requiredType) {
+    public <T> T getBean(String name, Class<T> requiredType) throws CBeanException {
         return doGetBean(name, requiredType, null);
     }
 
     @Override
-    public <T> T getBean(Class<T> requiredType) {
+    public <T> T getBean(Class<T> requiredType) throws CBeanException {
         return doGetBean(null, requiredType, null);
     }
 
@@ -89,17 +89,17 @@ public class CDefaultBeanFactory implements CBeanFactory {
     }
 
     @Override
-    public boolean isSingleton(String name) throws CNoSuchBeanDefinitionException {
+    public boolean isSingleton(String name) throws CBeanException {
         return doGetSingleBeanDefinition(name, null).isSingleton();
     }
 
     @Override
-    public boolean isPrototype(String name) throws CNoSuchBeanDefinitionException {
+    public boolean isPrototype(String name) throws CBeanException {
         return doGetSingleBeanDefinition(name, null).isPrototype();
     }
 
     @Override
-    public Class<?> getType(String name) throws CNoSuchBeanDefinitionException {
+    public Class<?> getType(String name) throws CBeanException {
         return doGetSingleBeanDefinition(name, null).getBeanClass();
     }
 
@@ -109,42 +109,42 @@ public class CDefaultBeanFactory implements CBeanFactory {
     }
 
     @Override
-    public CBeanDefinition getBeanDefinition(String name) {
+    public CBeanDefinition getBeanDefinition(String name) throws CBeanException {
         return doGetSingleBeanDefinition(name, null);
     }
 
     @Override
-    public CBeanDefinition getBeanDefinition(String name, Class<?> requiredType) {
+    public CBeanDefinition getBeanDefinition(String name, Class<?> requiredType) throws CBeanException {
         return doGetSingleBeanDefinition(name, requiredType);
     }
 
     @Override
-    public CBeanDefinition getBeanDefinition(Class<?> requiredType) {
+    public CBeanDefinition getBeanDefinition(Class<?> requiredType) throws CBeanException {
         return doGetSingleBeanDefinition(null, requiredType);
     }
 
     @Override
-    public Object getBean(CBeanDefinition beanDefinition) {
+    public Object getBean(CBeanDefinition beanDefinition) throws CBeanException {
         return getBean(beanDefinition, null);
     }
 
     @Override
-    public Object getBean(String name, CReadOnlyDataSet<String, Object> dataSet) {
+    public Object getBean(String name, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
         return doGetBean(name, null, dataSet);
     }
 
     @Override
-    public <T> T getBean(String name, Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) {
+    public <T> T getBean(String name, Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
         return doGetBean(name, requiredType, dataSet);
     }
 
     @Override
-    public <T> T getBean(Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) {
+    public <T> T getBean(Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
         return doGetBean(null, requiredType, dataSet);
     }
 
     @Override
-    public Object getBean(CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) {
+    public Object getBean(CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
         if (!beanDefinitionsForName.containsValue(beanDefinition)) {
             throw new CNoSuchBeanDefinitionException("no such bean definition found in bean factory, make sure acquired bean definition by using getBeanDefinition");
         }
@@ -157,7 +157,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
         singletonObjects.clear();
         beanDefinitionsForName.clear();
 
-        List<CBeanDefinition> beanDefinitions = this.config.getBeanDefinitionResolver().resolveAll();
+        List<CBeanDefinition> beanDefinitions = this.config.getBeanDefinitionResolver().resolveAll(this.config);
         // 注册获取到的Bean
         for (CBeanDefinition bd : beanDefinitions) {
             registerBeanDefinition(bd);
@@ -241,10 +241,10 @@ public class CDefaultBeanFactory implements CBeanFactory {
             beanDefinition = beansFound[0];
             // 这里如果按照规范注册BeanDefinition，这里不会为空
             if (beanDefinition == null) {
-                throw new CNoSuchBeanDefinitionException("beanDefinition is null,  type:" + requiredType.getName());
+                throw new CNoSuchBeanDefinitionException("bean definition is null,  type:" + requiredType.getName());
             }
         } else {
-            throw new CNoSuchBeanDefinitionException("can not resolve beanDefinition,both name and type are null.");
+            throw new CNoSuchBeanDefinitionException("can not resolve bean definition,both name and type are null.");
         }
         return beanDefinition;
     }
@@ -254,7 +254,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
             ((CBeanFactoryAware) obj).setBeanFactory(this);
         }
         if (obj instanceof CConfigAware) {
-            ((CConfigAware) obj).setCTBContext(this.config);
+            ((CConfigAware) obj).setConfig(this.config);
         }
         if (obj instanceof CBeanNameAware && beanDefinition != null) {
             ((CBeanNameAware) obj).setBeanName(beanDefinition.getBeanName());
@@ -276,10 +276,10 @@ public class CDefaultBeanFactory implements CBeanFactory {
             try {
                 executableWrapper.execute(o);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new CInstantiationException("can not call init-method " + method.getName() + " of bean " + b.getBeanName());
-            } catch (InstantiationException e) {
+                throw new CInstantiationException("can not call init-method " + method.getName() + " of bean " + b.getBeanName(), b);
+            } catch (InstantiationException ignore) {
                 // It cannot reach here!
-                throw new RuntimeException(e);
+                // throw new RuntimeException(e);
             }
         }
     }
@@ -298,7 +298,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
 
             awareCallBack(beanInstance, beanDefinition);
         } else {
-            throw new CInstantiationException("instantiating bean for " + beanDefinition.getBeanClassName() + " unsupported.");
+            throw new CInstantiationException("instantiating bean for " + beanDefinition.getBeanClassName() + " unsupported.", beanDefinition);
         }
 
         return (T) beanInstance;

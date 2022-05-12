@@ -1,6 +1,7 @@
 package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
 import com.cocofhu.ctb.kernel.core.config.*;
+import com.cocofhu.ctb.kernel.exception.CBeanException;
 
 /**
  * 寻找默认的无参构造函数
@@ -8,7 +9,7 @@ import com.cocofhu.ctb.kernel.core.config.*;
  */
 public class CDefaultNoParameterConstructorResolver implements CConstructorResolver {
     @Override
-    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
+    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
         checkEmpty(beanDefinition, config);
         Class<?> clazz = beanDefinition.getBeanClass();
         try {
