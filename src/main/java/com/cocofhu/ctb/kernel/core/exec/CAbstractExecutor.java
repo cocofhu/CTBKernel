@@ -1,12 +1,9 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
-import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.core.config.CReadOnlyDataSet;
-import com.cocofhu.ctb.kernel.exception.CExecutorStatusException;
+import com.cocofhu.ctb.kernel.exception.job.CExecutorStatusException;
 import com.cocofhu.ctb.kernel.exception.CUnsupportedOperationException;
-
-import java.util.Map;
 
 /**
  * @author cocofhu

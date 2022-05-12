@@ -8,7 +8,10 @@ import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.core.resolver.value.CValueResolver;
-import com.cocofhu.ctb.kernel.exception.*;
+import com.cocofhu.ctb.kernel.exception.bean.CEmptyBeanDefinitionException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoUniqueBeanDefinitionException;
+import com.cocofhu.ctb.kernel.exception.exec.CInstantiationException;
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -184,7 +187,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
 
     protected void registerBeanDefinition(CBeanDefinition beanDefinition) {
         if (beanDefinition == null) {
-            throw new CBadBeanDefinitionException("bean definition is null.");
+            throw new CEmptyBeanDefinitionException();
         }
         beanDefinitionsForName.put(beanDefinition.getBeanName(), beanDefinition);
     }
@@ -233,7 +236,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
                 throw new CNoSuchBeanDefinitionException(requiredType.getName() + " of bean was not found by type.");
             }
             if (beansFound.length != 1) {
-                throw new CNoUniqueBeanDefinitionException(Arrays.stream(beansFound).map(CBeanDefinition::getBeanName).toArray(String[]::new));
+                throw new CNoUniqueBeanDefinitionException(beansFound);
             }
             beanDefinition = beansFound[0];
             // 这里如果按照规范注册BeanDefinition，这里不会为空

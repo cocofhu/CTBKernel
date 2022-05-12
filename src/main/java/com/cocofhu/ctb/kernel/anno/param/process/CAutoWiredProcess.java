@@ -2,10 +2,9 @@ package com.cocofhu.ctb.kernel.anno.param.process;
 
 import com.cocofhu.ctb.kernel.anno.param.CAutowired;
 import com.cocofhu.ctb.kernel.core.config.*;
-import com.cocofhu.ctb.kernel.core.exec.CExecutor;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
-import com.cocofhu.ctb.kernel.exception.CNoSuchBeanDefinitionException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
 
 import java.lang.annotation.Annotation;
 

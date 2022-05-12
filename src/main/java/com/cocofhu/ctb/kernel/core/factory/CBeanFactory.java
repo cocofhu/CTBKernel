@@ -1,10 +1,9 @@
 package com.cocofhu.ctb.kernel.core.factory;
 
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.config.CReadOnlyDataSet;
-import com.cocofhu.ctb.kernel.exception.CNoSuchBeanDefinitionException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
 
 /**
  * @author cocofhu

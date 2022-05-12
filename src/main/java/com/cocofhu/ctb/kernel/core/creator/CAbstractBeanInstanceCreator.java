@@ -5,8 +5,8 @@ import com.cocofhu.ctb.kernel.core.aware.CConfigAware;
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
-import com.cocofhu.ctb.kernel.exception.CNoConstructorResolverException;
-import com.cocofhu.ctb.kernel.exception.CNoSuchConstructorException;
+import com.cocofhu.ctb.kernel.exception.exec.CNoConstructorResolverException;
+import com.cocofhu.ctb.kernel.exception.exec.CNoSuchConstructorException;
 
 
 import java.util.PriorityQueue;
