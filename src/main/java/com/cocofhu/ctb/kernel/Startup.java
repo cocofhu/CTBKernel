@@ -121,7 +121,7 @@ public class Startup {
 //        CExecutor executor = new CJobExecutor().toExecutor(factory, jobs);
 //        System.out.println(pair.getSecond());
 //        new CJobExecutor().toExecutor(factory, pair.getSecond().getJobDetail());
-        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
+//        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
 
         CJobDetail job = new CJobExecutor().toJobDetail(factory, new CExecutorMethod("Power", null, "mul", null));
 

@@ -39,48 +39,76 @@ public class CJobExecutor {
     }
 
     public CJobDetail toJobDetail(CBeanFactory factory, CExecutorMethod executorMethod) {
+
+        //
         CBeanDefinition beanDefinition = factory.getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-
-
-        CExecutableWrapper method = new CExecutableWrapper(ReflectionUtils.findMethod(beanDefinition.getBeanClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes()), factory.getConfig(), beanDefinition, null);
-
+        CExecutableWrapper method = new CExecutableWrapper(
+                ReflectionUtils.findMethod(beanDefinition.getBeanClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes()),
+                factory.getConfig(), beanDefinition, null);
         CExecutableWrapper ctor = factory.getConfig().getInstanceCreator().resolveConstructor(beanDefinition, factory.getConfig(), null);
+        CTripe<Set<CJobParam>, Set<CJobParam>, Set<CJobParam>> ctorParams = resolveIORFromExecutable(ctor);
+        CTripe<Set<CJobParam>, Set<CJobParam>, Set<CJobParam>> methodParams = resolveIORFromExecutable(method);
 
-        CTripe<List<CJobParam>, List<CJobParam>, List<CJobParam>> ctorParams = resolveIORFromExecutable(ctor);
-        CTripe<List<CJobParam>, List<CJobParam>, List<CJobParam>> methodParams = resolveIORFromExecutable(method);
+        // 由于后续操作会改变Input Output的完整性
+        // 这里先要检查每个单独的Input Output Removal
+        // check
 
-        System.out.println(methodParams);
 
-        CJob jobAnno = method.acquireNearAnnotation(CJob.class);
 
-        // 组合连个
-        CJobDetail ctorJob = new CJobDetail(jobAnno.name(), jobAnno.info(), jobAnno.group(),
-                ctorParams.getFirst().toArray(new CJobParam[0]),
-                ctorParams.getSecond().toArray(new CJobParam[0]),
-                ctorParams.getThird().toArray(new CJobParam[0]),
-                false,
-                null, null, null);
-        CJobDetail methodJob = new CJobDetail(jobAnno.name(), jobAnno.info(), jobAnno.group(),
-                methodParams.getFirst().toArray(new CJobParam[0]),
+
+        Set<CJobParam> ctorOutputs = ctorParams.getSecond();
+        Set<CJobParam> methodInputs = methodParams.getFirst();
+        Set<CJobParam> actualInputs = ctorParams.getFirst();
+
+
+
+        System.out.println(methodInputs);
+
+        ctorOutputs.removeAll(ctorParams.getThird());
+        System.out.println(ctorOutputs);
+        methodInputs.removeAll(ctorOutputs);
+        System.out.println("1");
+        System.out.println(methodInputs);
+        actualInputs.addAll(methodInputs);
+
+        System.out.println(methodInputs);
+        System.out.println(actualInputs);
+
+        // check input and output remove is invalid
+        CPair<Boolean, List<CJobParam>> inputsCheckResult = checkParamValid(actualInputs.toArray(new CJobParam[0]));
+//        CPair<Boolean, List<CJobParam>> inputsCheckResult = checkParamValid(actualInputs.toArray(new CJobParam[0]));
+        System.out.println(inputsCheckResult);
+
+
+        CJob infoOfJob = method.acquireNearAnnotation(CJob.class);
+
+        return new CJobDetail(infoOfJob.name(), infoOfJob.info(), infoOfJob.group(),
+                actualInputs.toArray(new CJobParam[0]),
                 methodParams.getSecond().toArray(new CJobParam[0]),
                 methodParams.getThird().toArray(new CJobParam[0]),
-                jobAnno.ignoreException(),
-                executorMethod, null, null);
-//        CJobDetail jobs = new CJobDetail(jobAnno.name(), jobAnno.info(), jobAnno.group(), new CJobDetail[]{ctorJob, methodJob}, null);
-//
-//        CJobDetail newJob = toSummary(factory, jobs).getJobDetail();
-
-        return /*new CJobDetail(jobAnno.name(), jobAnno.info(), jobAnno.group(),
-                newJob.getInputs(),
-                newJob.getOutputs(),
-                methodParams.getThird().toArray(new CJobParam[0]),
-                jobAnno.ignoreException(),
+                infoOfJob.ignoreException(),
                 executorMethod,
                 null,
                 null
-        );*/ methodJob;
+        );
 
 
+    }
+
+    private CPair<Boolean,List<CJobParam>> checkParamValid(CJobParam[] params){
+        List<CJobParam> conflictParams = new ArrayList<>();
+        HashMap<String,CJobParam> has = new HashMap<>();
+        for (CJobParam param : params) {
+            CJobParam obj = has.get(param.getName());
+            if (obj != null){
+                if(conflictParams.size() == 0){
+                    conflictParams.add(obj);
+                }
+                conflictParams.add(param);
+            }
+            has.put(param.getName(),param);
+        }
+        return new CPair<>(conflictParams.size()>0,conflictParams);
     }
 
 
@@ -95,11 +123,11 @@ public class CJobExecutor {
         return JSON.parseObject(json, CJobDetail.class);
     }
 
-    private CTripe<List<CJobParam>, List<CJobParam>, List<CJobParam>> resolveIORFromExecutable(CExecutableWrapper executableWrapper) {
+    private CTripe<Set<CJobParam>, Set<CJobParam>, Set<CJobParam>> resolveIORFromExecutable(CExecutableWrapper executableWrapper) {
 
-        List<CJobParam> inputs = new ArrayList<>();
-        List<CJobParam> outputs = new ArrayList<>();
-        List<CJobParam> removals = new ArrayList<>();
+        Set<CJobParam> inputs = new HashSet<>();
+        Set<CJobParam> outputs = new HashSet<>();
+        Set<CJobParam> removals = new HashSet<>();
         CParameterWrapper[] parameters = executableWrapper.acquireParameterWrappers();
 
         for (CParameterWrapper parameter : parameters) {
@@ -125,25 +153,25 @@ public class CJobExecutor {
         return new CTripe<>(inputs, outputs, removals);
     }
 
-    private void resolveIORFromAnnotation(CExecutableWrapper executableWrapper, List<CJobParam> list, Class<? extends Annotation> clazz) {
-        Annotation anno = executableWrapper.getAnnotation(clazz);
-        if (anno instanceof CExecutorContextInputs) {
-            CExecutorContextInputs casted = (CExecutorContextInputs) anno;
+    private void resolveIORFromAnnotation(CExecutableWrapper executableWrapper, Set<CJobParam> list, Class<? extends Annotation> clazz) {
+        Annotation annotation = executableWrapper.getAnnotation(clazz);
+        if (annotation instanceof CExecutorContextInputs) {
+            CExecutorContextInputs casted = (CExecutorContextInputs) annotation;
             Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
-        } else if (anno instanceof CExecutorContextRawInputs) {
-            CExecutorContextRawInputs casted = (CExecutorContextRawInputs) anno;
+        } else if (annotation instanceof CExecutorContextRawInputs) {
+            CExecutorContextRawInputs casted = (CExecutorContextRawInputs) annotation;
             Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
-        } else if (anno instanceof CExecutorOutputs) {
-            CExecutorOutputs casted = (CExecutorOutputs) anno;
+        } else if (annotation instanceof CExecutorOutputs) {
+            CExecutorOutputs casted = (CExecutorOutputs) annotation;
             Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
-        } else if (anno instanceof CExecutorRawOutputs) {
-            CExecutorRawOutputs casted = (CExecutorRawOutputs) anno;
+        } else if (annotation instanceof CExecutorRawOutputs) {
+            CExecutorRawOutputs casted = (CExecutorRawOutputs) annotation;
             Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
-        } else if (anno instanceof CExecutorRemovals) {
-            CExecutorRemovals casted = (CExecutorRemovals) anno;
+        } else if (annotation instanceof CExecutorRemovals) {
+            CExecutorRemovals casted = (CExecutorRemovals) annotation;
             Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
-        } else if (anno instanceof CExecutorRawRemovals) {
-            CExecutorRawRemovals casted = (CExecutorRawRemovals) anno;
+        } else if (annotation instanceof CExecutorRawRemovals) {
+            CExecutorRawRemovals casted = (CExecutorRawRemovals) annotation;
             Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
         } /*else {
             // throw new CUnsupportedOperationException("never reach...");
