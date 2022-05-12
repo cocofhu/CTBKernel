@@ -2,7 +2,7 @@ package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.exception.bean.CEmptyBeanDefinitionException;
-import com.cocofhu.ctb.kernel.exception.exec.CBadCTBContextException;
+import com.cocofhu.ctb.kernel.exception.exec.CEmptyConfigException;
 
 /**
  * 为指定的BeanDefinition寻找构造函数
@@ -33,7 +33,7 @@ public interface CConstructorResolver extends Comparable<CConstructorResolver>{
             throw new CEmptyBeanDefinitionException();
         }
         if(config == null){
-            throw new CBadCTBContextException("empty ctb config.");
+            throw new CEmptyConfigException();
         }
     }
 }
