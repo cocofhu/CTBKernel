@@ -1,10 +1,10 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.*;
-import com.cocofhu.ctb.kernel.exception.job.CJobExceptionUnhandledException;
-import com.cocofhu.ctb.kernel.exception.job.CJobStatusException;
-import com.cocofhu.ctb.kernel.exception.job.CJobBeanMethodInvokeException;
-import com.cocofhu.ctb.kernel.exception.job.CNoSuchMethodException;
+import com.cocofhu.ctb.kernel.exception.job.CExecExceptionUnhandledException;
+import com.cocofhu.ctb.kernel.exception.job.CExecStatusException;
+import com.cocofhu.ctb.kernel.exception.job.CExecBeanMethodInvokeException;
+import com.cocofhu.ctb.kernel.exception.job.CExecNoSuchMethodException;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -37,12 +37,12 @@ public class CSimpleExecutor extends CAbstractExecutor {
         try {
             lock.lock();
             if (getStatus() != Status.Ready) {
-                throw new CJobStatusException(this, "executor is not ready.");
+                throw new CExecStatusException(this, "executor is not ready.");
             }
             if (!isIgnoreException() && isExceptionInContext()) {
                 // 有未处理的异常
                 setStatus(Status.Exception);
-                throw new CJobExceptionUnhandledException(getThrowable());
+                throw new CExecExceptionUnhandledException(getThrowable());
             }
             // 清除上一次的异常
             executorContext.put(EXEC_EXCEPTION_KEY,null);
@@ -58,7 +58,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
             Method method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
             // 检查方法是否存在
             if (method == null) {
-                throw new CNoSuchMethodException( bean.getClass() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
+                throw new CExecNoSuchMethodException( bean.getClass() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
             }
 
 
@@ -68,7 +68,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
                 Object returnVal = executableWrapper.execute(bean);
                 executorContext.put(EXEC_RETURN_VAL_KEY, returnVal);
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new CJobBeanMethodInvokeException(executorMethod, e);
+                throw new CExecBeanMethodInvokeException(executorMethod, e);
             } catch (InvocationTargetException e) {
                 executorContext.put(EXEC_EXCEPTION_KEY,e.getTargetException());
             }

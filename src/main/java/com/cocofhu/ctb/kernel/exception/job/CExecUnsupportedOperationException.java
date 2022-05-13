@@ -6,8 +6,8 @@ import com.cocofhu.ctb.kernel.exception.CBeanException;
  * 不支持的操作
  * @author cocofhu
  */
-public class CJobUnsupportedOperationException extends CBeanException {
-    public CJobUnsupportedOperationException(String msg) {
+public class CExecUnsupportedOperationException extends CBeanException {
+    public CExecUnsupportedOperationException(String msg) {
         super(msg);
     }
 }

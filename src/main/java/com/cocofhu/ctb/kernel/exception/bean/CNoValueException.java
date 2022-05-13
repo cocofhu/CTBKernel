@@ -10,9 +10,9 @@ import com.cocofhu.ctb.kernel.exception.CBeanException;
  * 空参数值
  * @author cocofhu
  */
-public class CEmptyValueException extends CBeanException {
+public class CNoValueException extends CBeanException {
     private final CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> valueProcess;
-    public CEmptyValueException(CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> valueProcess) {
+    public CNoValueException(CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> valueProcess) {
         super("empty parameter value.");
         this.valueProcess = valueProcess;
     }

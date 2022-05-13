@@ -1,5 +1,6 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
+import com.cocofhu.ctb.kernel.exception.job.CExecBadMethodException;
 import com.cocofhu.ctb.kernel.util.CCloneable;
 
 import java.util.Arrays;
@@ -18,6 +19,13 @@ public class CExecutorMethod implements CCloneable {
         this.clazz = clazz;
         this.methodName = methodName;
         this.parameterTypes = parameterTypes;
+
+        if(beanName == null && clazz == null){
+            throw new CExecBadMethodException(this, "can not create executor method object, both name and type are null, it means can not resolve bean definition.");
+        }
+        if(methodName == null){
+            throw new CExecBadMethodException(this, "can not create executor method object, bad method name, method name must be not null.");
+        }
     }
 
 

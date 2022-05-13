@@ -4,6 +4,7 @@ import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.core.resolver.value.CValueResolver;
+import com.cocofhu.ctb.kernel.exception.bean.CBadConfigException;
 
 /**
  * @author cocofhu
@@ -20,6 +21,18 @@ public class CConfig {
         this.instanceCreator = instanceCreator;
         this.beanDefinitionResolver = beanDefinitionResolver;
         this.valueResolver = valueResolver;
+        if(beanFactory == null){
+            throw new CBadConfigException(this, "can not create config object, bean factory is null.");
+        }
+        if(instanceCreator == null){
+            throw new CBadConfigException(this, "can not create config object, instance creator is null.");
+        }
+        if(beanDefinitionResolver == null){
+            throw new CBadConfigException(this, "can not create config object, bean definition resolver is null.");
+        }
+        if(valueResolver == null){
+            throw new CBadConfigException(this, "can not create config object, value resolver is null.");
+        }
     }
 
 

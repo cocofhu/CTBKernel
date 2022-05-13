@@ -23,13 +23,13 @@ public class CExecutableWrapper implements CMateData {
     public CExecutableWrapper(Executable executor, CConfig config, CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
 
         if (executor == null) {
-            throw new CEmptyExecutableException("empty executable object, maybe method or constructor not found.");
+            throw new CNoExecutableException("empty executable object, maybe method or constructor not found.");
         }
         if (config == null) {
-            throw new CEmptyConfigException();
+            throw new CNoConfigException();
         }
         if (beanDefinition == null) {
-            throw new CEmptyBeanDefinitionException();
+            throw new CNoBeanDefinitionException();
         }
 
 

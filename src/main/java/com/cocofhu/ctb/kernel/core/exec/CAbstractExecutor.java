@@ -2,8 +2,8 @@ package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.config.CReadOnlyDataSet;
-import com.cocofhu.ctb.kernel.exception.job.CJobStatusException;
-import com.cocofhu.ctb.kernel.exception.job.CJobUnsupportedOperationException;
+import com.cocofhu.ctb.kernel.exception.job.CExecStatusException;
+import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
 
 /**
  * @author cocofhu
@@ -36,7 +36,7 @@ public abstract class CAbstractExecutor implements CExecutor {
     @Override
     public Object getReturnVal() {
         if (getStatus() != Status.Stop) {
-            throw new CJobStatusException(this, "executor not executed successfully.");
+            throw new CExecStatusException(this, "executor not executed successfully.");
         }
         return executorContext.get(EXEC_RETURN_VAL_KEY);
     }
@@ -44,7 +44,7 @@ public abstract class CAbstractExecutor implements CExecutor {
     @Override
     public Throwable getThrowable() {
         if (getStatus() != Status.Exception) {
-            throw new CJobStatusException(this, "executor has not encountered an exception.");
+            throw new CExecStatusException(this, "executor has not encountered an exception.");
         }
         return (Throwable) executorContext.get(EXEC_EXCEPTION_KEY);
     }
@@ -76,12 +76,12 @@ public abstract class CAbstractExecutor implements CExecutor {
 
     @Override
     public void saveState() {
-        throw new CJobUnsupportedOperationException("save state unsupported.");
+        throw new CExecUnsupportedOperationException("save state unsupported.");
     }
 
     @Override
     public void loadState() {
-        throw new CJobUnsupportedOperationException("load state unsupported.");
+        throw new CExecUnsupportedOperationException("load state unsupported.");
     }
 
     @Override

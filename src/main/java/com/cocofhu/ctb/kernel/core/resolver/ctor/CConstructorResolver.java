@@ -2,8 +2,8 @@ package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
-import com.cocofhu.ctb.kernel.exception.bean.CEmptyBeanDefinitionException;
-import com.cocofhu.ctb.kernel.exception.bean.CEmptyConfigException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoBeanDefinitionException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoConfigException;
 
 /**
  * 为指定的BeanDefinition寻找构造函数
@@ -31,10 +31,10 @@ public interface CConstructorResolver extends Comparable<CConstructorResolver>{
 
     default void checkEmpty(CBeanDefinition beanDefinition, CConfig config) throws CBeanException{
         if(beanDefinition == null){
-            throw new CEmptyBeanDefinitionException();
+            throw new CNoBeanDefinitionException();
         }
         if(config == null){
-            throw new CEmptyConfigException();
+            throw new CNoConfigException();
         }
     }
 }

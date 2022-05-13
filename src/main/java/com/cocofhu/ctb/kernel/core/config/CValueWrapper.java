@@ -1,9 +1,9 @@
 package com.cocofhu.ctb.kernel.core.config;
 
 import com.cocofhu.ctb.kernel.core.resolver.CProcess;
-import com.cocofhu.ctb.kernel.exception.bean.CEmptyConfigException;
-import com.cocofhu.ctb.kernel.exception.bean.CEmptyParameterException;
-import com.cocofhu.ctb.kernel.exception.bean.CEmptyValueException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoConfigException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoParameterException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoValueException;
 
 import java.lang.annotation.Annotation;
 
@@ -31,13 +31,13 @@ public class CValueWrapper implements CMateData {
 
 
         if (value == null) {
-            throw new CEmptyValueException(valueProcess);
+            throw new CNoValueException(valueProcess);
         }
         if (config == null) {
-            throw new CEmptyConfigException();
+            throw new CNoConfigException();
         }
         if (parameterWrapper == null) {
-            throw new CEmptyParameterException("empty parameter on build a value wrapper, where do you find this value: + " + value + ".");
+            throw new CNoParameterException("empty parameter on build a value wrapper, where do you find this value: + " + value + ".");
         }
 
         this.valueProcess = valueProcess;

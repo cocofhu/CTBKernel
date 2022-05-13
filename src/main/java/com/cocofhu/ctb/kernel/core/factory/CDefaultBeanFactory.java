@@ -9,7 +9,7 @@ import com.cocofhu.ctb.kernel.core.creator.CBeanInstanceCreator;
 import com.cocofhu.ctb.kernel.core.resolver.bean.CBeanDefinitionResolver;
 import com.cocofhu.ctb.kernel.core.resolver.value.CValueResolver;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
-import com.cocofhu.ctb.kernel.exception.bean.CEmptyBeanDefinitionException;
+import com.cocofhu.ctb.kernel.exception.bean.CNoBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoUniqueBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CInstantiationException;
@@ -187,7 +187,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
 
     protected void registerBeanDefinition(CBeanDefinition beanDefinition) {
         if (beanDefinition == null) {
-            throw new CEmptyBeanDefinitionException();
+            throw new CNoBeanDefinitionException();
         }
         beanDefinitionsForName.put(beanDefinition.getBeanName(), beanDefinition);
     }

@@ -7,9 +7,9 @@ import com.cocofhu.ctb.kernel.exception.CJobException;
  * 执行Bean的方法时出错
  * @author cocofhu
  */
-public class CJobBeanMethodInvokeException extends CJobException {
+public class CExecBeanMethodInvokeException extends CJobException {
     private final Throwable cause;
-    public CJobBeanMethodInvokeException(CExecutorMethod method, Throwable cause) {
+    public CExecBeanMethodInvokeException(CExecutorMethod method, Throwable cause) {
         super("cannot call method of " + method.getMethodName() + ", exception message : " + cause.getMessage());
         this.cause = cause;
     }

@@ -9,8 +9,9 @@ import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
 import com.cocofhu.ctb.kernel.anno.param.CAutowired;
 import com.cocofhu.ctb.kernel.core.exec.entity.CJobSummary;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
-import com.cocofhu.ctb.kernel.exception.job.CJobParamNotFoundException;
-import com.cocofhu.ctb.kernel.exception.job.CJobUnsupportedOperationException;
+import com.cocofhu.ctb.kernel.exception.job.CExecConflictParameterException;
+import com.cocofhu.ctb.kernel.exception.job.CExecParamNotFoundException;
+import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
 import com.cocofhu.ctb.kernel.util.CStringUtils;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 
@@ -44,13 +45,20 @@ public class CJobExecutor {
         CExecutableWrapper method = new CExecutableWrapper(
                 ReflectionUtils.findMethod(beanDefinition.getBeanClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes()),
                 factory.getConfig(), beanDefinition, null);
+
         CExecutableWrapper ctor = factory.getConfig().getInstanceCreator().resolveConstructor(beanDefinition, factory.getConfig(), null);
         CTripe<Set<CJobParam>, Set<CJobParam>, Set<CJobParam>> ctorParams = resolveIORFromExecutable(ctor);
         CTripe<Set<CJobParam>, Set<CJobParam>, Set<CJobParam>> methodParams = resolveIORFromExecutable(method);
 
         // 由于后续操作会改变Input Output的完整性
         // 这里先要检查每个单独的Input Output Removal
-        // check
+        checkParamValidAndThrow(ctorParams.getFirst().toArray(new CJobParam[0]), "ctor inputs");
+        checkParamValidAndThrow(ctorParams.getSecond().toArray(new CJobParam[0]), "ctor outputs");
+        checkParamValidAndThrow(ctorParams.getThird().toArray(new CJobParam[0]), "ctor removals");
+
+        checkParamValidAndThrow(methodParams.getFirst().toArray(new CJobParam[0]), "method inputs");
+        checkParamValidAndThrow(methodParams.getSecond().toArray(new CJobParam[0]), "method outputs");
+        checkParamValidAndThrow(methodParams.getThird().toArray(new CJobParam[0]), "method removals");
 
 
 
@@ -59,24 +67,12 @@ public class CJobExecutor {
         Set<CJobParam> methodInputs = methodParams.getFirst();
         Set<CJobParam> actualInputs = ctorParams.getFirst();
 
-
-
-        System.out.println(methodInputs);
-
         ctorOutputs.removeAll(ctorParams.getThird());
-        System.out.println(ctorOutputs);
         methodInputs.removeAll(ctorOutputs);
-        System.out.println("1");
-        System.out.println(methodInputs);
         actualInputs.addAll(methodInputs);
 
-        System.out.println(methodInputs);
-        System.out.println(actualInputs);
-
-        // check input and output remove is invalid
-        CPair<Boolean, List<CJobParam>> inputsCheckResult = checkParamValid(actualInputs.toArray(new CJobParam[0]));
-//        CPair<Boolean, List<CJobParam>> inputsCheckResult = checkParamValid(actualInputs.toArray(new CJobParam[0]));
-        System.out.println(inputsCheckResult);
+        // 检查最终Inputs参数
+        checkParamValidAndThrow(actualInputs.toArray(new CJobParam[0]), "method inputs");
 
 
         CJob infoOfJob = method.acquireNearAnnotation(CJob.class);
@@ -107,7 +103,16 @@ public class CJobExecutor {
             }
             has.put(param.getName(),param);
         }
-        return new CPair<>(conflictParams.size()>0,conflictParams);
+        return new CPair<>(conflictParams.size()==0,conflictParams);
+    }
+
+    private void checkParamValidAndThrow(CJobParam[] params,String which){
+        CPair<Boolean, List<CJobParam>> pair = checkParamValid(params);
+        if(!pair.getFirst()){
+            throw new CExecConflictParameterException(params, "conflict "+ which + " parameters, " + Arrays.toString(pair.getSecond().stream().map(
+                    p -> "( type: " + p.getType() + ", name: " + p.getName() + ")"
+            ).toArray(String[]::new)));
+        }
     }
 
 
@@ -201,7 +206,7 @@ public class CJobExecutor {
         } else if (input.getType() instanceof Class<?>) {
             exactlyType = (Class<?>) input.getType();
         } else {
-            throw new CJobUnsupportedOperationException("can not parse type of input, " + input.getType());
+            throw new CExecUnsupportedOperationException("can not parse type of input, " + input.getType());
         }
         // dereference 找到真正的参数类型
         if (typeRefPair != null) {
@@ -209,7 +214,7 @@ public class CJobExecutor {
             exactlyType = typeRef.get(name);
         }
         if (exactlyName == null || exactlyType == null) {
-            throw new CJobParamNotFoundException("cannot resolve parameter of  " + input + " type or name is null :" +
+            throw new CExecParamNotFoundException("cannot resolve parameter of  " + input + " type or name is null :" +
                     "( type: " + exactlyType + ", name: " + exactlyName + "). ");
         }
         return new CPair<>(exactlyName, exactlyType);
@@ -253,7 +258,7 @@ public class CJobExecutor {
                     }
                     CPair<Boolean, List<CJobParam>> checked = hasParam(lastOutput, parameter);
                     if (i != 0 && !checked.getFirst()) {
-                        throw new CJobParamNotFoundException(parameter, checked.getSecond());
+                        throw new CExecParamNotFoundException(parameter, checked.getSecond());
                     }
                     input.setType(parameter.getSecond());
                     input.setName(parameter.getFirst());
@@ -285,7 +290,7 @@ public class CJobExecutor {
 
                     CPair<Boolean, List<CJobParam>> checked = hasParam(lastOutput, parameter);
                     if (!checked.getFirst()) {
-                        throw new CJobParamNotFoundException(parameter, checked.getSecond());
+                        throw new CExecParamNotFoundException(parameter, checked.getSecond());
                     }
                     CPair<Boolean, List<CJobParam>> matchedOutput = hasParam(outputs, parameter);
 
@@ -307,7 +312,7 @@ public class CJobExecutor {
             }
             return new CPair<>(new CExecutorJob(context, factory.getConfig(), job.isIgnoreException(), executors), everyContextTypes);
         }
-        throw new CJobUnsupportedOperationException("unsupported job type: " + job.getType());
+        throw new CExecUnsupportedOperationException("unsupported job type: " + job.getType());
     }
 
     private String dereferenceOfName(CDefaultLayerDataSet<String, Object> ref, CPair<String, Integer> pair) {
@@ -316,11 +321,11 @@ public class CJobExecutor {
         while (times-- > 0) {
             Object obj = ref.get(name);
             if (obj == null) {
-                throw new CJobParamNotFoundException("parameter not found , dereference name of: " + name + " is null. ");
+                throw new CExecParamNotFoundException("parameter not found , dereference name of: " + name + " is null. ");
             } else if (obj instanceof String) {
                 name = (String) obj;
             } else {
-                throw new CJobUnsupportedOperationException("can not dereference of " + pair + " from type which is not instanceof string, " + obj);
+                throw new CExecUnsupportedOperationException("can not dereference of " + pair + " from type which is not instanceof string, " + obj);
             }
         }
         return name;
