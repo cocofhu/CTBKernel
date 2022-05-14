@@ -5,9 +5,8 @@ import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
 import com.cocofhu.ctb.kernel.util.CCloneable;
 
 import java.util.Arrays;
-import java.util.Map;
 
-public class CJobDetail implements CCloneable {
+public class CExecDetail implements CCloneable {
 
     // 任务类型：多个任务
     public static final int TYPE_SCHEDULE = 1;
@@ -35,15 +34,15 @@ public class CJobDetail implements CCloneable {
     private CDefaultDefaultReadOnlyDataSet<String, Object> attachment;
 
     // 多任务时的子任务
-    private CJobDetail[] subJobs;
+    private CExecDetail[] subJobs;
 
     // 任务的输入参数
-    private CJobParam[] inputs;
+    private CExecParam[] inputs;
     // 任务的输出参数
-    private CJobParam[] outputs;
+    private CExecParam[] outputs;
 
     // 任务执行完毕后会清除的参数
-    private CJobParam[] removals;
+    private CExecParam[] removals;
 
     // 说明
     private String info;
@@ -68,8 +67,8 @@ public class CJobDetail implements CCloneable {
      * @param attributes      任务属性
      * @param attachment      任务附加参数
      */
-    public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, boolean ignoreException, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+    public CExecDetail(String name, String info, String group, CExecParam[] inputs,
+                       CExecParam[] outputs, CExecParam[] removals, boolean ignoreException, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this.name = name;
         this.version = VERSION;
         this.type = TYPE_EXEC;
@@ -96,8 +95,8 @@ public class CJobDetail implements CCloneable {
      * @param attributes 任务属性
      * @param attachment 任务附加参数
      */
-    public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+    public CExecDetail(String name, String info, String group, CExecParam[] inputs,
+                       CExecParam[] outputs, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this(name, info, group, inputs, outputs, null, false, method, attributes, attachment);
     }
 
@@ -114,18 +113,18 @@ public class CJobDetail implements CCloneable {
      * @param attributes 任务属性
      * @param attachment 任务附加参数
      */
-    public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+    public CExecDetail(String name, String info, String group, CExecParam[] inputs,
+                       CExecParam[] outputs, CExecParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, attachment);
     }
 
-    public CJobDetail(String name, String info, String group, CJobParam[] inputs,
-                      CJobParam[] outputs, CJobParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
+    public CExecDetail(String name, String info, String group, CExecParam[] inputs,
+                       CExecParam[] outputs, CExecParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, null);
     }
 
 
-    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+    public CExecDetail(String name, String info, String group, CExecDetail[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this.version = VERSION;
         this.type = TYPE_SCHEDULE;
         this.name = name;
@@ -136,16 +135,16 @@ public class CJobDetail implements CCloneable {
         this.attachment = attachment;
     }
 
-    public CJobDetail(String name, String info, String group, CJobDetail[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
+    public CExecDetail(String name, String info, String group, CExecDetail[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
         this(name, info, group, subJobs, attributes, null);
     }
 
 
-    public CJobParam[] getRemovals() {
+    public CExecParam[] getRemovals() {
         return removals;
     }
 
-    public void setRemovals(CJobParam[] removals) {
+    public void setRemovals(CExecParam[] removals) {
         this.removals = removals;
     }
 
@@ -189,27 +188,27 @@ public class CJobDetail implements CCloneable {
         this.method = method;
     }
 
-    public CJobDetail[] getSubJobs() {
+    public CExecDetail[] getSubJobs() {
         return subJobs;
     }
 
-    public void setSubJobs(CJobDetail[] subJobs) {
+    public void setSubJobs(CExecDetail[] subJobs) {
         this.subJobs = subJobs;
     }
 
-    public CJobParam[] getInputs() {
+    public CExecParam[] getInputs() {
         return inputs;
     }
 
-    public void setInputs(CJobParam[] inputs) {
+    public void setInputs(CExecParam[] inputs) {
         this.inputs = inputs;
     }
 
-    public CJobParam[] getOutputs() {
+    public CExecParam[] getOutputs() {
         return outputs;
     }
 
-    public void setOutputs(CJobParam[] outputs) {
+    public void setOutputs(CExecParam[] outputs) {
         this.outputs = outputs;
     }
 
@@ -221,7 +220,7 @@ public class CJobDetail implements CCloneable {
         this.info = info;
     }
 
-    public CJobDetail() {
+    public CExecDetail() {
     }
 
     public String getGroup() {

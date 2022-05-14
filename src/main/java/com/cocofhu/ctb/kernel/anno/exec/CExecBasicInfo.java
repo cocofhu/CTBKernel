@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CJob {
+public @interface CExecBasicInfo {
     String name();
     String info();
     String group();

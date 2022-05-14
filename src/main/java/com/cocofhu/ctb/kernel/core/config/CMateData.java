@@ -24,17 +24,44 @@ public interface CMateData {
     /*default*/ CMateData getParent();
 
     /**
+     * 注解迭代器，递归迭代遍历该元素上的所有指定注解
+     *
+     * @param <T> 注解类型
+     */
+    @FunctionalInterface
+    interface CAnnotationIterator<T> {
+        // 递归迭代遍历该元素上的所有指定注解, 返回false是将终止迭代
+        boolean iterate(T anno);
+    }
+
+    /**
      * 获取该结构上的指定注解，如果寻找不到，则向父级寻找
      */
-    default <T extends Annotation> T acquireNearAnnotation(Class<T> clazz){
+    default <T extends Annotation> T acquireNearAnnotation(Class<T> clazz) {
+        return annotationForEachRecursively(clazz, anno -> false);
+    }
+
+    /**
+     * 递归迭代遍历该元素上的所有指定注解
+     *
+     * @param clazz    注解类型
+     * @param iterator 遍历器
+     * @return 最后一次迭代的注解
+     */
+    default <T extends Annotation> T annotationForEachRecursively(Class<T> clazz, CAnnotationIterator<T> iterator) {
         CMateData current = this;
-        while(current != null){
-            T annotation = current.getAnnotation(clazz);
-            if(annotation != null){
-                return annotation;
+        T annotation = null;
+        while (current != null) {
+            annotation = current.getAnnotation(clazz);
+            if (annotation != null) {
+                if (!iterator.iterate(annotation)) {
+                    return annotation;
+                }
             }
             current = current.getParent();
         }
-        return null;
+        return annotation;
     }
+
+
 }

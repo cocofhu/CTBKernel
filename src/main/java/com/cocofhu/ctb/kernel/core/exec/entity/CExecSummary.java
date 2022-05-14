@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CJobSummary {
+public class CExecSummary {
     private final List<Map<String, Class<?>>> contextTypes;
-    private final CJobDetail jobDetail;
+    private final CExecDetail jobDetail;
 
-    public CJobSummary(List<Map<String, Class<?>>> contextTypes, CJobDetail jobDetail) {
+    public CExecSummary(List<Map<String, Class<?>>> contextTypes, CExecDetail jobDetail) {
         this.contextTypes = contextTypes;
         this.jobDetail = jobDetail;
     }
@@ -17,7 +17,7 @@ public class CJobSummary {
         return contextTypes;
     }
 
-    public CJobDetail getJobDetail() {
+    public CExecDetail getJobDetail() {
         return jobDetail;
     }
 
@@ -27,12 +27,12 @@ public class CJobSummary {
         StringBuilder sb = new StringBuilder();
         sb.append("Job Name: ").append(jobDetail.getName()).append(", Job Group: ").append(jobDetail.getGroup()).append("\n");
         sb.append("Job Info: ").append(jobDetail.getInfo()).append("\n");
-        if (jobDetail.getType() == CJobDetail.TYPE_EXEC) {
+        if (jobDetail.getType() == CExecDetail.TYPE_EXEC) {
             outSingleJob(jobDetail, sb);
-        } else if (jobDetail.getType() == CJobDetail.TYPE_SCHEDULE) {
-            CJobDetail[] subJobs = jobDetail.getSubJobs();
+        } else if (jobDetail.getType() == CExecDetail.TYPE_SCHEDULE) {
+            CExecDetail[] subJobs = jobDetail.getSubJobs();
             for (int i = 0; i < subJobs.length; ++i) {
-                CJobDetail subJob = subJobs[i];
+                CExecDetail subJob = subJobs[i];
                 sb.append("Layer ").append(i).append("\n");
                 outSingleJob(subJob, sb);
                 sb.append("Context:\n");
@@ -42,14 +42,14 @@ public class CJobSummary {
         return sb.toString();
     }
 
-    private void outParams(CJobParam[] params, StringBuilder sb) {
+    private void outParams(CExecParam[] params, StringBuilder sb) {
         for (int i = 0; i < params.length; i++) {
-            CJobParam p = params[i];
+            CExecParam p = params[i];
             sb.append("\t").append(i + 1).append(". (Name: ").append(p.getName()).append(", Type: ").append(p.getType()).append(")\n");
         }
     }
 
-    private void outSingleJob(CJobDetail jobDetail, StringBuilder sb) {
+    private void outSingleJob(CExecDetail jobDetail, StringBuilder sb) {
         sb.append("Input:\n");
         outParams(jobDetail.getInputs(), sb);
         sb.append("Output:\n");

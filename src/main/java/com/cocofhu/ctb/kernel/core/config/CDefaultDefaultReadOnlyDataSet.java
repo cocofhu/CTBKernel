@@ -33,17 +33,20 @@ public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, 
 
 
 
-    public static class CDefaultReadOnlyEntry<K,V> extends CPair<K,V> implements CReadOnlyDataSet.CReadOnlyEntry<K,V> {
-        public CDefaultReadOnlyEntry(K first, V second) {
-            super(first, second);
+    public static class CDefaultReadOnlyEntry<K,V> implements CReadOnlyDataSet.CReadOnlyEntry<K,V> {
+        private final K key;
+        private final V val;
+        public CDefaultReadOnlyEntry(K key, V val) {
+            this.key = key;
+            this.val =val;
         }
         @Override
         public K getKey() {
-            return first;
+            return key;
         }
         @Override
         public V getValue() {
-            return second;
+            return val;
         }
         @Override
         public boolean equals(Object o) {

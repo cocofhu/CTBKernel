@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.cocofhu.ctb.kernel.anno.exec.*;
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.exec.*;
-import com.cocofhu.ctb.kernel.core.exec.entity.CJobDetail;
-import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecDetail;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
 import com.cocofhu.ctb.kernel.anno.param.CAutowired;
-import com.cocofhu.ctb.kernel.core.exec.entity.CJobSummary;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecSummary;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.exception.job.CExecConflictParameterException;
 import com.cocofhu.ctb.kernel.exception.job.CExecParamNotFoundException;
@@ -18,11 +18,11 @@ import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-public class CJobExecutor {
+public class CExecBuilder {
 
 
     public CExecutor forceRun(@CAutowired CBeanFactory factory,
-                              @CExecutorInput CJobDetail job,
+                              @CExecutorInput CExecDetail job,
                               @CExecutorInput CDefaultDefaultReadOnlyDataSet<String, Object> input) {
         CExecutor executor = toExecutor(factory, job);
         executor.setAttachment(input);
@@ -32,13 +32,14 @@ public class CJobExecutor {
     }
 
     public CExecutor toExecutor(@CAutowired CBeanFactory factory,
-                                @CExecutorInput CJobDetail job) {
-        CJobDetail newJob = (CJobDetail) job.cloneSelf();
+                                @CExecutorInput CExecDetail job) {
+        CExecDetail newJob = (CExecDetail) job.cloneSelf();
         CPair<CExecutor, List<Map<String, Class<?>>>> build = build(factory, newJob, new CExecutorContext());
         return build.getFirst();
     }
 
-    public CJobDetail toJobDetail(CBeanFactory factory, CExecutorMethod executorMethod) {
+    public CExecDetail toJobDetail(CBeanFactory factory, CExecutorMethod executorMethod) {
+
 
         //
         CBeanDefinition beanDefinition = factory.getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
@@ -47,41 +48,59 @@ public class CJobExecutor {
                 factory.getConfig(), beanDefinition, null);
 
         CExecutableWrapper ctor = factory.getConfig().getInstanceCreator().resolveConstructor(beanDefinition, factory.getConfig(), null);
-        CTripe<Set<CJobParam>, Set<CJobParam>, Set<CJobParam>> ctorParams = resolveIORFromExecutable(ctor);
-        CTripe<Set<CJobParam>, Set<CJobParam>, Set<CJobParam>> methodParams = resolveIORFromExecutable(method);
+        CTripe<Set<CExecParam>, Set<CExecParam>, Set<CExecParam>> ctorParams = resolveIORFromExecutable(ctor);
+        CTripe<Set<CExecParam>, Set<CExecParam>, Set<CExecParam>> methodParams = resolveIORFromExecutable(method);
 
         // 由于后续操作会改变Input Output的完整性
         // 这里先要检查每个单独的Input Output Removal
-        checkParamValidAndThrow(ctorParams.getFirst().toArray(new CJobParam[0]), "ctor inputs");
-        checkParamValidAndThrow(ctorParams.getSecond().toArray(new CJobParam[0]), "ctor outputs");
-        checkParamValidAndThrow(ctorParams.getThird().toArray(new CJobParam[0]), "ctor removals");
+        checkParamValidAndThrow(ctorParams.getFirst().toArray(new CExecParam[0]), "ctor inputs");
+        checkParamValidAndThrow(ctorParams.getSecond().toArray(new CExecParam[0]), "ctor outputs");
+        checkParamValidAndThrow(ctorParams.getThird().toArray(new CExecParam[0]), "ctor removals");
 
-        checkParamValidAndThrow(methodParams.getFirst().toArray(new CJobParam[0]), "method inputs");
-        checkParamValidAndThrow(methodParams.getSecond().toArray(new CJobParam[0]), "method outputs");
-        checkParamValidAndThrow(methodParams.getThird().toArray(new CJobParam[0]), "method removals");
-
-
+        checkParamValidAndThrow(methodParams.getFirst().toArray(new CExecParam[0]), "method inputs");
+        checkParamValidAndThrow(methodParams.getSecond().toArray(new CExecParam[0]), "method outputs");
+        checkParamValidAndThrow(methodParams.getThird().toArray(new CExecParam[0]), "method removals");
 
 
-        Set<CJobParam> ctorOutputs = ctorParams.getSecond();
-        Set<CJobParam> methodInputs = methodParams.getFirst();
-        Set<CJobParam> actualInputs = ctorParams.getFirst();
-
+        Set<CExecParam> ctorOutputs = ctorParams.getSecond();
+        Set<CExecParam> methodInputs = methodParams.getFirst();
+        Set<CExecParam> actualInputs = ctorParams.getFirst();
+        // 1、构造函数的Outputs - 构造函数的Removals 得到实际的构造函数输出
         ctorOutputs.removeAll(ctorParams.getThird());
+        // 2、方法的Inputs - 构造函数的实际输出，得到方法的实际输入
         methodInputs.removeAll(ctorOutputs);
+        // 3、构造函数的输入加上方法的实际输入，得到实际输入
         actualInputs.addAll(methodInputs);
 
         // 检查最终Inputs参数
-        checkParamValidAndThrow(actualInputs.toArray(new CJobParam[0]), "method inputs");
+        checkParamValidAndThrow(actualInputs.toArray(new CExecParam[0]), "method inputs");
 
 
-        CJob infoOfJob = method.acquireNearAnnotation(CJob.class);
+        // 这里没有必要再弄个类出来了，后续变更是再做修改
+        CWritableTripe<String, String, CWritablePair<String, Boolean>> basicInfo = new CWritableTripe<>(null, null, new CWritablePair<>(null, null));
 
-        return new CJobDetail(infoOfJob.name(), infoOfJob.info(), infoOfJob.group(),
-                actualInputs.toArray(new CJobParam[0]),
-                methodParams.getSecond().toArray(new CJobParam[0]),
-                methodParams.getThird().toArray(new CJobParam[0]),
-                infoOfJob.ignoreException(),
+        method.annotationForEachRecursively(CExecBasicInfo.class, anno -> {
+            if (!CStringUtils.isEmpty(anno.name()) && basicInfo.getFirst() == null) {
+                basicInfo.setFirst(anno.name());
+            }
+            if (!CStringUtils.isEmpty(anno.info()) && basicInfo.getSecond() == null) {
+                basicInfo.setSecond(anno.info());
+            }
+            if (!CStringUtils.isEmpty(anno.group()) && basicInfo.getThird().getFirst() == null) {
+                basicInfo.getThird().setFirst(anno.group());
+            }
+            if (basicInfo.getThird().getSecond() == null) {
+                basicInfo.getThird().setSecond(anno.ignoreException());
+            }
+            return basicInfo.getFirst() == null || basicInfo.getSecond() == null || basicInfo.getThird().getFirst() == null || basicInfo.getThird().getSecond() == null;
+        });
+
+
+        return new CExecDetail(basicInfo.getFirst(), basicInfo.getSecond(), basicInfo.getThird().getFirst(),
+                actualInputs.toArray(new CExecParam[0]),
+                methodParams.getSecond().toArray(new CExecParam[0]),
+                methodParams.getThird().toArray(new CExecParam[0]),
+                basicInfo.getThird().getSecond(),
                 executorMethod,
                 null,
                 null
@@ -90,48 +109,47 @@ public class CJobExecutor {
 
     }
 
-    private CPair<Boolean,List<CJobParam>> checkParamValid(CJobParam[] params){
-        List<CJobParam> conflictParams = new ArrayList<>();
-        HashMap<String,CJobParam> has = new HashMap<>();
-        for (CJobParam param : params) {
-            CJobParam obj = has.get(param.getName());
-            if (obj != null){
-                if(conflictParams.size() == 0){
+    public CExecSummary toSummary(@CAutowired CBeanFactory factory,
+                                  @CExecutorInput CExecDetail job) {
+        CExecDetail newJob = (CExecDetail) job.cloneSelf();
+        CPair<CExecutor, List<Map<String, Class<?>>>> build = build(factory, newJob, new CExecutorContext());
+        return new CExecSummary(build.getSecond(), newJob);
+    }
+
+    public CExecDetail readJobFromJson(@CExecutorInput String json) {
+        return JSON.parseObject(json, CExecDetail.class);
+    }
+
+    private CPair<Boolean, List<CExecParam>> checkParamValid(CExecParam[] params) {
+        List<CExecParam> conflictParams = new ArrayList<>();
+        HashMap<String, CExecParam> has = new HashMap<>();
+        for (CExecParam param : params) {
+            CExecParam obj = has.get(param.getName());
+            if (obj != null) {
+                if (conflictParams.size() == 0) {
                     conflictParams.add(obj);
                 }
                 conflictParams.add(param);
             }
-            has.put(param.getName(),param);
+            has.put(param.getName(), param);
         }
-        return new CPair<>(conflictParams.size()==0,conflictParams);
+        return new CPair<>(conflictParams.size() == 0, conflictParams);
     }
 
-    private void checkParamValidAndThrow(CJobParam[] params,String which){
-        CPair<Boolean, List<CJobParam>> pair = checkParamValid(params);
-        if(!pair.getFirst()){
-            throw new CExecConflictParameterException(params, "conflict "+ which + " parameters, " + Arrays.toString(pair.getSecond().stream().map(
+    private void checkParamValidAndThrow(CExecParam[] params, String which) {
+        CPair<Boolean, List<CExecParam>> pair = checkParamValid(params);
+        if (!pair.getFirst()) {
+            throw new CExecConflictParameterException(params, "conflict " + which + " parameters, " + Arrays.toString(pair.getSecond().stream().map(
                     p -> "( type: " + p.getType() + ", name: " + p.getName() + ")"
             ).toArray(String[]::new)));
         }
     }
 
+    private CTripe<Set<CExecParam>, Set<CExecParam>, Set<CExecParam>> resolveIORFromExecutable(CExecutableWrapper executableWrapper) {
 
-    public CJobSummary toSummary(@CAutowired CBeanFactory factory,
-                                 @CExecutorInput CJobDetail job) {
-        CJobDetail newJob = (CJobDetail) job.cloneSelf();
-        CPair<CExecutor, List<Map<String, Class<?>>>> build = build(factory, newJob, new CExecutorContext());
-        return new CJobSummary(build.getSecond(), newJob);
-    }
-
-    public CJobDetail readJobFromJson(@CExecutorInput String json) {
-        return JSON.parseObject(json, CJobDetail.class);
-    }
-
-    private CTripe<Set<CJobParam>, Set<CJobParam>, Set<CJobParam>> resolveIORFromExecutable(CExecutableWrapper executableWrapper) {
-
-        Set<CJobParam> inputs = new HashSet<>();
-        Set<CJobParam> outputs = new HashSet<>();
-        Set<CJobParam> removals = new HashSet<>();
+        Set<CExecParam> inputs = new HashSet<>();
+        Set<CExecParam> outputs = new HashSet<>();
+        Set<CExecParam> removals = new HashSet<>();
         CParameterWrapper[] parameters = executableWrapper.acquireParameterWrappers();
 
         for (CParameterWrapper parameter : parameters) {
@@ -141,7 +159,7 @@ public class CJobExecutor {
                 if (CStringUtils.isEmpty(name)) {
                     name = parameter.getParameter().getName();
                 }
-                inputs.add(new CJobParam(name, annotation.info(), parameter.getParameter().getType()));
+                inputs.add(new CExecParam(name, annotation.info(), parameter.getParameter().getType()));
             }
         }
 
@@ -157,26 +175,26 @@ public class CJobExecutor {
         return new CTripe<>(inputs, outputs, removals);
     }
 
-    private void resolveIORFromAnnotation(CExecutableWrapper executableWrapper, Set<CJobParam> list, Class<? extends Annotation> clazz) {
+    private void resolveIORFromAnnotation(CExecutableWrapper executableWrapper, Set<CExecParam> list, Class<? extends Annotation> clazz) {
         Annotation annotation = executableWrapper.getAnnotation(clazz);
         if (annotation instanceof CExecutorContextInputs) {
             CExecutorContextInputs casted = (CExecutorContextInputs) annotation;
-            Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
+            Arrays.stream(casted.value()).forEach(a -> list.add(new CExecParam(a.name(), a.info(), a.type())));
         } else if (annotation instanceof CExecutorContextRawInputs) {
             CExecutorContextRawInputs casted = (CExecutorContextRawInputs) annotation;
-            Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
+            Arrays.stream(casted.value()).forEach(a -> list.add(new CExecParam(a.name(), a.info(), a.type())));
         } else if (annotation instanceof CExecutorOutputs) {
             CExecutorOutputs casted = (CExecutorOutputs) annotation;
-            Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
+            Arrays.stream(casted.value()).forEach(a -> list.add(new CExecParam(a.name(), a.info(), a.type())));
         } else if (annotation instanceof CExecutorRawOutputs) {
             CExecutorRawOutputs casted = (CExecutorRawOutputs) annotation;
-            Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
+            Arrays.stream(casted.value()).forEach(a -> list.add(new CExecParam(a.name(), a.info(), a.type())));
         } else if (annotation instanceof CExecutorRemovals) {
             CExecutorRemovals casted = (CExecutorRemovals) annotation;
-            Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
+            Arrays.stream(casted.value()).forEach(a -> list.add(new CExecParam(a.name(), a.info(), a.type())));
         } else if (annotation instanceof CExecutorRawRemovals) {
             CExecutorRawRemovals casted = (CExecutorRawRemovals) annotation;
-            Arrays.stream(casted.value()).forEach(a -> list.add(new CJobParam(a.name(), a.info(), a.type())));
+            Arrays.stream(casted.value()).forEach(a -> list.add(new CExecParam(a.name(), a.info(), a.type())));
         } /*else {
             // throw new CUnsupportedOperationException("never reach...");
             // Can not reach here
@@ -194,7 +212,7 @@ public class CJobExecutor {
         return new CPair<>(str.substring(num), num);
     }
 
-    private CPair<String, Class<?>> resolveParameter(CJobParam input, CDefaultLayerDataSet<String, Object> valRef, CDefaultLayerDataSet<String, Class<?>> typeRef) {
+    private CPair<String, Class<?>> resolveParameter(CExecParam input, CDefaultLayerDataSet<String, Object> valRef, CDefaultLayerDataSet<String, Class<?>> typeRef) {
         CPair<String, Integer> nameRefPair = parseReference(input.getName());
         CPair<String, Integer> typeRefPair = null;
         Class<?> exactlyType = null;
@@ -220,20 +238,22 @@ public class CJobExecutor {
         return new CPair<>(exactlyName, exactlyType);
     }
 
-    private CPair<CExecutor, List<Map<String, Class<?>>>> build(CBeanFactory factory, CJobDetail job, CExecutorContext context) {
 
-        CDefaultLayerDataSet<String, Class<?>> contextTypes = new CDefaultLayerDataSet<>();
-        if (job.getType() == CJobDetail.TYPE_EXEC) {
+    // 这里还是要用递归，看能不能用个责任链来处理不同的Type
+    private CPair<CExecutor, List<Map<String, Class<?>>>> build(CBeanFactory factory, CExecDetail job, CExecutorContext context) {
+
+
+        if (job.getType() == CExecDetail.TYPE_EXEC) {
+
             return new CPair<>(new CSimpleExecutor(context, factory.getConfig(), job.getMethod(), job.isIgnoreException(), job.getAttachment()), null);
-        } else if (job.getType() == CJobDetail.TYPE_SCHEDULE) {
+        } else if (job.getType() == CExecDetail.TYPE_SCHEDULE) {
+            CDefaultLayerDataSet<String, Class<?>> contextTypes = new CDefaultLayerDataSet<>();
             List<Map<String, Class<?>>> everyContextTypes = new ArrayList<>();
             CExecutor[] executors = new CExecutor[job.getSubJobs().length];
-            CJobParam[] lastOutput = null;
+            CExecParam[] lastOutput = null;
             for (int i = 0; i < job.getSubJobs().length; i++) {
-
-                CJobDetail subJob = job.getSubJobs()[i];
+                CExecDetail subJob = job.getSubJobs()[i];
                 // set current context
-
                 CDefaultLayerDataSet<String, Object> valRef = new CDefaultLayerDataSet<>();
                 CDefaultLayerDataSet<String, Class<?>> typeRef = contextTypes.newLayer();
 
@@ -248,15 +268,15 @@ public class CJobExecutor {
                 });
 
                 // 解析输入参数
-                CJobParam[] inputs = subJob.getInputs();
-                for (CJobParam input : inputs) {
+                CExecParam[] inputs = subJob.getInputs();
+                for (CExecParam input : inputs) {
                     // 解析出正在的变量名称和类型
                     CPair<String, Class<?>> parameter = resolveParameter(input, valRef, typeRef);
                     typeRef.put(parameter.getFirst(), parameter.getSecond());
                     if (parameter.getFirst() != null && parameter.getSecond() != null) {
                         typeRef.put(parameter.getFirst(), parameter.getSecond());
                     }
-                    CPair<Boolean, List<CJobParam>> checked = hasParam(lastOutput, parameter);
+                    CPair<Boolean, List<CExecParam>> checked = hasParam(lastOutput, parameter);
                     if (i != 0 && !checked.getFirst()) {
                         throw new CExecParamNotFoundException(parameter, checked.getSecond());
                     }
@@ -265,34 +285,34 @@ public class CJobExecutor {
                 }
                 // 解析输出参数, 这里需要合并这一次和上一次的输出
                 // 因为在Removal中可能会引用这一次和上一次的输出
-                CJobParam[] outputs = subJob.getOutputs();
+                CExecParam[] outputs = subJob.getOutputs();
                 if (lastOutput == null) {
-                    lastOutput = new CJobParam[outputs.length];
+                    lastOutput = new CExecParam[outputs.length];
                 } else {
                     lastOutput = Arrays.copyOf(lastOutput, lastOutput.length + outputs.length);
                 }
 
                 for (int j = 0; j < outputs.length; ++j) {
-                    CJobParam output = outputs[j];
+                    CExecParam output = outputs[j];
                     CPair<String, Class<?>> parameter = resolveParameter(output, valRef, typeRef);
                     if (parameter.getFirst() != null && parameter.getSecond() != null) {
                         contextTypes.put(parameter.getFirst(), parameter.getSecond());
                         typeRef.put(parameter.getFirst(), parameter.getSecond());
                     }
-                    lastOutput[j + lastOutput.length - outputs.length] = output;//new CJobParam(parameter.getFirst(), output.getInfo(), output.isNullable(), parameter.getSecond());
+                    lastOutput[j + lastOutput.length - outputs.length] = output;
                     output.setType(parameter.getSecond());
                     output.setName(parameter.getFirst());
                 }
-                List<CJobParam> newOutput = new LinkedList<>(Arrays.asList(outputs));
-                CJobParam[] removals = subJob.getRemovals();
-                for (CJobParam removal : removals) {
+                List<CExecParam> newOutput = new LinkedList<>(Arrays.asList(outputs));
+                CExecParam[] removals = subJob.getRemovals();
+                for (CExecParam removal : removals) {
                     CPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef);
 
-                    CPair<Boolean, List<CJobParam>> checked = hasParam(lastOutput, parameter);
+                    CPair<Boolean, List<CExecParam>> checked = hasParam(lastOutput, parameter);
                     if (!checked.getFirst()) {
                         throw new CExecParamNotFoundException(parameter, checked.getSecond());
                     }
-                    CPair<Boolean, List<CJobParam>> matchedOutput = hasParam(outputs, parameter);
+                    CPair<Boolean, List<CExecParam>> matchedOutput = hasParam(outputs, parameter);
 
                     if (matchedOutput.getFirst()) {
                         newOutput.remove(matchedOutput.getSecond().get(0));
@@ -306,7 +326,7 @@ public class CJobExecutor {
                     removal.setName(parameter.getFirst());
                 }
                 // set real output
-                lastOutput = newOutput.toArray(new CJobParam[0]);
+                lastOutput = newOutput.toArray(new CExecParam[0]);
                 executors[i] = build(factory, subJob, context).getFirst();
                 everyContextTypes.add(contextTypes.toMap());
             }
@@ -331,14 +351,14 @@ public class CJobExecutor {
         return name;
     }
 
-    private CPair<Boolean, List<CJobParam>> hasParam(CJobParam[] params, CPair<String, Class<?>> pair) {
+    private CPair<Boolean, List<CExecParam>> hasParam(CExecParam[] params, CPair<String, Class<?>> pair) {
 
-        List<CJobParam> candidates = new ArrayList<>();
+        List<CExecParam> candidates = new ArrayList<>();
 
         if (params == null) {
             return new CPair<>(false, candidates);
         }
-        for (CJobParam param : params) {
+        for (CExecParam param : params) {
             if (pair.getSecond().isAssignableFrom((Class<?>) param.getType())
                     && pair.getFirst().equals(param.getName())) {
                 candidates.clear();

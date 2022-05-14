@@ -1,7 +1,6 @@
 package com.cocofhu.ctb.kernel.exception.job;
 
-import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
-import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
 import com.cocofhu.ctb.kernel.exception.CJobException;
 
 /**
@@ -9,13 +8,13 @@ import com.cocofhu.ctb.kernel.exception.CJobException;
  * @author cocofhu
  */
 public class CExecConflictParameterException extends CJobException {
-    private final CJobParam[] parameters;
-    public CExecConflictParameterException(CJobParam[] parameters, String msg) {
+    private final CExecParam[] parameters;
+    public CExecConflictParameterException(CExecParam[] parameters, String msg) {
         super(msg);
         this.parameters = parameters;
     }
 
-    public CJobParam[] getParameters() {
+    public CExecParam[] getParameters() {
         return parameters;
     }
 }

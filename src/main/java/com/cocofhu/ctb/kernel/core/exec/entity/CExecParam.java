@@ -2,10 +2,9 @@ package com.cocofhu.ctb.kernel.core.exec.entity;
 
 import com.cocofhu.ctb.kernel.util.CCloneable;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-public class CJobParam implements CCloneable {
+public class CExecParam implements CCloneable {
 
     // 参数类型
     private String name;
@@ -16,28 +15,28 @@ public class CJobParam implements CCloneable {
     // 参数类型 type
     private Object type;
 
-    public CJobParam(String name, String info, boolean nullable, String type) {
+    public CExecParam(String name, String info, boolean nullable, String type) {
         this.name = name;
         this.info = info;
         this.nullable = nullable;
         this.type = type;
     }
 
-    public CJobParam(String name, String info, boolean nullable, Class<?> type) {
+    public CExecParam(String name, String info, boolean nullable, Class<?> type) {
         this.name = name;
         this.info = info;
         this.nullable = nullable;
         this.type = type;
     }
 
-    public CJobParam(String name, String info, Class<?> type) {
+    public CExecParam(String name, String info, Class<?> type) {
         this.name = name;
         this.info = info;
         this.nullable = false;
         this.type = type;
     }
 
-    public CJobParam(String name, String info, String type) {
+    public CExecParam(String name, String info, String type) {
         this.name = name;
         this.info = info;
         this.nullable = false;
@@ -81,8 +80,8 @@ public class CJobParam implements CCloneable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CJobParam cJobParam = (CJobParam) o;
-        return Objects.equals(name, cJobParam.name) && Objects.equals(type, cJobParam.type);
+        CExecParam execParam = (CExecParam) o;
+        return Objects.equals(name, execParam.name) && Objects.equals(type, execParam.type);
     }
 
     @Override

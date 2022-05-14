@@ -4,9 +4,9 @@ import com.cocofhu.ctb.basic.CDebugExecutor;
 import com.cocofhu.ctb.basic.CParamExecutor;
 import com.cocofhu.ctb.basic.CUtilExecutor;
 import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultWritableDataSet;
-import com.cocofhu.ctb.kernel.core.exec.entity.CJobDetail;
-import com.cocofhu.ctb.kernel.core.exec.entity.CJobParam;
-import com.cocofhu.ctb.basic.CJobExecutor;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecDetail;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
+import com.cocofhu.ctb.basic.CExecBuilder;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
@@ -47,7 +47,7 @@ public class Startup {
                 }
             });
 
-            result.add(new CAbstractDefinition(CJobExecutor.class) {
+            result.add(new CAbstractDefinition(CExecBuilder.class) {
                 @Override
                 public String getBeanName() {
                     return "CJobExecutor";
@@ -121,23 +121,23 @@ public class Startup {
 //        new CJobExecutor().toExecutor(factory, pair.getSecond().getJobDetail());
 //        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
 
-        CJobDetail job = new CJobExecutor().toJobDetail(factory, new CExecutorMethod("Power", null, "mul", null));
+        CExecDetail job = new CExecBuilder().toJobDetail(factory, new CExecutorMethod("Power", null, "mul", null));
 
-        System.out.println(new CJobExecutor().toSummary(factory,job));
+        System.out.println(new CExecBuilder().toSummary(factory,job));
         CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
         attachment.put("x",100);
         attachment.put("y","99");
 
 
-        CExecutor executor = new CJobExecutor().forceRun(factory, job, attachment);
+        CExecutor executor = new CExecBuilder().forceRun(factory, job, attachment);
         System.out.println(executor.getReturnVal());
 
 //        System.out.println(JSON.toJSON(jobs));
 
     }
 
-    public static void outParams(CJobParam[] params){
-        for (CJobParam p: params
+    public static void outParams(CExecParam[] params){
+        for (CExecParam p: params
              ) {
             System.out.println("(Name: " + p.getName() + ", Type: " + p.getType() + ")" );
         }
@@ -152,7 +152,7 @@ public class Startup {
 //        return new CTBPair<>(str.substring(num),num);
 //    }
 
-    public static void getArgumentsDetail(CJobDetail job){
+    public static void getArgumentsDetail(CExecDetail job){
 
 
 
