@@ -14,6 +14,7 @@ import com.cocofhu.ctb.kernel.exception.job.CExecParamNotFoundException;
 import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
 import com.cocofhu.ctb.kernel.util.CStringUtils;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
+import com.cocofhu.ctb.kernel.util.ds.*;
 
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -195,11 +196,7 @@ public class CExecBuilder {
         } else if (annotation instanceof CExecutorRawRemovals) {
             CExecutorRawRemovals casted = (CExecutorRawRemovals) annotation;
             Arrays.stream(casted.value()).forEach(a -> list.add(new CExecParam(a.name(), a.info(), a.type())));
-        } /*else {
-            // throw new CUnsupportedOperationException("never reach...");
-            // Can not reach here
-        }*/
-
+        }
     }
 
 

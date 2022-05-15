@@ -4,6 +4,7 @@ import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoConfigException;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
 
 /**
  * 为指定的BeanDefinition寻找构造函数

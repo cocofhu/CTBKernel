@@ -1,10 +1,12 @@
 package com.cocofhu.ctb.kernel.core.exec.entity;
 
-import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
 import com.cocofhu.ctb.kernel.util.CCloneable;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CExecDetail implements CCloneable {
 
@@ -249,20 +251,41 @@ public class CExecDetail implements CCloneable {
 
     @Override
     public String toString() {
-        return "CJobDetail{" +
-                "name='" + name + '\'' +
-                ", ignoreException=" + ignoreException +
-                ", version=" + version +
-                ", type=" + type +
-                ", method=" + method +
-                ", attachment=" + attachment +
-                ", subJobs=" + Arrays.toString(subJobs) +
-                ", inputs=" + Arrays.toString(inputs) +
-                ", outputs=" + Arrays.toString(outputs) +
-                ", removals=" + Arrays.toString(removals) +
-                ", info='" + info + '\'' +
-                ", group='" + group + '\'' +
-                ", attributes=" + attributes +
-                '}';
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Job Name: ").append(this.getName()).append(", Job Group: ").append(this.getGroup()).append("\n");
+        sb.append("Job Info: ").append(this.getInfo()).append("\n");
+        if (this.getType() == CExecDetail.TYPE_EXEC) {
+            outSingleJob(this, sb);
+        } else if (this.getType() == CExecDetail.TYPE_SCHEDULE) {
+            CExecDetail[] subJobs = this.getSubJobs();
+            for (int i = 0; i < subJobs.length; ++i) {
+                CExecDetail subJob = subJobs[i];
+                sb.append("Layer ").append(i).append("\n");
+                outSingleJob(subJob, sb);
+            }
+        }
+        return sb.toString();
+    }
+
+    private void outParams(CExecParam[] params, StringBuilder sb) {
+        for (int i = 0; i < params.length; i++) {
+            CExecParam p = params[i];
+            sb.append("\t").append(i + 1).append(". (Name: ").append(p.getName()).append(", Type: ").append(p.getType()).append(")\n");
+        }
+    }
+
+    private void outSingleJob(CExecDetail jobDetail, StringBuilder sb) {
+        sb.append("Input:\n");
+        outParams(jobDetail.getInputs(), sb);
+        sb.append("Output:\n");
+        outParams(jobDetail.getOutputs(), sb);
+        sb.append("Removals:\n");
+        outParams(jobDetail.getRemovals(), sb);
+    }
+
+    private void outContext(Map<String, Class<?>> context, StringBuilder sb) {
+        AtomicInteger i = new AtomicInteger(1);
+        context.forEach((s, c) -> sb.append("\t").append(i.getAndIncrement()).append(". (Name: ").append(s).append(", Type: ").append(c).append(")\n"));
     }
 }

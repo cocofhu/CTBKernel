@@ -1,6 +1,4 @@
-package com.cocofhu.ctb.kernel.core.config;
-
-import java.util.Map;
+package com.cocofhu.ctb.kernel.util.ds;
 
 public interface CWritableDataSet<K,V> extends CReadOnlyDataSet<K,V>{
     V put(K key,V val);

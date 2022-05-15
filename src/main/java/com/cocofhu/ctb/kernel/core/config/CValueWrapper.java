@@ -1,9 +1,11 @@
 package com.cocofhu.ctb.kernel.core.config;
 
-import com.cocofhu.ctb.kernel.core.resolver.CProcess;
+import com.cocofhu.ctb.kernel.anno.param.process.CAnnoProcess;
 import com.cocofhu.ctb.kernel.exception.bean.CNoConfigException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoParameterException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoValueException;
+import com.cocofhu.ctb.kernel.util.ds.CPair;
+
 
 import java.lang.annotation.Annotation;
 
@@ -14,7 +16,7 @@ public class CValueWrapper implements CMateData {
     /**
      * 该值是由哪一个值处理器处理出来的
      */
-    private final CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> valueProcess;
+    private final CAnnoProcess valueProcess;
     /**
      * 第二个参数用于表示是否处理成功
      */
@@ -26,7 +28,7 @@ public class CValueWrapper implements CMateData {
 
     private final CParameterWrapper parameterWrapper;
 
-    public CValueWrapper(CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> valueProcess,
+    public CValueWrapper(CAnnoProcess valueProcess,
                          CPair<Object, Boolean> value, CConfig config, CParameterWrapper parameterWrapper) {
 
 
@@ -47,7 +49,7 @@ public class CValueWrapper implements CMateData {
     }
 
 
-    public CProcess<CPair<CParameterWrapper, CReadOnlyDataSet<String, Object>>> getValueProcess() {
+    public CAnnoProcess getValueProcess() {
         return valueProcess;
     }
 

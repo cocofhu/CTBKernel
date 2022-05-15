@@ -1,7 +1,7 @@
 package com.cocofhu.ctb.kernel.exception.bean;
 
 import com.cocofhu.ctb.kernel.core.config.CExecutableWrapper;
-import com.cocofhu.ctb.kernel.core.config.CPair;
+import com.cocofhu.ctb.kernel.util.ds.CPair;
 import com.cocofhu.ctb.kernel.core.config.CParameterWrapper;
 import com.cocofhu.ctb.kernel.core.config.CValueWrapper;
 import com.cocofhu.ctb.kernel.exception.CBeanException;

@@ -1,4 +1,4 @@
-package com.cocofhu.ctb.kernel.core.config;
+package com.cocofhu.ctb.kernel.util.ds;
 
 /**
  * 带有层级结构的数据集，实现该接口的类 需要满足新建和回退不同的层

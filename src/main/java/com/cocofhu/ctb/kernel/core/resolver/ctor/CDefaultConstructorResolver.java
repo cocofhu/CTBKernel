@@ -2,6 +2,7 @@ package com.cocofhu.ctb.kernel.core.resolver.ctor;
 
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
 
 import java.lang.reflect.Constructor;
 

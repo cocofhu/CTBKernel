@@ -13,6 +13,7 @@ import com.cocofhu.ctb.kernel.exception.bean.CNoBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoUniqueBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CInstantiationException;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
 
 
 import java.lang.reflect.InvocationTargetException;

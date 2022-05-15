@@ -6,6 +6,8 @@ import com.cocofhu.ctb.kernel.exception.job.CExecStatusException;
 import com.cocofhu.ctb.kernel.exception.job.CExecBeanMethodInvokeException;
 import com.cocofhu.ctb.kernel.exception.job.CExecNoSuchMethodException;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -84,5 +86,15 @@ public class CSimpleExecutor extends CAbstractExecutor {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "CSimpleExecutor{" +
+                "lock=" + lock +
+                ", executorMethod=" + executorMethod +
+                ", executorContext=" + executorContext +
+                ", config=" + config +
+                ", ignoreException=" + ignoreException +
+                ", attachment=" + attachment +
+                '}';
+    }
 }

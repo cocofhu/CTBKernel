@@ -1,10 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultReadOnlyDataSet;
-import com.cocofhu.ctb.kernel.core.config.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.exception.CJobException;
-
-import java.util.Map;
 
 /**
  * @author cocofhu

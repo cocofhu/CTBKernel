@@ -3,10 +3,11 @@ package com.cocofhu.ctb.kernel;
 import com.cocofhu.ctb.basic.CDebugExecutor;
 import com.cocofhu.ctb.basic.CParamExecutor;
 import com.cocofhu.ctb.basic.CUtilExecutor;
-import com.cocofhu.ctb.kernel.core.config.CDefaultDefaultWritableDataSet;
+import com.cocofhu.ctb.kernel.core.exec.build.CDefaultExecutorBuilder;
+import com.cocofhu.ctb.kernel.core.exec.build.CExecutorBuilder;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultWritableDataSet;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecDetail;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
-import com.cocofhu.ctb.basic.CExecBuilder;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
@@ -47,7 +48,7 @@ public class Startup {
                 }
             });
 
-            result.add(new CAbstractDefinition(CExecBuilder.class) {
+            result.add(new CAbstractDefinition(CExecutorBuilder.class) {
                 @Override
                 public String getBeanName() {
                     return "CJobExecutor";
@@ -83,54 +84,57 @@ public class Startup {
         //
 
 
-//        CJobDetail job0 = new CJobDetail("X", "Y", group, new CJobParam[]{
-//                new CJobParam("source", "source", false, String.class),
-//        }, new CJobParam[]{
-//                // 这里的type引用input里的type
-//                new CJobParam("source", "source", false, "source"),
+        CExecDetail job0 = new CExecDetail("X", "Y", group, new CExecParam[]{
+                new CExecParam("source", "source", false, String.class),
+        }, new CExecParam[]{
+                // 这里的type引用input里的type
+                new CExecParam("source", "source", false, "source"),
+//                new CExecParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
+        },new CExecParam[]{
+                new CExecParam("source", "source", false, "source"),
 //                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
-//        },new CJobParam[]{
-//                new CJobParam("source", "source", false, "source"),
-////                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "text", false, ArrayList.class)
-//        }, new CExecutorMethod("CUtilExecutor", null, "readText", null), null);
+        }, new CExecutorMethod("CUtilExecutor", null, "readText", null), null);
 //
 //
 //        // 定义JOB1
 //        // 输入参数为    (Name: source,              Type: class java.lang.String)
-//        CJobDetail job1 = new CJobDetail("ParamTransformer", "ParamTransformer", group, new CJobParam[]{
-//                // 这里的name引用attachment里source的值，type引用attachment里source的的类型
-//                new CJobParam("*source", "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
-//        }, new CJobParam[]{
-//                // 这里的name引用attachment里dist的值，type引用attachment里source的的类型
-//                new CJobParam("*dist", "source", false, "*source")
-//        },new CJobParam[]{
-//                new CJobParam(CExecutor.EXEC_RETURN_VAL_KEY, "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
-////                new CJobParam("ABC", "source", false, "ABC"),
-//                new CJobParam("*dist", "source", false, "*dist"),
-//        }, new CExecutorMethod("CParamExecutor", null, "transform", null), null);
-//
-//        CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
-//        attachment.put("source",CExecutor.EXEC_RETURN_VAL_KEY);
-//        attachment.put("dist","ABC");
-//        job1.setAttachment(attachment);
-//
-//        CJobDetail jobs = new CJobDetail("SimpleJob","a simple job",group,new CJobDetail[]{job0,job1},null);
+        CExecDetail job1 = new CExecDetail("ParamTransformer", "ParamTransformer", group, new CExecParam[]{
+                // 这里的name引用attachment里source的值，type引用attachment里source的的类型
+                new CExecParam("*source", "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
+        }, new CExecParam[]{
+                // 这里的name引用attachment里dist的值，type引用attachment里source的的类型
+                new CExecParam("*dist", "source", false, "*source")
+        },new CExecParam[]{
+                new CExecParam(CExecutor.EXEC_RETURN_VAL_KEY, "source", false, CExecutor.EXEC_RETURN_VAL_KEY),
+//                new CJobParam("ABC", "source", false, "ABC"),
+                new CExecParam("*dist", "source", false, "*dist"),
+        }, new CExecutorMethod("CParamExecutor", null, "transform", null), null);
 
+        CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
+        attachment.put("source",CExecutor.EXEC_RETURN_VAL_KEY);
+        attachment.put("dist","ABC");
+        job1.setAttachment(attachment);
+//
+        CExecDetail jobs = new CExecDetail("SimpleJob","a simple job",group,new CExecDetail[]{job0,job1},null);
+
+        CDefaultExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
+        System.out.println(builder.toExecutor(jobs, builder, new CExecutorContext()));
+        System.out.println(jobs);
 //        CExecutor executor = new CJobExecutor().toExecutor(factory, jobs);
 //        System.out.println(pair.getSecond());
 //        new CJobExecutor().toExecutor(factory, pair.getSecond().getJobDetail());
 //        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
-
-        CExecDetail job = new CExecBuilder().toJobDetail(factory, new CExecutorMethod("Power", null, "mul", null));
-
-        System.out.println(new CExecBuilder().toSummary(factory,job));
-        CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
-        attachment.put("x",100);
-        attachment.put("y","99");
-
-
-        CExecutor executor = new CExecBuilder().forceRun(factory, job, attachment);
-        System.out.println(executor.getReturnVal());
+//
+//        CExecDetail job = new CExecBuilder().toJobDetail(factory, new CExecutorMethod("Power", null, "mul", null));
+//
+//        System.out.println(new CExecBuilder().toSummary(factory,job));
+//        CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
+//        attachment.put("x",100);
+//        attachment.put("y","99");
+//
+//
+//        CExecutor executor = new CExecBuilder().forceRun(factory, job, attachment);
+//        System.out.println(executor.getReturnVal());
 
 //        System.out.println(JSON.toJSON(jobs));
 

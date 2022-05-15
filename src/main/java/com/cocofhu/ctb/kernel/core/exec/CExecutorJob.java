@@ -2,6 +2,8 @@ package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 
+import java.util.Arrays;
+
 /**
  * @author cocofhu
  */
@@ -29,5 +31,16 @@ public class CExecutorJob extends CAbstractExecutor {
         }
 
         setStatus(Status.Stop);
+    }
+
+    @Override
+    public String toString() {
+        return "CExecutorJob{" +
+                "executors=" + Arrays.toString(executors) +
+                ", executorContext=" + executorContext +
+                ", config=" + config +
+                ", ignoreException=" + ignoreException +
+                ", attachment=" + attachment +
+                '}';
     }
 }

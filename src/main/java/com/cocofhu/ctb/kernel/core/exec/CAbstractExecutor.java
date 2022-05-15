@@ -1,7 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
-import com.cocofhu.ctb.kernel.core.config.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.exception.job.CExecStatusException;
 import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
 

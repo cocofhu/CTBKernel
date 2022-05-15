@@ -5,10 +5,12 @@ import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
+import com.cocofhu.ctb.kernel.util.ds.CPair;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
 
 import java.lang.annotation.Annotation;
 
-public class CAutoWiredProcess extends CAbstractAnnoProcess {
+public class CAutoWiredProcess implements CAnnoProcess {
     @Override
     public CPair<Object, Boolean> process(CParameterWrapper parameter, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
         Annotation annotation = parameter.acquireNearAnnotation(CAutowired.class);

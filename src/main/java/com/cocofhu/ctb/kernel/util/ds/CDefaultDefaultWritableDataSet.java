@@ -1,4 +1,4 @@
-package com.cocofhu.ctb.kernel.core.config;
+package com.cocofhu.ctb.kernel.util.ds;
 
 
 import java.util.Map;

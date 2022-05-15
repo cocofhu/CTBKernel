@@ -3,11 +3,11 @@ package com.cocofhu.ctb.kernel.anno.param.process;
 import com.cocofhu.ctb.kernel.anno.exec.CExecutorInput;
 import com.cocofhu.ctb.kernel.convert.ConverterUtils;
 import com.cocofhu.ctb.kernel.core.config.*;
-import com.cocofhu.ctb.kernel.core.exec.CExecutor;
-import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
 import com.cocofhu.ctb.kernel.util.CStringUtils;
+import com.cocofhu.ctb.kernel.util.ds.CPair;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
 
-public class CExecutorInputProcess extends CAbstractAnnoProcess {
+public class CExecutorInputProcess implements CAnnoProcess {
 
 
 

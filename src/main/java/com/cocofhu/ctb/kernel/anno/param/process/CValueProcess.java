@@ -3,11 +3,13 @@ package com.cocofhu.ctb.kernel.anno.param.process;
 import com.cocofhu.ctb.kernel.anno.param.CValue;
 import com.cocofhu.ctb.kernel.convert.ConverterUtils;
 import com.cocofhu.ctb.kernel.core.config.*;
+import com.cocofhu.ctb.kernel.util.ds.CPair;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
 
 /**
  * @author cocofhu
  */
-public class CValueProcess extends CAbstractAnnoProcess {
+public class CValueProcess implements CAnnoProcess {
 
     @Override
     public CPair<Object, Boolean> process(CParameterWrapper parameter, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
