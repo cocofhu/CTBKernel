@@ -33,7 +33,7 @@ public class CDefaultExecutorBuilder implements CExecutorBuilder {
                                                      CExecutorContext context, CDefaultLayerDataSet<String, Class<?>> contextTypes, CExecParam[] lastOutput, boolean checkInput) {
         CExecutorBuilder b = builderMap.get(execDetail.getType());
         if (b == null) {
-            throw new CExecUnsupportedOperationException("unsupported job type: " + execDetail.getType());
+            throw new CExecUnsupportedOperationException("unsupported exec type: " + execDetail.getType());
         }
         return b.toExecutor(execDetail, builder, context, contextTypes, lastOutput, checkInput);
     }
