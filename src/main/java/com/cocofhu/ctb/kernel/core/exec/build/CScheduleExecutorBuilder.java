@@ -19,16 +19,14 @@ public class CScheduleExecutorBuilder implements CExecutorBuilder {
     }
 
     @Override
-    public CPair<CExecutor, CExecParam[]> toExecutor(CExecDetail execDetail, CExecutorBuilder builder, CExecutorContext context,
-                                                     CDefaultLayerDataSet<String, Class<?>> contextTypes, CExecParam[] lastOutput, boolean checkInput) {
+    public CExecutor toExecutor(CExecDetail execDetail, CExecutorBuilder builder, CExecutorContext context,
+                                                     CDefaultLayerDataSet<String, Class<?>> contextTypes, boolean checkInput) {
         CExecutor[] executors = new CExecutor[execDetail.getSubJobs().length];
         for (int i = 0; i < execDetail.getSubJobs().length; i++) {
-            CPair<CExecutor, CExecParam[]> pair = builder.toExecutor(execDetail.getSubJobs()[i], builder, context, contextTypes, lastOutput, checkInput);
-            executors[i] = pair.getFirst();
-            lastOutput = pair.getSecond();
+            executors[i] = builder.toExecutor(execDetail.getSubJobs()[i], builder, context, contextTypes, checkInput);
             checkInput = true;
         }
-        return new CPair<>(new CExecutorJob(context, config, execDetail.isIgnoreException(), executors), lastOutput);
+        return new CExecutorJob(context, config, execDetail.isIgnoreException(), executors);
     }
 
 }

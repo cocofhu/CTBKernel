@@ -26,13 +26,13 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
 
 
     @Override
-    public CPair<CExecutor, CExecParam[]> toExecutor(CExecDetail execDetail, CExecutorBuilder builder, CExecutorContext context,
-                                                     CDefaultLayerDataSet<String, Class<?>> contextTypes, CExecParam[] lastOutput, boolean checkInput) {
+    public CExecutor toExecutor(CExecDetail execDetail, CExecutorBuilder builder, CExecutorContext context,
+                                                     CDefaultLayerDataSet<String, Class<?>> contextTypes, boolean checkInput) {
 
         CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "inputs");
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "outputs");
         CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "removal");
-        CExecutorUtils.checkParamValidAndThrow(lastOutput, "last outputs");
+
 
         // set current context
         CDefaultLayerDataSet<String, Object> valRef = new CDefaultLayerDataSet<>();
@@ -66,34 +66,23 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
         // 解析输出参数, 这里需要合并这一次和上一次的输出
         // 因为在Removal中可能会引用这一次和上一次的输出
         CExecParam[] outputs = execDetail.getOutputs();
-        if (lastOutput == null) {
-            lastOutput = new CExecParam[outputs.length];
-        } else {
-            lastOutput = Arrays.copyOf(lastOutput, lastOutput.length + outputs.length);
-        }
-        for (int j = 0; j < outputs.length; ++j) {
-            CExecParam output = outputs[j];
+
+        for (CExecParam output : outputs) {
             CPair<String, Class<?>> parameter = resolveParameter(output, valRef, typeRef);
             if (parameter.getFirst() != null && parameter.getSecond() != null) {
                 contextTypes.put(parameter.getFirst(), parameter.getSecond());
                 typeRef.put(parameter.getFirst(), parameter.getSecond());
             }
-            lastOutput[j + lastOutput.length - outputs.length] = output;
             output.setType(parameter.getSecond());
             output.setName(parameter.getFirst());
         }
-        List<CExecParam> newOutput = new LinkedList<>(Arrays.asList(outputs));
+
         CExecParam[] removals = execDetail.getRemovals();
         for (CExecParam removal : removals) {
             CPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef);
             CPair<Boolean, List<CExecParam>> checked = hasParam(typeRef, parameter);
             if (!checked.getFirst()) {
                 throw new CExecParamNotFoundException(parameter, checked.getSecond());
-            }
-            CPair<Boolean, List<CExecParam>> matchedOutput = hasParam(typeRef, parameter);
-
-            if (matchedOutput.getFirst()) {
-                newOutput.remove(matchedOutput.getSecond().get(0));
             }
             if (parameter.getFirst() != null && parameter.getSecond() != null) {
                 contextTypes.remove(parameter.getFirst());
@@ -107,7 +96,7 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "processed outputs");
         CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "processed removal");
 
-        return new CPair<>(new CSimpleExecutor(context, config, execDetail.getMethod(), execDetail.isIgnoreException(), execDetail.getAttachment()), newOutput.toArray(new CExecParam[0]));
+        return new CSimpleExecutor(context, config, execDetail.getMethod(), execDetail.isIgnoreException(), execDetail.getAttachment());
     }
 
 

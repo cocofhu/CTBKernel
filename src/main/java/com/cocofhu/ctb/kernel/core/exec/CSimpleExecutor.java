@@ -53,9 +53,8 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
             // 获取执行信息 这里可能会抛出 CNoSuchBeanDefinitionException
             CBeanDefinition beanDefinition = config.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-            CDefaultLayerDataSet<String, Object> newContext = executorContext.newLayer();
+            CExecutorContext newContext = executorContext.newLayer();
             newContext.putAll(attachment);
-            System.out.println(attachment);
 
             Object bean = config.getBeanFactory().getBean(beanDefinition, newContext);
             Method method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());

@@ -157,7 +157,7 @@ public class Startup {
         CExecutor executor = builder.toExecutor(jobs, builder, context);
         executor.run();
 
-        System.out.println(context);
+        System.out.println(context.toMap());
 
     }
 
