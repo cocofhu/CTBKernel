@@ -140,6 +140,10 @@ public class Startup {
 //        System.out.println(JSON.toJSON(jobs));
 
         CExecDetail job0 = CExecutorUtils.toJobDetail(factory,new CExecutorMethod("Power",null,"mul", null));
+        CDefaultDefaultWritableDataSet<String,Object> attachment1 = new CDefaultDefaultWritableDataSet<>();
+        attachment1.put("x",100);
+        attachment1.put("y",2);
+        job0.setAttachment(attachment1);
         CExecDetail job1 = CExecutorUtils.toJobDetail(factory,new CExecutorMethod("CParamExecutor",null,"transform", null));
 
         CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
@@ -150,7 +154,8 @@ public class Startup {
         CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
         CExecDetail jobs = new CExecDetail("SimpleJob","a simple job",group,new CExecDetail[]{job0,job1},null);
         CExecutorContext context = new CExecutorContext();
-        builder.toExecutor(jobs,builder, context);
+        CExecutor executor = builder.toExecutor(jobs, builder, context);
+        executor.run();
 
         System.out.println(context);
 

@@ -17,7 +17,7 @@ public class CParamExecutor {
             @CExecutorRawOutput(name = "*dist", info = "context output", type = "*source")
     )
     @CExecBasicInfo(name="SimpleJob",info = "info", group = "test")
-    public void transform(@CAutowired CExecutorContext executorContext, String source, @CExecutorInput String dist){
+    public void transform(@CAutowired CExecutorContext executorContext, @CExecutorInput String source, @CExecutorInput String dist){
         Object removal = executorContext.cancelPersist(source);
         executorContext.persist(dist,removal);
     }

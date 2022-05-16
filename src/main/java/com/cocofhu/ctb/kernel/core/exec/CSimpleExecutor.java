@@ -55,6 +55,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
             CBeanDefinition beanDefinition = config.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
             CDefaultLayerDataSet<String, Object> newContext = executorContext.newLayer();
             newContext.putAll(attachment);
+            System.out.println(attachment);
 
             Object bean = config.getBeanFactory().getBean(beanDefinition, newContext);
             Method method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());

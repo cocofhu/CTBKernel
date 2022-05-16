@@ -48,6 +48,7 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
         });
         // 解析输入参数
         CExecParam[] inputs = execDetail.getInputs();
+
         for (CExecParam input : inputs) {
             // 解析出正在的变量名称和类型
             CPair<String, Class<?>> parameter = resolveParameter(input, valRef, typeRef);
@@ -55,7 +56,7 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
             if (parameter.getFirst() != null && parameter.getSecond() != null) {
                 typeRef.put(parameter.getFirst(), parameter.getSecond());
             }
-            CPair<Boolean, List<CExecParam>> checked = hasParam(lastOutput, parameter);
+            CPair<Boolean, List<CExecParam>> checked = hasParam(typeRef, parameter);
             if (checkInput && !checked.getFirst()) {
                 throw new CExecParamNotFoundException(parameter, checked.getSecond());
             }
@@ -85,11 +86,11 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
         CExecParam[] removals = execDetail.getRemovals();
         for (CExecParam removal : removals) {
             CPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef);
-            CPair<Boolean, List<CExecParam>> checked = hasParam(lastOutput, parameter);
+            CPair<Boolean, List<CExecParam>> checked = hasParam(typeRef, parameter);
             if (!checked.getFirst()) {
                 throw new CExecParamNotFoundException(parameter, checked.getSecond());
             }
-            CPair<Boolean, List<CExecParam>> matchedOutput = hasParam(outputs, parameter);
+            CPair<Boolean, List<CExecParam>> matchedOutput = hasParam(typeRef, parameter);
 
             if (matchedOutput.getFirst()) {
                 newOutput.remove(matchedOutput.getSecond().get(0));
@@ -105,7 +106,6 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
         CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "processed inputs");
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "processed outputs");
         CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "processed removal");
-
 
         return new CPair<>(new CSimpleExecutor(context, config, execDetail.getMethod(), execDetail.isIgnoreException(), execDetail.getAttachment()), newOutput.toArray(new CExecParam[0]));
     }
@@ -162,23 +162,28 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
         return name;
     }
 
-    private CPair<Boolean, List<CExecParam>> hasParam(CExecParam[] params, CPair<String, Class<?>> pair) {
+    private CPair<Boolean, List<CExecParam>> hasParam(CDefaultLayerDataSet<String, Class<?>> typeRef, CPair<String, Class<?>> pair) {
         List<CExecParam> candidates = new ArrayList<>();
-        if (params == null) {
+        if (typeRef == null) {
             return new CPair<>(false, candidates);
         }
-        for (CExecParam param : params) {
-            if (pair.getSecond().isAssignableFrom((Class<?>) param.getType())
-                    && pair.getFirst().equals(param.getName())) {
+        Map<String, Class<?>> map = typeRef.toMap();
+
+        Set<String> keys = map.keySet();
+        for(String key: keys){
+            Class<?> type = map.get(key);
+            if (pair.getSecond().isAssignableFrom(type)
+                    && pair.getFirst().equals(key)) {
                 candidates.clear();
-                candidates.add(param);
+                candidates.add(new CExecParam(key,"",false,type));
                 return new CPair<>(true, candidates);
             }
-            if (pair.getSecond().isAssignableFrom((Class<?>) param.getType())
-                    || pair.getFirst().equals(param.getName())) {
-                candidates.add(param);
+            if (pair.getSecond().isAssignableFrom(type)
+                    || pair.getFirst().equals(key)) {
+                candidates.add(new CExecParam(key,"",false,type));
             }
         }
+
         return new CPair<>(false, candidates);
     }
 }

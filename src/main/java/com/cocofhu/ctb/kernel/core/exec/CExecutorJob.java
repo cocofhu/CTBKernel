@@ -23,9 +23,9 @@ public class CExecutorJob extends CAbstractExecutor {
 
         for (int i = 0; i < executors.length; i++) {
             CExecutor executor = executors[i];
-            if(i == 0){
-                executor.setAttachment(attachment);
-            }
+//            if(i == 0){
+//                executor.setAttachment(attachment);
+//            }
             executor.setStatus(Status.Ready);
             executor.run();
         }
