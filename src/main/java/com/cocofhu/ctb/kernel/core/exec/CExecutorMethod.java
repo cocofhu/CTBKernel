@@ -28,6 +28,9 @@ public class CExecutorMethod implements CCloneable {
         }
     }
 
+    public CExecutorMethod(String beanName, String methodName) {
+        this(beanName,null,methodName,null);
+    }
 
     public String getBeanName() {
         return beanName;

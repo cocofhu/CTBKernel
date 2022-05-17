@@ -6,6 +6,7 @@ import com.cocofhu.ctb.kernel.core.exec.*;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecDetail;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
+import com.cocofhu.ctb.kernel.exception.job.CExecBadInfoException;
 import com.cocofhu.ctb.kernel.exception.job.CExecConflictParameterException;
 import com.cocofhu.ctb.kernel.util.CStringUtils;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
@@ -17,7 +18,7 @@ import java.util.*;
 public class CExecutorUtils {
 
 
-    public static CExecDetail toJobDetail(CBeanFactory factory, CExecutorMethod executorMethod) {
+    public static CExecDetail toExecDetail(CBeanFactory factory, CExecutorMethod executorMethod) {
 
 
         //
@@ -74,6 +75,9 @@ public class CExecutorUtils {
             return basicInfo.getFirst() == null || basicInfo.getSecond() == null || basicInfo.getThird().getFirst() == null || basicInfo.getThird().getSecond() == null;
         });
 
+        if(basicInfo.getFirst() == null || basicInfo.getSecond() == null || basicInfo.getThird().getFirst() == null || basicInfo.getThird().getSecond() == null){
+            throw new CExecBadInfoException(basicInfo.getFirst(), basicInfo.getSecond(), basicInfo.getThird().getFirst());
+        }
 
         return new CExecDetail(basicInfo.getFirst(), basicInfo.getSecond(), basicInfo.getThird().getFirst(),
                 actualInputs.toArray(new CExecParam[0]),
@@ -138,11 +142,21 @@ public class CExecutorUtils {
         resolveIORFromAnnotation(executableWrapper, inputs, CExecutorContextInputs.class);
         resolveIORFromAnnotation(executableWrapper, inputs, CExecutorContextRawInputs.class);
 
+
         resolveIORFromAnnotation(executableWrapper, outputs, CExecutorOutputs.class);
         resolveIORFromAnnotation(executableWrapper, outputs, CExecutorRawOutputs.class);
 
         resolveIORFromAnnotation(executableWrapper, removals, CExecutorRemovals.class);
         resolveIORFromAnnotation(executableWrapper, removals, CExecutorRawRemovals.class);
+
+        resolveIORFromAnnotation(executableWrapper, inputs, CExecutorContextInput.class);
+        resolveIORFromAnnotation(executableWrapper, inputs, CExecutorContextRawInput.class);
+
+        resolveIORFromAnnotation(executableWrapper, outputs, CExecutorOutput.class);
+        resolveIORFromAnnotation(executableWrapper, outputs, CExecutorRawOutput.class);
+
+        resolveIORFromAnnotation(executableWrapper, removals, CExecutorRemoval.class);
+        resolveIORFromAnnotation(executableWrapper, removals, CExecutorRawRemoval.class);
 
         return new CTripe<>(inputs, outputs, removals);
     }
@@ -167,6 +181,24 @@ public class CExecutorUtils {
         } else if (annotation instanceof CExecutorRawRemovals) {
             CExecutorRawRemovals casted = (CExecutorRawRemovals) annotation;
             Arrays.stream(casted.value()).forEach(a -> list.add(new CExecParam(a.name(), a.info(), a.type())));
+        }else if(annotation instanceof CExecutorContextInput){
+            CExecutorContextInput casted = (CExecutorContextInput) annotation;
+            list.add(new CExecParam(casted.name(), casted.info(), casted.type()));
+        }else if(annotation instanceof CExecutorContextRawInput){
+            CExecutorContextRawInput casted = (CExecutorContextRawInput) annotation;
+            list.add(new CExecParam(casted.name(), casted.info(), casted.type()));
+        }else if(annotation instanceof CExecutorOutput){
+            CExecutorOutput casted = (CExecutorOutput) annotation;
+            list.add(new CExecParam(casted.name(), casted.info(), casted.type()));
+        }else if(annotation instanceof CExecutorRawOutput){
+            CExecutorRawOutput casted = (CExecutorRawOutput) annotation;
+            list.add(new CExecParam(casted.name(), casted.info(), casted.type()));
+        }else if(annotation instanceof CExecutorRemoval){
+            CExecutorRemoval casted = (CExecutorRemoval) annotation;
+            list.add(new CExecParam(casted.name(), casted.info(), casted.type()));
+        }else if(annotation instanceof CExecutorRawRemoval){
+            CExecutorRawRemoval casted = (CExecutorRawRemoval) annotation;
+            list.add(new CExecParam(casted.name(), casted.info(), casted.type()));
         }
     }
 

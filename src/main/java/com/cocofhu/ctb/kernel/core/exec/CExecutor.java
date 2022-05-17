@@ -1,7 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
-import com.cocofhu.ctb.kernel.exception.CJobException;
+import com.cocofhu.ctb.kernel.exception.CExecException;
 
 /**
  * @author cocofhu
@@ -49,12 +49,12 @@ public interface CExecutor extends Runnable{
 
     boolean isExecutedSuccessfully();
 
-    Throwable getThrowable() throws CJobException;
-    Object getReturnVal() throws CJobException;
+    Throwable getThrowable() throws CExecException;
+    Object getReturnVal() throws CExecException;
 
     void setAttachment(CReadOnlyDataSet<String, Object> attachment);
 
 
     @Override
-    void run() throws CJobException;
+    void run() throws CExecException;
 }

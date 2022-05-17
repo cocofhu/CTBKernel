@@ -2,7 +2,7 @@ package com.cocofhu.ctb.kernel.exception.job;
 
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
-import com.cocofhu.ctb.kernel.exception.CJobException;
+import com.cocofhu.ctb.kernel.exception.CExecException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  * 任务链中参数不匹配
  * @author cocofhu
  */
-public class CExecParamNotFoundException extends CJobException {
+public class CExecParamNotFoundException extends CExecException {
     public CExecParamNotFoundException(String msg) {
         super(msg);
     }
