@@ -10,6 +10,11 @@ public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, 
 
     protected Map<K,V> dataset;
 
+    /**
+     * 创建一个只读的数据集
+     * @param dataImpl  数据的实现 默认使用ConcurrentHashMap
+     * @param dataset   根据已有数据创建，浅拷贝
+     */
     protected CDefaultDefaultReadOnlyDataSet(Map<K,V> dataImpl, CDefaultDefaultReadOnlyDataSet<K,V> dataset) {
         this.dataset = dataImpl;
         if(this.dataset == null){
@@ -22,15 +27,6 @@ public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, 
             }
         }
     }
-
-    public CDefaultDefaultReadOnlyDataSet(CDefaultDefaultReadOnlyDataSet<K,V> dataset) {
-        this(null,dataset);
-    }
-
-    public CDefaultDefaultReadOnlyDataSet() {
-        this(null,null);
-    }
-
 
 
     public static class CDefaultReadOnlyEntry<K,V> implements CReadOnlyDataSet.CReadOnlyEntry<K,V> {
@@ -63,6 +59,7 @@ public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, 
     public V get(K key) {
         return dataset.get(key);
     }
+
 
     @Override
     public Set<CDefaultDefaultReadOnlyDataSet.CDefaultReadOnlyEntry<K, V>> entries() {

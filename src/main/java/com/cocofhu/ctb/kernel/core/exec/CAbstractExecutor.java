@@ -12,7 +12,7 @@ public abstract class CAbstractExecutor implements CExecutor {
 
     private volatile Status status;
 
-    protected final CExecutorContext executorContext;
+    protected final CExecutionRuntime executorContext;
     protected final CConfig config;
     protected final boolean ignoreException;
 
@@ -24,7 +24,7 @@ public abstract class CAbstractExecutor implements CExecutor {
      * @param ignoreException    是否忽略上一次执行出现的异常
      * @param attachment         附加参数
      */
-    protected CAbstractExecutor(CExecutorContext executorContext, CConfig config, boolean ignoreException, CReadOnlyDataSet<String, Object> attachment) {
+    protected CAbstractExecutor(CExecutionRuntime executorContext, CConfig config, boolean ignoreException, CReadOnlyDataSet<String, Object> attachment) {
         this.executorContext = executorContext;
         this.config = config;
         this.ignoreException = ignoreException;
@@ -38,7 +38,7 @@ public abstract class CAbstractExecutor implements CExecutor {
         if (getStatus() != Status.Stop) {
             throw new CExecStatusException(this, "executor not executed successfully.");
         }
-        return executorContext.get(EXEC_RETURN_VAL_KEY);
+        return executorContext.getReturnValRecently();
     }
 
     @Override
@@ -46,7 +46,7 @@ public abstract class CAbstractExecutor implements CExecutor {
         if (getStatus() != Status.Exception) {
             throw new CExecStatusException(this, "executor has not encountered an exception.");
         }
-        return (Throwable) executorContext.get(EXEC_EXCEPTION_KEY);
+        return (Throwable) executorContext.getExceptionRecently();
     }
 
     @Override
@@ -56,7 +56,7 @@ public abstract class CAbstractExecutor implements CExecutor {
 
     @Override
     public boolean isExceptionInContext() {
-        return executorContext.get(EXEC_EXCEPTION_KEY) != null;
+        return executorContext.hasExceptionRecently();
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.cocofhu.ctb.kernel.util.CCloneable;
 
 import java.util.Objects;
 
-public class CExecParam implements CCloneable {
+public class CParameterDefinition implements CCloneable {
 
     // 参数类型
     private String name;
@@ -15,28 +15,28 @@ public class CExecParam implements CCloneable {
     // 参数类型 type
     private Object type;
 
-    public CExecParam(String name, String info, boolean nullable, String type) {
+    public CParameterDefinition(String name, String info, boolean nullable, String type) {
         this.name = name;
         this.info = info;
         this.nullable = nullable;
         this.type = type;
     }
 
-    public CExecParam(String name, String info, boolean nullable, Class<?> type) {
+    public CParameterDefinition(String name, String info, boolean nullable, Class<?> type) {
         this.name = name;
         this.info = info;
         this.nullable = nullable;
         this.type = type;
     }
 
-    public CExecParam(String name, String info, Class<?> type) {
+    public CParameterDefinition(String name, String info, Class<?> type) {
         this.name = name;
         this.info = info;
         this.nullable = false;
         this.type = type;
     }
 
-    public CExecParam(String name, String info, String type) {
+    public CParameterDefinition(String name, String info, String type) {
         this.name = name;
         this.info = info;
         this.nullable = false;
@@ -80,7 +80,7 @@ public class CExecParam implements CCloneable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CExecParam execParam = (CExecParam) o;
+        CParameterDefinition execParam = (CParameterDefinition) o;
         return Objects.equals(name, execParam.name) && Objects.equals(type, execParam.type);
     }
 

@@ -3,12 +3,12 @@ package com.cocofhu.ctb.kernel.core.exec.entity;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
 import com.cocofhu.ctb.kernel.util.CCloneable;
+import de.vandermeer.asciitable.AsciiTable;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CExecDetail implements CCloneable {
+public class CExecutorDefinition implements CCloneable {
 
     // 任务类型：多个任务
     public static final int TYPE_SCHEDULE = 1;
@@ -36,15 +36,15 @@ public class CExecDetail implements CCloneable {
     private CDefaultDefaultReadOnlyDataSet<String, Object> attachment;
 
     // 多任务时的子任务
-    private CExecDetail[] subJobs;
+    private CExecutorDefinition[] subJobs;
 
     // 任务的输入参数
-    private CExecParam[] inputs;
+    private CParameterDefinition[] inputs;
     // 任务的输出参数
-    private CExecParam[] outputs;
+    private CParameterDefinition[] outputs;
 
     // 任务执行完毕后会清除的参数
-    private CExecParam[] removals;
+    private CParameterDefinition[] removals;
 
     // 说明
     private String info;
@@ -69,8 +69,8 @@ public class CExecDetail implements CCloneable {
      * @param attributes      任务属性
      * @param attachment      任务附加参数
      */
-    public CExecDetail(String name, String info, String group, CExecParam[] inputs,
-                       CExecParam[] outputs, CExecParam[] removals, boolean ignoreException, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+    public CExecutorDefinition(String name, String info, String group, CParameterDefinition[] inputs,
+                               CParameterDefinition[] outputs, CParameterDefinition[] removals, boolean ignoreException, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this.name = name;
         this.version = VERSION;
         this.type = TYPE_EXEC;
@@ -97,8 +97,8 @@ public class CExecDetail implements CCloneable {
      * @param attributes 任务属性
      * @param attachment 任务附加参数
      */
-    public CExecDetail(String name, String info, String group, CExecParam[] inputs,
-                       CExecParam[] outputs, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+    public CExecutorDefinition(String name, String info, String group, CParameterDefinition[] inputs,
+                               CParameterDefinition[] outputs, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this(name, info, group, inputs, outputs, null, false, method, attributes, attachment);
     }
 
@@ -115,18 +115,18 @@ public class CExecDetail implements CCloneable {
      * @param attributes 任务属性
      * @param attachment 任务附加参数
      */
-    public CExecDetail(String name, String info, String group, CExecParam[] inputs,
-                       CExecParam[] outputs, CExecParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+    public CExecutorDefinition(String name, String info, String group, CParameterDefinition[] inputs,
+                               CParameterDefinition[] outputs, CParameterDefinition[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, attachment);
     }
 
-    public CExecDetail(String name, String info, String group, CExecParam[] inputs,
-                       CExecParam[] outputs, CExecParam[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
+    public CExecutorDefinition(String name, String info, String group, CParameterDefinition[] inputs,
+                               CParameterDefinition[] outputs, CParameterDefinition[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, null);
     }
 
 
-    public CExecDetail(String name, String info, String group, CExecDetail[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+    public CExecutorDefinition(String name, String info, String group, CExecutorDefinition[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
         this.version = VERSION;
         this.type = TYPE_SCHEDULE;
         this.name = name;
@@ -137,16 +137,16 @@ public class CExecDetail implements CCloneable {
         this.attachment = attachment;
     }
 
-    public CExecDetail(String name, String info, String group, CExecDetail[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
+    public CExecutorDefinition(String name, String info, String group, CExecutorDefinition[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
         this(name, info, group, subJobs, attributes, null);
     }
 
 
-    public CExecParam[] getRemovals() {
+    public CParameterDefinition[] getRemovals() {
         return removals;
     }
 
-    public void setRemovals(CExecParam[] removals) {
+    public void setRemovals(CParameterDefinition[] removals) {
         this.removals = removals;
     }
 
@@ -190,27 +190,27 @@ public class CExecDetail implements CCloneable {
         this.method = method;
     }
 
-    public CExecDetail[] getSubJobs() {
+    public CExecutorDefinition[] getSubJobs() {
         return subJobs;
     }
 
-    public void setSubJobs(CExecDetail[] subJobs) {
+    public void setSubJobs(CExecutorDefinition[] subJobs) {
         this.subJobs = subJobs;
     }
 
-    public CExecParam[] getInputs() {
+    public CParameterDefinition[] getInputs() {
         return inputs;
     }
 
-    public void setInputs(CExecParam[] inputs) {
+    public void setInputs(CParameterDefinition[] inputs) {
         this.inputs = inputs;
     }
 
-    public CExecParam[] getOutputs() {
+    public CParameterDefinition[] getOutputs() {
         return outputs;
     }
 
-    public void setOutputs(CExecParam[] outputs) {
+    public void setOutputs(CParameterDefinition[] outputs) {
         this.outputs = outputs;
     }
 
@@ -222,7 +222,7 @@ public class CExecDetail implements CCloneable {
         this.info = info;
     }
 
-    public CExecDetail() {
+    public CExecutorDefinition() {
     }
 
     public String getGroup() {
@@ -252,30 +252,27 @@ public class CExecDetail implements CCloneable {
     @Override
     public String toString() {
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Job Name: ").append(this.getName()).append(", Job Group: ").append(this.getGroup()).append("\n");
-        sb.append("Job Info: ").append(this.getInfo()).append("\n");
-        if (this.getType() == CExecDetail.TYPE_EXEC) {
-            outSingleJob(this, sb);
-        } else if (this.getType() == CExecDetail.TYPE_SCHEDULE) {
-            CExecDetail[] subJobs = this.getSubJobs();
-            for (int i = 0; i < subJobs.length; ++i) {
-                CExecDetail subJob = subJobs[i];
-                sb.append("Layer ").append(i).append("\n");
-                outSingleJob(subJob, sb);
-            }
-        }
-        return sb.toString();
+        AsciiTable at = new AsciiTable();
+        at.addRule();
+        at.addRow("Name: " ,name, "Group: ", group);
+        at.addRule();
+        at.addRow("Info: " ,null, null, group);
+
+
+
+//        at.addRow(  "Info: ", null,null,null,null, info);
+        at.addRule();
+        return at.render();
     }
 
-    private void outParams(CExecParam[] params, StringBuilder sb) {
+    private void outParams(CParameterDefinition[] params, StringBuilder sb) {
         for (int i = 0; i < params.length; i++) {
-            CExecParam p = params[i];
+            CParameterDefinition p = params[i];
             sb.append("\t").append(i + 1).append(". (Name: ").append(p.getName()).append(", Type: ").append(p.getType()).append(")\n");
         }
     }
 
-    private void outSingleJob(CExecDetail jobDetail, StringBuilder sb) {
+    private void outSingleJob(CExecutorDefinition jobDetail, StringBuilder sb) {
         sb.append("Input:\n");
         outParams(jobDetail.getInputs(), sb);
         sb.append("Output:\n");

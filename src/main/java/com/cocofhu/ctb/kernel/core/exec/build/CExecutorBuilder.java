@@ -1,11 +1,9 @@
 package com.cocofhu.ctb.kernel.core.exec.build;
 
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
-import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
-import com.cocofhu.ctb.kernel.core.exec.entity.CExecDetail;
-import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
+import com.cocofhu.ctb.kernel.core.exec.CExecutionRuntime;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
-import com.cocofhu.ctb.kernel.util.ds.CPair;
 
 
 public interface CExecutorBuilder {
@@ -20,10 +18,10 @@ public interface CExecutorBuilder {
      * @param checkInput        是否检查输入参数的完整性
      * @return 执行器和上一次的输出(去除Removal的实际输出)
      */
-    CExecutor toExecutor(CExecDetail execDetail, CExecutorBuilder builder, CExecutorContext context,
-                                              CDefaultLayerDataSet<String,Class<?>> contextTypes, boolean checkInput);
+    CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime context,
+                         CDefaultLayerDataSet<String,Class<?>> contextTypes, boolean checkInput);
 
-    default CExecutor toExecutor(CExecDetail execDetail, CExecutorBuilder builder, CExecutorContext context){
+    default CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime context){
         return toExecutor(execDetail,builder,context,new CDefaultLayerDataSet<>(),false);
     }
 

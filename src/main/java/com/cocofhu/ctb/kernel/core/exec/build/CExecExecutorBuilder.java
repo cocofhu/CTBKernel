@@ -2,10 +2,10 @@ package com.cocofhu.ctb.kernel.core.exec.build;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
-import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
+import com.cocofhu.ctb.kernel.core.exec.CExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.exec.CSimpleExecutor;
-import com.cocofhu.ctb.kernel.core.exec.entity.CExecDetail;
-import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
+import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.exception.job.CExecParamNotFoundException;
 import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
@@ -26,8 +26,8 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
 
 
     @Override
-    public CExecutor toExecutor(CExecDetail execDetail, CExecutorBuilder builder, CExecutorContext context,
-                                                     CDefaultLayerDataSet<String, Class<?>> contextTypes, boolean checkInput) {
+    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime context,
+                                CDefaultLayerDataSet<String, Class<?>> contextTypes, boolean checkInput) {
 
         CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "inputs");
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "outputs");
@@ -47,16 +47,16 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
             }
         });
         // 解析输入参数
-        CExecParam[] inputs = execDetail.getInputs();
+        CParameterDefinition[] inputs = execDetail.getInputs();
 
-        for (CExecParam input : inputs) {
+        for (CParameterDefinition input : inputs) {
             // 解析出正在的变量名称和类型
             CPair<String, Class<?>> parameter = resolveParameter(input, valRef, typeRef);
             typeRef.put(parameter.getFirst(), parameter.getSecond());
             if (parameter.getFirst() != null && parameter.getSecond() != null) {
                 typeRef.put(parameter.getFirst(), parameter.getSecond());
             }
-            CPair<Boolean, List<CExecParam>> checked = hasParam(typeRef, parameter);
+            CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
             if (checkInput && !checked.getFirst()) {
                 throw new CExecParamNotFoundException(parameter, checked.getSecond());
             }
@@ -65,9 +65,9 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
         }
         // 解析输出参数, 这里需要合并这一次和上一次的输出
         // 因为在Removal中可能会引用这一次和上一次的输出
-        CExecParam[] outputs = execDetail.getOutputs();
+        CParameterDefinition[] outputs = execDetail.getOutputs();
 
-        for (CExecParam output : outputs) {
+        for (CParameterDefinition output : outputs) {
             CPair<String, Class<?>> parameter = resolveParameter(output, valRef, typeRef);
             if (parameter.getFirst() != null && parameter.getSecond() != null) {
                 contextTypes.put(parameter.getFirst(), parameter.getSecond());
@@ -77,10 +77,10 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
             output.setName(parameter.getFirst());
         }
 
-        CExecParam[] removals = execDetail.getRemovals();
-        for (CExecParam removal : removals) {
+        CParameterDefinition[] removals = execDetail.getRemovals();
+        for (CParameterDefinition removal : removals) {
             CPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef);
-            CPair<Boolean, List<CExecParam>> checked = hasParam(typeRef, parameter);
+            CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
             if (!checked.getFirst()) {
                 throw new CExecParamNotFoundException(parameter, checked.getSecond());
             }
@@ -109,7 +109,7 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
         return new CPair<>(str.substring(num), num);
     }
 
-    private CPair<String, Class<?>> resolveParameter(CExecParam input, CDefaultLayerDataSet<String, Object> valRef, CDefaultLayerDataSet<String, Class<?>> typeRef) {
+    private CPair<String, Class<?>> resolveParameter(CParameterDefinition input, CDefaultLayerDataSet<String, Object> valRef, CDefaultLayerDataSet<String, Class<?>> typeRef) {
         CPair<String, Integer> nameRefPair = parseReference(input.getName());
         CPair<String, Integer> typeRefPair = null;
         Class<?> exactlyType = null;
@@ -151,8 +151,8 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
         return name;
     }
 
-    private CPair<Boolean, List<CExecParam>> hasParam(CDefaultLayerDataSet<String, Class<?>> typeRef, CPair<String, Class<?>> pair) {
-        List<CExecParam> candidates = new ArrayList<>();
+    private CPair<Boolean, List<CParameterDefinition>> hasParam(CDefaultLayerDataSet<String, Class<?>> typeRef, CPair<String, Class<?>> pair) {
+        List<CParameterDefinition> candidates = new ArrayList<>();
         if (typeRef == null) {
             return new CPair<>(false, candidates);
         }
@@ -164,12 +164,12 @@ public class CExecExecutorBuilder implements CExecutorBuilder {
             if (pair.getSecond().isAssignableFrom(type)
                     && pair.getFirst().equals(key)) {
                 candidates.clear();
-                candidates.add(new CExecParam(key,"",false,type));
+                candidates.add(new CParameterDefinition(key,"",false,type));
                 return new CPair<>(true, candidates);
             }
             if (pair.getSecond().isAssignableFrom(type)
                     || pair.getFirst().equals(key)) {
-                candidates.add(new CExecParam(key,"",false,type));
+                candidates.add(new CParameterDefinition(key,"",false,type));
             }
         }
 

@@ -5,16 +5,18 @@ import java.util.Map;
 
 public class CDefaultDefaultWritableDataSet<K,V> extends CDefaultDefaultReadOnlyDataSet<K,V> implements CWritableDataSet<K,V> {
 
-    public CDefaultDefaultWritableDataSet(CDefaultDefaultReadOnlyDataSet<K,V> dataset) {
-        super(dataset);
+
+    /**
+     * 创建一个只读的数据集
+     * @param dataImpl  数据的实现 默认使用ConcurrentHashMap
+     * @param dataset   根据已有数据创建，浅拷贝
+     */
+    protected CDefaultDefaultWritableDataSet(Map<K,V> dataImpl, CDefaultDefaultWritableDataSet<K,V> dataset){
+        super(dataImpl,dataset);
     }
 
     public CDefaultDefaultWritableDataSet() {
-        this(null);
-    }
-
-    protected CDefaultDefaultWritableDataSet(Map<K,V> dataImpl, CDefaultDefaultWritableDataSet<K,V> dataset){
-        super(dataImpl,dataset);
+        super(null, null);
     }
 
     @Override

@@ -2,7 +2,8 @@ package com.cocofhu.ctb.basic;
 
 import com.cocofhu.ctb.kernel.anno.exec.*;
 import com.cocofhu.ctb.kernel.anno.param.CAutowired;
-import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
+import com.cocofhu.ctb.kernel.core.exec.CExecutionRuntime;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
 
 
 public class CParamExecutor {
@@ -17,17 +18,15 @@ public class CParamExecutor {
             @CExecutorRawOutput(name = "*dist", info = "context output", type = "*source")
     )
     @CExecBasicInfo(name="SimpleJob",info = "info", group = "test")
-    public void transform(@CAutowired CExecutorContext executorContext, @CExecutorInput String source, @CExecutorInput String dist){
-        Object removal = executorContext.cancelPersist(source);
-        executorContext.persist(dist,removal);
-    }
-    public void removeKey(@CAutowired CExecutorContext executorContext,@CExecutorInput String key){
-        executorContext.cancelPersist(key);
+    public void transform(@CAutowired CExecutionRuntime executorContext, @CExecutorInput String source, @CExecutorInput String dist){
+        CDefaultLayerDataSet<String, Object> currentLayer = executorContext.getCurrentLayer();
+        Object o = currentLayer.get(source);
+        currentLayer.remove(source);
+        currentLayer.put(dist,o);
+
+
     }
 
-    public void putKey(@CAutowired CExecutorContext executorContext, @CExecutorInput String key, @CExecutorInput Object val){
-        executorContext.persist(key,val);
-    }
 
 
 }

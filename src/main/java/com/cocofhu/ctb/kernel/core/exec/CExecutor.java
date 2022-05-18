@@ -8,10 +8,6 @@ import com.cocofhu.ctb.kernel.exception.CExecException;
  */
 public interface CExecutor extends Runnable{
 
-
-    String EXEC_RETURN_VAL_KEY = "EXEC_RETURN_VAL_KEY";
-    String EXEC_EXCEPTION_KEY = "EXEC_EXCEPTION_KEY";
-
     enum Status{
         // 未就绪，任务的执行可能需要必要条件
         NotReady,

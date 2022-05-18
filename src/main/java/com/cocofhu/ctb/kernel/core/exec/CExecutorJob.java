@@ -12,7 +12,7 @@ public class CExecutorJob extends CAbstractExecutor {
     
     private final CExecutor[] executors;
 
-    public CExecutorJob(CExecutorContext executorContext, CConfig beanFactoryContext, boolean ignoreException, CExecutor... executors) {
+    public CExecutorJob(CExecutionRuntime executorContext, CConfig beanFactoryContext, boolean ignoreException, CExecutor... executors) {
         super(executorContext, beanFactoryContext, ignoreException, null);
         this.executors = executors;
     }

@@ -7,8 +7,8 @@ import com.cocofhu.ctb.kernel.core.exec.build.CDefaultExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorUtils;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultWritableDataSet;
-import com.cocofhu.ctb.kernel.core.exec.entity.CExecDetail;
-import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
+import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
@@ -139,32 +139,33 @@ public class Startup {
 
 //        System.out.println(JSON.toJSON(jobs));
 
-        CExecDetail job0 = CExecutorUtils.toExecDetail(factory,new CExecutorMethod("Power",null,"mul", null));
+        CExecutorDefinition job0 = CExecutorUtils.toExecDetail(factory,new CExecutorMethod("Power",null,"mul", null));
         CDefaultDefaultWritableDataSet<String,Object> attachment1 = new CDefaultDefaultWritableDataSet<>();
         attachment1.put("x",100);
         attachment1.put("y",2);
         job0.setAttachment(attachment1);
-        CExecDetail job1 = CExecutorUtils.toExecDetail(factory,new CExecutorMethod("CParamExecutor",null,"transform", null));
+        CExecutorDefinition job1 = CExecutorUtils.toExecDetail(factory,new CExecutorMethod("CParamExecutor",null,"transform", null));
 
         CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
-        attachment.put("source",CExecutor.EXEC_RETURN_VAL_KEY);
+        attachment.put("source",CExecutionRuntime.EXEC_RETURN_VAL_KEY);
         attachment.put("dist","ABC");
         job1.setAttachment(attachment);
 
         CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
-        CExecDetail[] subJobs = {job0, job1};
-        CExecDetail jobs = new CExecDetail("SimpleJob","a simple job",group, subJobs,null);
-        CExecutorContext context = new CExecutorContext();
+        CExecutorDefinition[] subJobs = {job0, job1};
+        CExecutorDefinition jobs = new CExecutorDefinition("SimpleJob","a simple job",group, subJobs,null);
+        CExecutionRuntime context = new CExecutionRuntime();
         CExecutor executor = builder.toExecutor(jobs, builder, context);
         System.out.println(jobs);
         executor.run();
+        System.out.println("你好");
 
-        System.out.println(context.toMap());
+        System.out.println(context);
 
     }
 
-    public static void outParams(CExecParam[] params){
-        for (CExecParam p: params
+    public static void outParams(CParameterDefinition[] params){
+        for (CParameterDefinition p: params
              ) {
             System.out.println("(Name: " + p.getName() + ", Type: " + p.getType() + ")" );
         }
@@ -179,7 +180,7 @@ public class Startup {
 //        return new CTBPair<>(str.substring(num),num);
 //    }
 
-    public static void getArgumentsDetail(CExecDetail job){
+    public static void getArgumentsDetail(CExecutorDefinition job){
 
 
 

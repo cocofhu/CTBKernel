@@ -7,8 +7,15 @@ import java.util.Set;
 
 
 public interface CReadOnlyDataSet<K,V> extends Serializable {
+
+    /**
+     * 获得指定key对于的元素，如果指定的key对应的元素不存在将返回null
+     */
     V get(K key);
 
+    /**
+     * 获得所有的Key-Val对
+     */
     Set<? extends CReadOnlyEntry<K,V>> entries();
 
 

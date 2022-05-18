@@ -2,12 +2,10 @@ package com.cocofhu.ctb.kernel.core.exec.build;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
-import com.cocofhu.ctb.kernel.core.exec.CExecutorContext;
-import com.cocofhu.ctb.kernel.core.exec.entity.CExecDetail;
-import com.cocofhu.ctb.kernel.core.exec.entity.CExecParam;
+import com.cocofhu.ctb.kernel.core.exec.CExecutionRuntime;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
-import com.cocofhu.ctb.kernel.util.ds.CPair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,15 +20,15 @@ public class CDefaultExecutorBuilder implements CExecutorBuilder {
     public CDefaultExecutorBuilder(CConfig config) {
         this.config = config;
         builderMap = new HashMap<>();
-        builderMap.put(CExecDetail.TYPE_EXEC, new CExecExecutorBuilder(config));
-        builderMap.put(CExecDetail.TYPE_SCHEDULE, new CScheduleExecutorBuilder(config));
+        builderMap.put(CExecutorDefinition.TYPE_EXEC, new CExecExecutorBuilder(config));
+        builderMap.put(CExecutorDefinition.TYPE_SCHEDULE, new CScheduleExecutorBuilder(config));
 
     }
 
 
     @Override
-    public CExecutor toExecutor(CExecDetail execDetail, CExecutorBuilder builder,
-                                                     CExecutorContext context, CDefaultLayerDataSet<String, Class<?>> contextTypes, boolean checkInput) {
+    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder,
+                                CExecutionRuntime context, CDefaultLayerDataSet<String, Class<?>> contextTypes, boolean checkInput) {
         CExecutorBuilder b = builderMap.get(execDetail.getType());
         if (b == null) {
             throw new CExecUnsupportedOperationException("unsupported exec type: " + execDetail.getType());

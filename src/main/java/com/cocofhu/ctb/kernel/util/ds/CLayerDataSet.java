@@ -1,5 +1,8 @@
 package com.cocofhu.ctb.kernel.util.ds;
 
+
+import java.util.Set;
+
 /**
  * 带有层级结构的数据集，实现该接口的类 需要满足新建和回退不同的层
  * 比如:
@@ -7,12 +10,38 @@ package com.cocofhu.ctb.kernel.util.ds;
 
  * </pre>
  */
-public interface CLayerDataSet<K,V> {
+public interface CLayerDataSet<K,V> extends CWritableDataSet<K, V>{
     /**
      * 新建层
      */
     CLayerDataSet<K,V> newLayer();
 
-    CLayerDataSet<K,V> getParent();
+
+    /**
+     * 从集合中获取指定key对应的元素，只搜索maxRecursive层
+     * eg. maxRecursive=0 将只搜索当前层
+     */
+    V get(K key, int maxRecursive);
+    
+    Set<? extends CReadOnlyEntry<K, V>> entries(int depth);
+
+    int depth();
+
+
+    // ------------------------Extend Methods------------------------------------
+    /**
+     * 将指定的key-val对 加入到集合， 返回原来存在的元素(Only Current Layer)
+     */
+    V put(K key,V val);
+
+    /**
+     * 删除指定的Key对应的元素，返回原来存在的元素(Only Current Layer)
+     */
+    V remove(K key);
+
+    /**
+     * 将指定数据集中的元素全部添加到集合中(Only Current Layer)
+     */
+    void putAll(CReadOnlyDataSet<? extends K, ? extends V> dataSet);
 
 }
