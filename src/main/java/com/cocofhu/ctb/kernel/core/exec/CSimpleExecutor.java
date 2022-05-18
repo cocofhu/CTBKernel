@@ -7,6 +7,7 @@ import com.cocofhu.ctb.kernel.exception.job.CExecBeanMethodInvokeException;
 import com.cocofhu.ctb.kernel.exception.job.CExecNoSuchMethodException;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultWritableDataSet;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -52,9 +53,8 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
             // 获取执行信息 这里可能会抛出 CNoSuchBeanDefinitionException
             CBeanDefinition beanDefinition = config.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-            executorContext.newLayer(attachment);
-            executorContext.getCurrentLayer().putAll(attachment);
-
+            executorContext.newLayer(attachment,true);
+            executorContext.newLayer(null,false);
             Object bean = config.getBeanFactory().getBean(beanDefinition, executorContext.getCurrentLayer());
             Method method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
             // 检查方法是否存在

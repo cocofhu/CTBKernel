@@ -34,10 +34,14 @@ public class CExecutionRuntime {
         return currentLayer;
     }
 
-    public void newLayer(CReadOnlyDataSet<String,Object> attachment) {
+    public void newLayer(CReadOnlyDataSet<String,Object> attachment, boolean copyCurrent) {
         CDefaultLayerDataSet<String, Object> layer = currentLayer.newLayer();
-        currentLayer.entries(0).forEach(e-> layer.put(e.getKey(),e.getValue()));
-        attachment.entries().forEach(e-> layer.put(e.getKey(),e.getValue()));
+        if(copyCurrent){
+            currentLayer.entries(0).forEach(e-> layer.put(e.getKey(),e.getValue()));
+        }
+        if(attachment != null){
+            attachment.entries().forEach(e-> layer.put(e.getKey(),e.getValue()));
+        }
         this.currentLayer = layer;
     }
 
