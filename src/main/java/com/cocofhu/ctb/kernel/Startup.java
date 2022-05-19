@@ -6,6 +6,7 @@ import com.cocofhu.ctb.basic.CUtilExecutor;
 import com.cocofhu.ctb.kernel.core.exec.build.CDefaultExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorUtils;
+import com.cocofhu.ctb.kernel.core.exec.compiler.CExecutorCompiler;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultWritableDataSet;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
@@ -14,6 +15,10 @@ import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.core.exec.*;
 import com.cocofhu.ctb.kernel.test.Power;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
-public class Startup {
+public class Startup implements CExecutorCompiler {
 
 
     public static void main(String[] args) throws Exception {
@@ -161,6 +166,10 @@ public class Startup {
         System.out.println("你好");
 
         System.out.println(context);
+        System.out.println(new Startup().compiler(" asd "));
+//        DefaultParser parser = new DefaultParser();
+//        CommandLine cmd = parser.parse(new Options().addOption("e","ese"),new String[]{"-e","123"});
+//        System.out.println(cmd.getOptionValue("e"));
 
     }
 
@@ -210,4 +219,8 @@ public class Startup {
         return 0L;
     }
 
+    @Override
+    public CExecutorDefinition acquireNewExecutorDefinition(String nameOrAlias) {
+        return null;
+    }
 }

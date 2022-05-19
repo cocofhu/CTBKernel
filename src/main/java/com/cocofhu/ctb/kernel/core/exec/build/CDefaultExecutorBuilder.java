@@ -20,8 +20,8 @@ public class CDefaultExecutorBuilder implements CExecutorBuilder {
     public CDefaultExecutorBuilder(CConfig config) {
         this.config = config;
         builderMap = new HashMap<>();
-        builderMap.put(CExecutorDefinition.TYPE_EXEC, new CExecExecutorBuilder(config));
-        builderMap.put(CExecutorDefinition.TYPE_SCHEDULE, new CScheduleExecutorBuilder(config));
+        builderMap.put(CExecutorDefinition.TYPE_EXEC, new CSimpleExecutorBuilder(config));
+        builderMap.put(CExecutorDefinition.TYPE_SCHEDULE, new CListExecutorBuilder(config));
 
     }
 

@@ -14,12 +14,12 @@ import com.cocofhu.ctb.kernel.util.ds.CPair;
 import java.util.*;
 
 
-public class CExecExecutorBuilder implements CExecutorBuilder {
+public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
     protected final CConfig config;
 
 
-    public CExecExecutorBuilder(CConfig config) {
+    public CSimpleExecutorBuilder(CConfig config) {
         this.config = config;
 
     }

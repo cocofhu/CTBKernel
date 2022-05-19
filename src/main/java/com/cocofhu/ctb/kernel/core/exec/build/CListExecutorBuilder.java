@@ -6,12 +6,12 @@ import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
 
 
-public class CScheduleExecutorBuilder implements CExecutorBuilder {
+public class CListExecutorBuilder implements CExecutorBuilder {
 
     protected final CConfig config;
 
 
-    public CScheduleExecutorBuilder(CConfig config) {
+    public CListExecutorBuilder(CConfig config) {
         this.config = config;
 
     }
