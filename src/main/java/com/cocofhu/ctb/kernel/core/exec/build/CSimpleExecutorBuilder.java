@@ -26,7 +26,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
 
     @Override
-    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime context,
+    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime executionRuntime,
                                 CDefaultLayerDataSet<String, Class<?>> contextTypes,int layer, boolean checkInput) {
 
         CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "inputs", layer);
@@ -96,7 +96,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "processed outputs", layer);
         CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "processed removal", layer);
 
-        return new CSimpleExecutor(context, config, execDetail.getMethod(), execDetail.isIgnoreException(), execDetail.getAttachment());
+        return new CSimpleExecutor(executionRuntime, config, execDetail.getMethod(), execDetail.isIgnoreException(), execDetail.getAttachment());
     }
 
 

@@ -7,7 +7,6 @@ import com.cocofhu.ctb.kernel.exception.job.CExecBeanMethodInvokeException;
 import com.cocofhu.ctb.kernel.exception.job.CExecNoSuchMethodException;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultReadOnlyDataSet;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultWritableDataSet;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,13 +22,13 @@ public class CSimpleExecutor extends CAbstractExecutor {
     private final CExecutorMethod executorMethod;
 
 
-    public CSimpleExecutor(CExecutionRuntime executorContext, CConfig config, CExecutorMethod executorMethod, boolean ignoreException, CDefaultDefaultReadOnlyDataSet<String,Object> attachment) {
-        super(executorContext, config, ignoreException, attachment);
+    public CSimpleExecutor(CExecutionRuntime executionRuntime, CConfig config, CExecutorMethod executorMethod, boolean ignoreException, CDefaultDefaultReadOnlyDataSet<String,Object> attachment) {
+        super(executionRuntime, config, ignoreException, attachment);
         this.executorMethod = executorMethod;
     }
 
-    public CSimpleExecutor(CExecutionRuntime executorContext, CConfig beanFactoryContext, CExecutorMethod executorMethod) {
-        this(executorContext, beanFactoryContext, executorMethod, false, null);
+    public CSimpleExecutor(CExecutionRuntime executionRuntime, CConfig beanFactoryContext, CExecutorMethod executorMethod) {
+        this(executionRuntime, beanFactoryContext, executorMethod, false, null);
     }
 
 
@@ -53,9 +52,9 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
             // 获取执行信息 这里可能会抛出 CNoSuchBeanDefinitionException
             CBeanDefinition beanDefinition = config.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-            executorContext.newLayer(attachment,true);
-            executorContext.newLayer(null,false);
-            Object bean = config.getBeanFactory().getBean(beanDefinition, executorContext.getCurrentLayer());
+            executionRuntime.newLayer(attachment,true);
+            executionRuntime.newLayer(null,false);
+            Object bean = config.getBeanFactory().getBean(beanDefinition, executionRuntime.getCurrentLayer());
             Method method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
             // 检查方法是否存在
             if (method == null) {
@@ -63,19 +62,19 @@ public class CSimpleExecutor extends CAbstractExecutor {
             }
 
 
-            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, executorContext.getCurrentLayer());
+            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, executionRuntime.getCurrentLayer());
 
             try {
                 Object returnVal = executableWrapper.execute(bean);
-                executorContext.setReturnVal(returnVal);
+                executionRuntime.setReturnVal(returnVal);
 
             } catch (InstantiationException | IllegalAccessException e) {
                 throw new CExecBeanMethodInvokeException(executorMethod, e);
             } catch (InvocationTargetException e) {
-                executorContext.setException(e.getTargetException());
+                executionRuntime.setException(e.getTargetException());
             }
 
-            if (executorContext.hasExceptionRecently()) {
+            if (executionRuntime.hasExceptionRecently()) {
                 setStatus(Status.Exception);
             } else {
                 setStatus(Status.Stop);
@@ -86,15 +85,4 @@ public class CSimpleExecutor extends CAbstractExecutor {
         }
     }
 
-    @Override
-    public String toString() {
-        return "CSimpleExecutor{" +
-                "lock=" + lock +
-                ", executorMethod=" + executorMethod +
-                ", executorContext=" + executorContext +
-                ", config=" + config +
-                ", ignoreException=" + ignoreException +
-                ", attachment=" + attachment +
-                '}';
-    }
 }

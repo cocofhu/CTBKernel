@@ -12,20 +12,20 @@ public abstract class CAbstractExecutor implements CExecutor {
 
     private volatile Status status;
 
-    protected final CExecutionRuntime executorContext;
+    protected final CExecutionRuntime executionRuntime;
     protected final CConfig config;
     protected final boolean ignoreException;
 
     protected CReadOnlyDataSet<String, Object> attachment;
 
     /**
-     * @param executorContext    执行器的上下文，用于存放执行过程中的参数
+     * @param executionRuntime   执行器的上下文，用于存放执行过程中的参数
      * @param config             BeanFactory的上下文，用于获得框架的支持
      * @param ignoreException    是否忽略上一次执行出现的异常
      * @param attachment         附加参数
      */
-    protected CAbstractExecutor(CExecutionRuntime executorContext, CConfig config, boolean ignoreException, CReadOnlyDataSet<String, Object> attachment) {
-        this.executorContext = executorContext;
+    protected CAbstractExecutor(CExecutionRuntime executionRuntime, CConfig config, boolean ignoreException, CReadOnlyDataSet<String, Object> attachment) {
+        this.executionRuntime = executionRuntime;
         this.config = config;
         this.ignoreException = ignoreException;
         this.attachment = attachment;
@@ -38,7 +38,7 @@ public abstract class CAbstractExecutor implements CExecutor {
         if (getStatus() != Status.Stop) {
             throw new CExecStatusException(this, "executor not executed successfully.");
         }
-        return executorContext.getReturnValRecently();
+        return executionRuntime.getReturnValRecently();
     }
 
     @Override
@@ -46,7 +46,7 @@ public abstract class CAbstractExecutor implements CExecutor {
         if (getStatus() != Status.Exception) {
             throw new CExecStatusException(this, "executor has not encountered an exception.");
         }
-        return (Throwable) executorContext.getExceptionRecently();
+        return (Throwable) executionRuntime.getExceptionRecently();
     }
 
     @Override
@@ -56,7 +56,7 @@ public abstract class CAbstractExecutor implements CExecutor {
 
     @Override
     public boolean isExceptionInContext() {
-        return executorContext.hasExceptionRecently();
+        return executionRuntime.hasExceptionRecently();
     }
 
     @Override

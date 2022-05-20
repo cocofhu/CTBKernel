@@ -12,8 +12,8 @@ public class CExecutorJob extends CAbstractExecutor {
     
     private final CExecutor[] executors;
 
-    public CExecutorJob(CExecutionRuntime executorContext, CConfig beanFactoryContext, boolean ignoreException, CExecutor... executors) {
-        super(executorContext, beanFactoryContext, ignoreException, null);
+    public CExecutorJob(CExecutionRuntime executionRuntime, CConfig beanFactoryContext, boolean ignoreException, CExecutor... executors) {
+        super(executionRuntime, beanFactoryContext, ignoreException, null);
         this.executors = executors;
     }
 
@@ -37,7 +37,7 @@ public class CExecutorJob extends CAbstractExecutor {
     public String toString() {
         return "CExecutorJob{" +
                 "executors=" + Arrays.toString(executors) +
-                ", executorContext=" + executorContext +
+                ", executorContext=" + executionRuntime +
                 ", config=" + config +
                 ", ignoreException=" + ignoreException +
                 ", attachment=" + attachment +

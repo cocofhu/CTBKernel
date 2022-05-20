@@ -28,12 +28,12 @@ public class CDefaultExecutorBuilder implements CExecutorBuilder {
 
     @Override
     public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder,
-                                CExecutionRuntime context, CDefaultLayerDataSet<String, Class<?>> contextTypes, int layer, boolean checkInput) {
+                                CExecutionRuntime executionRuntime, CDefaultLayerDataSet<String, Class<?>> contextTypes, int layer, boolean checkInput) {
         CExecutorBuilder exactlyBuilder = builderMap.get(execDetail.getType());
         if (exactlyBuilder == null) {
             throw new CExecUnsupportedOperationException("unsupported exec type: " + execDetail.getType());
         }
-        return exactlyBuilder.toExecutor(execDetail, builder, context, contextTypes, layer, checkInput);
+        return exactlyBuilder.toExecutor(execDetail, builder, executionRuntime, contextTypes, layer, checkInput);
     }
 
 

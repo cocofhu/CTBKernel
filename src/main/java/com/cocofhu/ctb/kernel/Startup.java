@@ -167,6 +167,14 @@ public class Startup implements CExecutorCompiler {
 
         System.out.println(context);
         System.out.println(new Startup().compiler(" asd "));
+
+
+        long l1 = System.currentTimeMillis();
+        System.out.println(new Power().mul(100, 100));
+        long l2 = System.currentTimeMillis();
+        System.out.println(l2 - l1);
+
+
 //        DefaultParser parser = new DefaultParser();
 //        CommandLine cmd = parser.parse(new Options().addOption("e","ese"),new String[]{"-e","123"});
 //        System.out.println(cmd.getOptionValue("e"));
