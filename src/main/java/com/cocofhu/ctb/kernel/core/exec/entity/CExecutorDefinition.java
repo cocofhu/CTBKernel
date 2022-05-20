@@ -4,10 +4,16 @@ import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultReadOnlyDataSet;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
 import com.cocofhu.ctb.kernel.util.CCloneable;
 import de.vandermeer.asciitable.AsciiTable;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Getter
+@Setter
+@EqualsAndHashCode
 public class CExecutorDefinition implements CCloneable {
 
     // 任务类型：多个任务
@@ -141,148 +147,4 @@ public class CExecutorDefinition implements CCloneable {
         this(name, info, group, subJobs, attributes, null);
     }
 
-
-    public CParameterDefinition[] getRemovals() {
-        return removals;
-    }
-
-    public void setRemovals(CParameterDefinition[] removals) {
-        this.removals = removals;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isIgnoreException() {
-        return ignoreException;
-    }
-
-    public void setIgnoreException(boolean ignoreException) {
-        this.ignoreException = ignoreException;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public CExecutorMethod getMethod() {
-        return method;
-    }
-
-    public void setMethod(CExecutorMethod method) {
-        this.method = method;
-    }
-
-    public CExecutorDefinition[] getSubJobs() {
-        return subJobs;
-    }
-
-    public void setSubJobs(CExecutorDefinition[] subJobs) {
-        this.subJobs = subJobs;
-    }
-
-    public CParameterDefinition[] getInputs() {
-        return inputs;
-    }
-
-    public void setInputs(CParameterDefinition[] inputs) {
-        this.inputs = inputs;
-    }
-
-    public CParameterDefinition[] getOutputs() {
-        return outputs;
-    }
-
-    public void setOutputs(CParameterDefinition[] outputs) {
-        this.outputs = outputs;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
-    public CExecutorDefinition() {
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public CDefaultDefaultReadOnlyDataSet<String, Object> getAttachment() {
-        return attachment;
-    }
-
-    public void setAttachment(CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
-        this.attachment = attachment;
-    }
-
-    public CDefaultDefaultReadOnlyDataSet<String, Object> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
-        this.attributes = attributes;
-    }
-
-    @Override
-    public String toString() {
-
-        AsciiTable at = new AsciiTable();
-        at.addRule();
-        at.addRow("Name: " ,name, "Group: ", group);
-        at.addRule();
-        at.addRow("Info: " ,null, null, group);
-
-
-
-//        at.addRow(  "Info: ", null,null,null,null, info);
-        at.addRule();
-        return at.render();
-    }
-
-    private void outParams(CParameterDefinition[] params, StringBuilder sb) {
-        for (int i = 0; i < params.length; i++) {
-            CParameterDefinition p = params[i];
-            sb.append("\t").append(i + 1).append(". (Name: ").append(p.getName()).append(", Type: ").append(p.getType()).append(")\n");
-        }
-    }
-
-    private void outSingleJob(CExecutorDefinition jobDetail, StringBuilder sb) {
-        sb.append("Input:\n");
-        outParams(jobDetail.getInputs(), sb);
-        sb.append("Output:\n");
-        outParams(jobDetail.getOutputs(), sb);
-        sb.append("Removals:\n");
-        outParams(jobDetail.getRemovals(), sb);
-    }
-
-    private void outContext(Map<String, Class<?>> context, StringBuilder sb) {
-        AtomicInteger i = new AtomicInteger(1);
-        context.forEach((s, c) -> sb.append("\t").append(i.getAndIncrement()).append(". (Name: ").append(s).append(", Type: ").append(c).append(")\n"));
-    }
 }

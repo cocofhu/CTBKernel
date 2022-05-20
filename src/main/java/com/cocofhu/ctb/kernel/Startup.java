@@ -15,10 +15,6 @@ import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.core.exec.*;
 import com.cocofhu.ctb.kernel.test.Power;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -152,14 +148,14 @@ public class Startup implements CExecutorCompiler {
         CExecutorDefinition job1 = CExecutorUtils.toExecDetail(factory,new CExecutorMethod("CParamExecutor",null,"transform", null));
 
         CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
-        attachment.put("source",CExecutionRuntime.EXEC_RETURN_VAL_KEY);
+        attachment.put("source", CDefaultExecutionRuntime.EXEC_RETURN_VAL_KEY);
         attachment.put("dist","ABC");
         job1.setAttachment(attachment);
 
         CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
         CExecutorDefinition[] subJobs = {job0, job1};
         CExecutorDefinition jobs = new CExecutorDefinition("SimpleJob","a simple job",group, subJobs,null);
-        CExecutionRuntime context = new CExecutionRuntime();
+        CDefaultExecutionRuntime context = new CDefaultExecutionRuntime();
         CExecutor executor = builder.toExecutor(jobs, builder, context);
         System.out.println(jobs);
         executor.run();

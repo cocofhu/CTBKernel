@@ -12,7 +12,7 @@ public class CExecutorJob extends CAbstractExecutor {
     
     private final CExecutor[] executors;
 
-    public CExecutorJob(CExecutionRuntime executionRuntime, CConfig beanFactoryContext, boolean ignoreException, CExecutor... executors) {
+    public CExecutorJob(CDefaultExecutionRuntime executionRuntime, CConfig beanFactoryContext, boolean ignoreException, CExecutor... executors) {
         super(executionRuntime, beanFactoryContext, ignoreException, null);
         this.executors = executors;
     }
@@ -21,11 +21,7 @@ public class CExecutorJob extends CAbstractExecutor {
     @Override
     public void run() {
 
-        for (int i = 0; i < executors.length; i++) {
-            CExecutor executor = executors[i];
-//            if(i == 0){
-//                executor.setAttachment(attachment);
-//            }
+        for (CExecutor executor : executors) {
             executor.setStatus(Status.Ready);
             executor.run();
         }

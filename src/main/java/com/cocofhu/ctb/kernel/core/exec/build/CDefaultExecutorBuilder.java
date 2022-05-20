@@ -2,7 +2,7 @@ package com.cocofhu.ctb.kernel.core.exec.build;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
-import com.cocofhu.ctb.kernel.core.exec.CExecutionRuntime;
+import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
@@ -28,7 +28,7 @@ public class CDefaultExecutorBuilder implements CExecutorBuilder {
 
     @Override
     public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder,
-                                CExecutionRuntime executionRuntime, CDefaultLayerDataSet<String, Class<?>> contextTypes, int layer, boolean checkInput) {
+                                CDefaultExecutionRuntime executionRuntime, CDefaultLayerDataSet<String, Class<?>> contextTypes, int layer, boolean checkInput) {
         CExecutorBuilder exactlyBuilder = builderMap.get(execDetail.getType());
         if (exactlyBuilder == null) {
             throw new CExecUnsupportedOperationException("unsupported exec type: " + execDetail.getType());

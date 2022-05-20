@@ -22,12 +22,12 @@ public class CSimpleExecutor extends CAbstractExecutor {
     private final CExecutorMethod executorMethod;
 
 
-    public CSimpleExecutor(CExecutionRuntime executionRuntime, CConfig config, CExecutorMethod executorMethod, boolean ignoreException, CDefaultDefaultReadOnlyDataSet<String,Object> attachment) {
+    public CSimpleExecutor(CDefaultExecutionRuntime executionRuntime, CConfig config, CExecutorMethod executorMethod, boolean ignoreException, CDefaultDefaultReadOnlyDataSet<String,Object> attachment) {
         super(executionRuntime, config, ignoreException, attachment);
         this.executorMethod = executorMethod;
     }
 
-    public CSimpleExecutor(CExecutionRuntime executionRuntime, CConfig beanFactoryContext, CExecutorMethod executorMethod) {
+    public CSimpleExecutor(CDefaultExecutionRuntime executionRuntime, CConfig beanFactoryContext, CExecutorMethod executorMethod) {
         this(executionRuntime, beanFactoryContext, executorMethod, false, null);
     }
 

@@ -12,7 +12,7 @@ public abstract class CAbstractExecutor implements CExecutor {
 
     private volatile Status status;
 
-    protected final CExecutionRuntime executionRuntime;
+    protected final CDefaultExecutionRuntime executionRuntime;
     protected final CConfig config;
     protected final boolean ignoreException;
 
@@ -24,7 +24,7 @@ public abstract class CAbstractExecutor implements CExecutor {
      * @param ignoreException    是否忽略上一次执行出现的异常
      * @param attachment         附加参数
      */
-    protected CAbstractExecutor(CExecutionRuntime executionRuntime, CConfig config, boolean ignoreException, CReadOnlyDataSet<String, Object> attachment) {
+    protected CAbstractExecutor(CDefaultExecutionRuntime executionRuntime, CConfig config, boolean ignoreException, CReadOnlyDataSet<String, Object> attachment) {
         this.executionRuntime = executionRuntime;
         this.config = config;
         this.ignoreException = ignoreException;

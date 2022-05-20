@@ -1,9 +1,13 @@
 package com.cocofhu.ctb.kernel.core.exec.entity;
 
 import com.cocofhu.ctb.kernel.util.CCloneable;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
+@Getter
+@Setter
 public class CParameterDefinition implements CCloneable {
 
     // 参数类型
@@ -43,38 +47,6 @@ public class CParameterDefinition implements CCloneable {
         this.type = type;
     }
 
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
-    }
-
-    public Object getType() {
-        return type;
-    }
-
-    public void setType(Object type) {
-        this.type = type;
-    }
 
     @Override
     public boolean equals(Object o) {

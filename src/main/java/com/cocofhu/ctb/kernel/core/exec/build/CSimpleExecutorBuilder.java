@@ -2,7 +2,7 @@ package com.cocofhu.ctb.kernel.core.exec.build;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
-import com.cocofhu.ctb.kernel.core.exec.CExecutionRuntime;
+import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.exec.CSimpleExecutor;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
@@ -26,7 +26,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
 
     @Override
-    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime executionRuntime,
+    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CDefaultExecutionRuntime executionRuntime,
                                 CDefaultLayerDataSet<String, Class<?>> contextTypes,int layer, boolean checkInput) {
 
         CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "inputs", layer);

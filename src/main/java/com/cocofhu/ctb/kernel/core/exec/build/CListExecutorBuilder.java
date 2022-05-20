@@ -17,7 +17,7 @@ public class CListExecutorBuilder implements CExecutorBuilder {
     }
 
     @Override
-    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime executionRuntime,
+    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CDefaultExecutionRuntime executionRuntime,
                                 CDefaultLayerDataSet<String, Class<?>> contextTypes, int layer, boolean checkInput) {
         CExecutor[] executors = new CExecutor[execDetail.getSubJobs().length];
         for (int i = 0; i < execDetail.getSubJobs().length; i++) {
