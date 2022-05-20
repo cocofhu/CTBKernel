@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * 任务链中参数不匹配
+ *
  * @author cocofhu
  */
 public class CExecParamNotFoundException extends CExecException {
@@ -16,8 +17,8 @@ public class CExecParamNotFoundException extends CExecException {
         super(msg);
     }
 
-    public CExecParamNotFoundException(CPair<String,Class<?>> required, List<CParameterDefinition> candidates) {
-        super("parameter not match in this job, " +
+    public CExecParamNotFoundException(CPair<String, Class<?>> required, List<CParameterDefinition> candidates, int layer) {
+        super("parameter not match in this job at layer " + layer + ", " +
                 "require ( type: " + required.getSecond() + ", name: " + required.getFirst() + "), " +
                 "but found(s) " + Arrays.toString(candidates.stream().map(param -> "( type: " + param.getType() + ", name: " + param.getName() + ")").toArray(String[]::new)));
     }

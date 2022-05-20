@@ -33,13 +33,13 @@ public class CExecutorUtils {
 
         // 由于后续操作会改变Input Output的完整性
         // 这里先要检查每个单独的Input Output Removal
-        checkParamValidAndThrow(ctorParams.getFirst().toArray(new CParameterDefinition[0]), "ctor inputs");
-        checkParamValidAndThrow(ctorParams.getSecond().toArray(new CParameterDefinition[0]), "ctor outputs");
-        checkParamValidAndThrow(ctorParams.getThird().toArray(new CParameterDefinition[0]), "ctor removals");
+        checkParamValidAndThrow(ctorParams.getFirst().toArray(new CParameterDefinition[0]), "ctor inputs", 0);
+        checkParamValidAndThrow(ctorParams.getSecond().toArray(new CParameterDefinition[0]), "ctor outputs", 0);
+        checkParamValidAndThrow(ctorParams.getThird().toArray(new CParameterDefinition[0]), "ctor removals", 0);
 
-        checkParamValidAndThrow(methodParams.getFirst().toArray(new CParameterDefinition[0]), "method inputs");
-        checkParamValidAndThrow(methodParams.getSecond().toArray(new CParameterDefinition[0]), "method outputs");
-        checkParamValidAndThrow(methodParams.getThird().toArray(new CParameterDefinition[0]), "method removals");
+        checkParamValidAndThrow(methodParams.getFirst().toArray(new CParameterDefinition[0]), "method inputs", 0);
+        checkParamValidAndThrow(methodParams.getSecond().toArray(new CParameterDefinition[0]), "method outputs", 0);
+        checkParamValidAndThrow(methodParams.getThird().toArray(new CParameterDefinition[0]), "method removals", 0);
 
 
         Set<CParameterDefinition> ctorOutputs = ctorParams.getSecond();
@@ -53,7 +53,7 @@ public class CExecutorUtils {
         actualInputs.addAll(methodInputs);
 
         // 检查最终Inputs参数
-        checkParamValidAndThrow(actualInputs.toArray(new CParameterDefinition[0]), "method inputs");
+        checkParamValidAndThrow(actualInputs.toArray(new CParameterDefinition[0]), "method inputs", 0);
 
 
         // 这里没有必要再弄个类出来了，后续变更是再做修改
@@ -75,7 +75,7 @@ public class CExecutorUtils {
             return basicInfo.getFirst() == null || basicInfo.getSecond() == null || basicInfo.getThird().getFirst() == null || basicInfo.getThird().getSecond() == null;
         });
 
-        if(basicInfo.getFirst() == null || basicInfo.getSecond() == null || basicInfo.getThird().getFirst() == null || basicInfo.getThird().getSecond() == null){
+        if (basicInfo.getFirst() == null || basicInfo.getSecond() == null || basicInfo.getThird().getFirst() == null || basicInfo.getThird().getSecond() == null) {
             throw new CExecBadInfoException(basicInfo.getFirst(), basicInfo.getSecond(), basicInfo.getThird().getFirst());
         }
 
@@ -94,7 +94,7 @@ public class CExecutorUtils {
 
 
     static CPair<Boolean, List<CParameterDefinition>> checkParamValid(CParameterDefinition[] params) {
-        if(params == null){
+        if (params == null) {
             params = new CParameterDefinition[0];
         }
         List<CParameterDefinition> conflictParams = new ArrayList<>();
@@ -112,10 +112,10 @@ public class CExecutorUtils {
         return new CPair<>(conflictParams.size() == 0, conflictParams);
     }
 
-    static void checkParamValidAndThrow(CParameterDefinition[] params, String which) {
+    static void checkParamValidAndThrow(CParameterDefinition[] params, String which, int layer) {
         CPair<Boolean, List<CParameterDefinition>> pair = checkParamValid(params);
         if (!pair.getFirst()) {
-            throw new CExecConflictParameterException(params, "conflict " + which + " parameters, " + Arrays.toString(pair.getSecond().stream().map(
+            throw new CExecConflictParameterException(params, "conflict " + which + " parameters at layer " + layer + " , " + Arrays.toString(pair.getSecond().stream().map(
                     p -> "( type: " + p.getType() + ", name: " + p.getName() + ")"
             ).toArray(String[]::new)));
         }
@@ -181,22 +181,22 @@ public class CExecutorUtils {
         } else if (annotation instanceof CExecutorRawRemovals) {
             CExecutorRawRemovals casted = (CExecutorRawRemovals) annotation;
             Arrays.stream(casted.value()).forEach(a -> list.add(new CParameterDefinition(a.name(), a.info(), a.type())));
-        }else if(annotation instanceof CExecutorContextInput){
+        } else if (annotation instanceof CExecutorContextInput) {
             CExecutorContextInput casted = (CExecutorContextInput) annotation;
             list.add(new CParameterDefinition(casted.name(), casted.info(), casted.type()));
-        }else if(annotation instanceof CExecutorContextRawInput){
+        } else if (annotation instanceof CExecutorContextRawInput) {
             CExecutorContextRawInput casted = (CExecutorContextRawInput) annotation;
             list.add(new CParameterDefinition(casted.name(), casted.info(), casted.type()));
-        }else if(annotation instanceof CExecutorOutput){
+        } else if (annotation instanceof CExecutorOutput) {
             CExecutorOutput casted = (CExecutorOutput) annotation;
             list.add(new CParameterDefinition(casted.name(), casted.info(), casted.type()));
-        }else if(annotation instanceof CExecutorRawOutput){
+        } else if (annotation instanceof CExecutorRawOutput) {
             CExecutorRawOutput casted = (CExecutorRawOutput) annotation;
             list.add(new CParameterDefinition(casted.name(), casted.info(), casted.type()));
-        }else if(annotation instanceof CExecutorRemoval){
+        } else if (annotation instanceof CExecutorRemoval) {
             CExecutorRemoval casted = (CExecutorRemoval) annotation;
             list.add(new CParameterDefinition(casted.name(), casted.info(), casted.type()));
-        }else if(annotation instanceof CExecutorRawRemoval){
+        } else if (annotation instanceof CExecutorRawRemoval) {
             CExecutorRawRemoval casted = (CExecutorRawRemoval) annotation;
             list.add(new CParameterDefinition(casted.name(), casted.info(), casted.type()));
         }

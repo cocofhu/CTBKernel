@@ -15,14 +15,15 @@ public interface CExecutorBuilder {
      * @param builder           全局转换器，如果执行对象的Type不支持转换，可以交给全部转换器转换
      * @param context           执行器上下文
      * @param contextTypes      作用域上的类型
+     * @param layer             执行对象所在的层级，用于跟踪异常
      * @param checkInput        是否检查输入参数的完整性
      * @return 执行器和上一次的输出(去除Removal的实际输出)
      */
     CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime context,
-                         CDefaultLayerDataSet<String,Class<?>> contextTypes, boolean checkInput);
+                         CDefaultLayerDataSet<String,Class<?>> contextTypes,int layer, boolean checkInput);
 
     default CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime context){
-        return toExecutor(execDetail,builder,context,new CDefaultLayerDataSet<>(),false);
+        return toExecutor(execDetail,builder,context,new CDefaultLayerDataSet<>(),0,false);
     }
 
 

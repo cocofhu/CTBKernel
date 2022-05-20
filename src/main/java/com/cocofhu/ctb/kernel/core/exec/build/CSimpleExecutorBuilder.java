@@ -27,11 +27,11 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
     @Override
     public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CExecutionRuntime context,
-                                CDefaultLayerDataSet<String, Class<?>> contextTypes, boolean checkInput) {
+                                CDefaultLayerDataSet<String, Class<?>> contextTypes,int layer, boolean checkInput) {
 
-        CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "inputs");
-        CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "outputs");
-        CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "removal");
+        CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "inputs", layer);
+        CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "outputs", layer);
+        CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "removal", layer);
 
 
         // set current context
@@ -51,14 +51,14 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
         for (CParameterDefinition input : inputs) {
             // 解析出正在的变量名称和类型
-            CPair<String, Class<?>> parameter = resolveParameter(input, valRef, typeRef);
+            CPair<String, Class<?>> parameter = resolveParameter(input, valRef, typeRef, layer);
             typeRef.put(parameter.getFirst(), parameter.getSecond());
             if (parameter.getFirst() != null && parameter.getSecond() != null) {
                 typeRef.put(parameter.getFirst(), parameter.getSecond());
             }
             CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
             if (checkInput && !checked.getFirst()) {
-                throw new CExecParamNotFoundException(parameter, checked.getSecond());
+                throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
             }
             input.setType(parameter.getSecond());
             input.setName(parameter.getFirst());
@@ -68,7 +68,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         CParameterDefinition[] outputs = execDetail.getOutputs();
 
         for (CParameterDefinition output : outputs) {
-            CPair<String, Class<?>> parameter = resolveParameter(output, valRef, typeRef);
+            CPair<String, Class<?>> parameter = resolveParameter(output, valRef, typeRef, layer);
             if (parameter.getFirst() != null && parameter.getSecond() != null) {
                 contextTypes.put(parameter.getFirst(), parameter.getSecond());
                 typeRef.put(parameter.getFirst(), parameter.getSecond());
@@ -79,10 +79,10 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
         CParameterDefinition[] removals = execDetail.getRemovals();
         for (CParameterDefinition removal : removals) {
-            CPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef);
+            CPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef, layer);
             CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
             if (!checked.getFirst()) {
-                throw new CExecParamNotFoundException(parameter, checked.getSecond());
+                throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
             }
             if (parameter.getFirst() != null && parameter.getSecond() != null) {
                 contextTypes.remove(parameter.getFirst());
@@ -92,9 +92,9 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
             removal.setName(parameter.getFirst());
         }
 
-        CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "processed inputs");
-        CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "processed outputs");
-        CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "processed removal");
+        CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "processed inputs", layer);
+        CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "processed outputs", layer);
+        CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "processed removal", layer);
 
         return new CSimpleExecutor(context, config, execDetail.getMethod(), execDetail.isIgnoreException(), execDetail.getAttachment());
     }
@@ -109,43 +109,43 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         return new CPair<>(str.substring(num), num);
     }
 
-    private CPair<String, Class<?>> resolveParameter(CParameterDefinition input, CDefaultLayerDataSet<String, Object> valRef, CDefaultLayerDataSet<String, Class<?>> typeRef) {
+    private CPair<String, Class<?>> resolveParameter(CParameterDefinition input, CDefaultLayerDataSet<String, Object> valRef, CDefaultLayerDataSet<String, Class<?>> typeRef, int layer) {
         CPair<String, Integer> nameRefPair = parseReference(input.getName());
         CPair<String, Integer> typeRefPair = null;
         Class<?> exactlyType = null;
         // dereference 找到真正的参数名称
-        String exactlyName = dereferenceOfName(valRef, nameRefPair);
+        String exactlyName = dereferenceOfName(valRef, nameRefPair, layer);
 
         if (input.getType() instanceof String) {
             typeRefPair = parseReference((String) input.getType());
         } else if (input.getType() instanceof Class<?>) {
             exactlyType = (Class<?>) input.getType();
         } else {
-            throw new CExecUnsupportedOperationException("can not parse type of input, " + input.getType());
+            throw new CExecUnsupportedOperationException("can not parse type of input at layer "+ layer +", " + input.getType());
         }
         // dereference 找到真正的参数类型
         if (typeRefPair != null) {
-            String name = dereferenceOfName(valRef, typeRefPair);
+            String name = dereferenceOfName(valRef, typeRefPair, layer);
             exactlyType = typeRef.get(name);
         }
         if (exactlyName == null || exactlyType == null) {
-            throw new CExecParamNotFoundException("cannot resolve parameter of  " + input + " type or name is null :" +
+            throw new CExecParamNotFoundException("cannot resolve parameter of  " + input + " type or name is null at layer + "+ layer +":" +
                     "( type: " + exactlyType + ", name: " + exactlyName + "). ");
         }
         return new CPair<>(exactlyName, exactlyType);
     }
 
-    private String dereferenceOfName(CDefaultLayerDataSet<String, Object> ref, CPair<String, Integer> pair) {
+    private String dereferenceOfName(CDefaultLayerDataSet<String, Object> ref, CPair<String, Integer> pair, int layer) {
         int times = pair.getSecond();
         String name = pair.getFirst();
         while (times-- > 0) {
             Object obj = ref.get(name);
             if (obj == null) {
-                throw new CExecParamNotFoundException("parameter not found , dereference name of: " + name + " is null. ");
+                throw new CExecParamNotFoundException("parameter not found , dereference name of: " + name + " is null at layer "+ layer +". ");
             } else if (obj instanceof String) {
                 name = (String) obj;
             } else {
-                throw new CExecUnsupportedOperationException("can not dereference of " + pair + " from type which is not instanceof string, " + obj);
+                throw new CExecUnsupportedOperationException("can not dereference of " + pair + " at layer "+ layer +" from type which is not instanceof string, " + obj);
             }
         }
         return name;
