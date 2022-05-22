@@ -4,7 +4,7 @@ import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
 import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
-import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecUnsupportedOperationException;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
 
 import java.util.HashMap;

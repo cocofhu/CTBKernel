@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.exception.job.CExecBadMethodException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecBadMethodException;
 import com.cocofhu.ctb.kernel.util.CCloneable;
 
 import java.util.Arrays;

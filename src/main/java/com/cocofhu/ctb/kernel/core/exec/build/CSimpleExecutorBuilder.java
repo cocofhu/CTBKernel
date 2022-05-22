@@ -6,8 +6,8 @@ import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.exec.CSimpleExecutor;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
-import com.cocofhu.ctb.kernel.exception.job.CExecParamNotFoundException;
-import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecParamNotFoundException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecUnsupportedOperationException;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
 
@@ -129,7 +129,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
             exactlyType = typeRef.get(name);
         }
         if (exactlyName == null || exactlyType == null) {
-            throw new CExecParamNotFoundException("cannot resolve parameter of  " + input + " type or name is null at layer + "+ layer +":" +
+            throw new CExecParamNotFoundException("cannot resolve parameter of  " + input + " type or name is null at layer  "+ layer +":" +
                     "( type: " + exactlyType + ", name: " + exactlyName + "). ");
         }
         return new CPair<>(exactlyName, exactlyType);

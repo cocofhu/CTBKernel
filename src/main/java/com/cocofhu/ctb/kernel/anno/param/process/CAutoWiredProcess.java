@@ -2,7 +2,7 @@ package com.cocofhu.ctb.kernel.anno.param.process;
 
 import com.cocofhu.ctb.kernel.anno.param.CAutowired;
 import com.cocofhu.ctb.kernel.core.config.*;
-import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
+import com.cocofhu.ctb.kernel.core.exec.CExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
@@ -19,9 +19,9 @@ public class CAutoWiredProcess implements CAnnoProcess {
         if (annotation != null && parameter.getParameter().getType().isAssignableFrom(CBeanFactory.class)) {
             return new CPair<>(config.getBeanFactory(), true);
         }
-        if (annotation != null && parameter.getParameter().getType().isAssignableFrom(CDefaultExecutionRuntime.class)) {
+        if (annotation != null && parameter.getParameter().getType().isAssignableFrom(CExecutionRuntime.class)) {
             Object o = dataSet.get(EXEC_CONTEXT_KEY);
-            if (o instanceof CDefaultExecutionRuntime) {
+            if (o instanceof CExecutionRuntime) {
                 return new CPair<>(o, true);
             }
         }

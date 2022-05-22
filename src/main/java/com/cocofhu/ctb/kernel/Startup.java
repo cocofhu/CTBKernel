@@ -157,23 +157,37 @@ public class Startup implements CExecutorCompiler {
         CExecutorDefinition jobs = new CExecutorDefinition("SimpleJob","a simple job",group, subJobs,null);
         CDefaultExecutionRuntime context = new CDefaultExecutionRuntime();
         CExecutor executor = builder.toExecutor(jobs, builder, context);
-        System.out.println(jobs);
+//        System.out.println(jobs);
         executor.run();
-        System.out.println("你好");
-
+        System.out.println("返回值是：" + context.getReturnVal());
+//        System.out.println("返回值是：" + context.getCurrentLayer().toMap());
         System.out.println(context);
-        System.out.println(new Startup().compiler(" asd "));
 
-
-        long l1 = System.currentTimeMillis();
-        System.out.println(new Power().mul(100, 100));
-        long l2 = System.currentTimeMillis();
-        System.out.println(l2 - l1);
+//        System.out.println(context);
+//        System.out.println(new Startup().compiler(" asd "));
+//
+//
+//        long l1 = System.currentTimeMillis();
+//        System.out.println(new Power().mul(100, 100));
+//        long l2 = System.currentTimeMillis();
+//        System.out.println(l2 - l1);
 
 
 //        DefaultParser parser = new DefaultParser();
 //        CommandLine cmd = parser.parse(new Options().addOption("e","ese"),new String[]{"-e","123"});
 //        System.out.println(cmd.getOptionValue("e"));
+
+        CExecutorDefinition definition = factory.compiler("Power -x  200 -y 300 > Transform > Transform -source ABC -dist x > Power -y 322");
+        CExecutorDefinition[] tmps = definition.getSubJobs();
+        for (int i = 0; i < tmps.length; i++) {
+            System.out.println(i + ":" + tmps[i].getAttachment().toMap());
+        }
+
+
+        builder.toExecutor(definition,builder,context = new CDefaultExecutionRuntime()).run();
+        System.out.println(context);
+        System.out.println(context.getReturnVal());
+
 
     }
 

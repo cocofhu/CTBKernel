@@ -1,4 +1,4 @@
-package com.cocofhu.ctb.kernel.exception.job;
+package com.cocofhu.ctb.kernel.exception.exec;
 
 import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.exception.CExecException;

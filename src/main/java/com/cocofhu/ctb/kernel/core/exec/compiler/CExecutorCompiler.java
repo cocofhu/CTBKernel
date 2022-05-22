@@ -2,23 +2,24 @@ package com.cocofhu.ctb.kernel.core.exec.compiler;
 
 
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
+import com.cocofhu.ctb.kernel.exception.compiler.CBadSyntaxException;
 import com.cocofhu.ctb.kernel.util.CStringUtils;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultWritableDataSet;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
 
-import java.util.function.BiConsumer;
+
 import java.util.function.BiFunction;
 
 
 public interface CExecutorCompiler {
     default CExecutorDefinition compiler(String expression) {
-        System.out.println(expression);
         BiFunction<CPair<String,Character>,Integer, CPair<String,Integer>> fn = ((pair, i) -> {
             String src = pair.getFirst();
             Character target = pair.getSecond();
             boolean escape = false;
             boolean finished = false;
             if(i >= src.length()){
-                throw new IllegalArgumentException("incomplete expression");
+                throw new CBadSyntaxException("incomplete expression");
             }
             StringBuilder sb = new StringBuilder();
             while(i < src.length() && !finished){
@@ -31,20 +32,22 @@ public interface CExecutorCompiler {
                 }else{
                     finished = true;
                 }
-                System.out.println(ch);
                 ++i;
             }
 
             if(finished || target == ' '){
+                while(i < src.length() && src.charAt(i) == ' ')  ++i;
                 return new CPair<>(sb.toString(),i);
             }
-            throw new IllegalArgumentException("incomplete expression");
+            throw new CBadSyntaxException("incomplete expression");
 
         });
 
         if(CStringUtils.isEmpty(expression)){
             return null;
         }
+
+
 
         String[] execs = expression.split(">");
         if(execs.length == 1){
@@ -53,31 +56,56 @@ public interface CExecutorCompiler {
             CPair<String, Integer> pair = fn.apply(new CPair<>(exec, ' '), i);
             i = pair.getSecond();
             String execName = pair.getFirst();
+
+            // 调整附加参数
+            CExecutorDefinition definition = acquireNewExecutorDefinition(execName);
+            CDefaultDefaultWritableDataSet<String, Object> attachment = new CDefaultDefaultWritableDataSet<>(definition.getAttachment());
+            definition.setAttachment(attachment);
+
             String key = null;
-            String val = null;
-            System.out.print(execName + "    ===>");
+            String val = "val";
+
             while(i < exec.length()){
                 char ch = exec.charAt(i);
+                boolean isKey = false;
                 if(ch == '-'){
                     pair = fn.apply(new CPair<>(exec, ' '), i + 1);
-                    i = pair.getSecond();
-                    key = pair.getFirst();
-                }
-                if(ch == '\'') {
+                    isKey = true;
+                } else if(ch == '\'') {
                     pair = fn.apply(new CPair<>(exec, '\''), i + 1);
-                    i = pair.getSecond();
-                    val = pair.getFirst();
-                    System.out.print(key+":"+val+",");
+                } else if(ch == '\"'){
+                    pair = fn.apply(new CPair<>(exec, '\"'), i + 1);
+                }else{
+                    pair = fn.apply(new CPair<>(exec, ' '), i);
                 }
+                if(isKey){
+
+                    if(val == null){
+                        throw new CBadSyntaxException("except argument value, but argument name found. ");
+                    }
+                    key = pair.getFirst();
+                    val = null;
+                }else{
+                    if(key == null){
+                        throw new CBadSyntaxException("except argument name, but argument value found. ");
+                    }
+                    val = pair.getFirst();
+                    attachment.put(key,val);
+                    key = null;
+                }
+                i = pair.getSecond();
             }
-            System.out.println();
-            return null;
+            System.out.println(attachment.toMap());
+            return definition;
         }
 
-        for (String exec : execs) {
-            compiler(exec);
+        CExecutorDefinition[] definitions = new CExecutorDefinition[execs.length];
+        for (int i = 0; i < execs.length; i++) {
+            String exec = execs[i];
+            definitions[i] = compiler(exec);
         }
-        return null;
+
+        return new CExecutorDefinition("","","",definitions,null);
     }
 
     CExecutorDefinition acquireNewExecutorDefinition(String nameOrAlias);

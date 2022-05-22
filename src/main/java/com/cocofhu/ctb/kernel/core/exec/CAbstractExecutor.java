@@ -2,8 +2,8 @@ package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
-import com.cocofhu.ctb.kernel.exception.job.CExecStatusException;
-import com.cocofhu.ctb.kernel.exception.job.CExecUnsupportedOperationException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecStatusException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecUnsupportedOperationException;
 
 /**
  * @author cocofhu
@@ -38,7 +38,7 @@ public abstract class CAbstractExecutor implements CExecutor {
         if (getStatus() != Status.Stop) {
             throw new CExecStatusException(this, "executor not executed successfully.");
         }
-        return executionRuntime.getReturnValRecently();
+        return executionRuntime.getReturnVal();
     }
 
     @Override
@@ -46,7 +46,7 @@ public abstract class CAbstractExecutor implements CExecutor {
         if (getStatus() != Status.Exception) {
             throw new CExecStatusException(this, "executor has not encountered an exception.");
         }
-        return (Throwable) executionRuntime.getExceptionRecently();
+        return (Throwable) executionRuntime.getException();
     }
 
     @Override
@@ -56,7 +56,7 @@ public abstract class CAbstractExecutor implements CExecutor {
 
     @Override
     public boolean isExceptionInContext() {
-        return executionRuntime.hasExceptionRecently();
+        return executionRuntime.hasException();
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.*;
-import com.cocofhu.ctb.kernel.exception.job.CExecExceptionUnhandledException;
-import com.cocofhu.ctb.kernel.exception.job.CExecStatusException;
-import com.cocofhu.ctb.kernel.exception.job.CExecBeanMethodInvokeException;
-import com.cocofhu.ctb.kernel.exception.job.CExecNoSuchMethodException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecExceptionUnhandledException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecStatusException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecBeanMethodInvokeException;
+import com.cocofhu.ctb.kernel.exception.exec.CExecNoSuchMethodException;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultReadOnlyDataSet;
 
@@ -27,11 +27,6 @@ public class CSimpleExecutor extends CAbstractExecutor {
         this.executorMethod = executorMethod;
     }
 
-    public CSimpleExecutor(CDefaultExecutionRuntime executionRuntime, CConfig beanFactoryContext, CExecutorMethod executorMethod) {
-        this(executionRuntime, beanFactoryContext, executorMethod, false, null);
-    }
-
-
 
     @Override
     public void run() {
@@ -45,42 +40,39 @@ public class CSimpleExecutor extends CAbstractExecutor {
                 setStatus(Status.Exception);
                 throw new CExecExceptionUnhandledException(getThrowable());
             }
-            // 清除上一次的异常
 
             // 设置执行状态, 开始执行
             setStatus(Status.Running);
 
             // 获取执行信息 这里可能会抛出 CNoSuchBeanDefinitionException
             CBeanDefinition beanDefinition = config.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-            executionRuntime.newLayer(attachment,true);
-            executionRuntime.newLayer(null,false);
             Object bean = config.getBeanFactory().getBean(beanDefinition, executionRuntime.getCurrentLayer());
             Method method = ReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
             // 检查方法是否存在
             if (method == null) {
                 throw new CExecNoSuchMethodException( bean.getClass() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
             }
-
-
+            // 复制参数
+            executionRuntime.startNew(attachment,true, CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
+            // 启动当前任务环境
+            executionRuntime.startNew(null,false, CExecutionRuntime.CExecutorRuntimeType.SIMPLE, this);
             CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, executionRuntime.getCurrentLayer());
 
             try {
                 Object returnVal = executableWrapper.execute(bean);
                 executionRuntime.setReturnVal(returnVal);
-
             } catch (InstantiationException | IllegalAccessException e) {
                 throw new CExecBeanMethodInvokeException(executorMethod, e);
             } catch (InvocationTargetException e) {
                 executionRuntime.setException(e.getTargetException());
             }
 
-            if (executionRuntime.hasExceptionRecently()) {
+            if (executionRuntime.hasException()) {
                 setStatus(Status.Exception);
             } else {
                 setStatus(Status.Stop);
             }
         } finally {
-
             lock.unlock();
         }
     }
