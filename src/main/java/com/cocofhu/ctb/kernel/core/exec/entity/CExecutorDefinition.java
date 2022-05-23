@@ -7,6 +7,7 @@ import de.vandermeer.asciitable.AsciiTable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class CExecutorDefinition implements CCloneable {
 
     // 任务类型：多个任务

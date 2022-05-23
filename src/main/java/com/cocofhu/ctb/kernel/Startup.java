@@ -1,5 +1,6 @@
 package com.cocofhu.ctb.kernel;
 
+import com.cocofhu.ctb.basic.CDBUtils;
 import com.cocofhu.ctb.basic.CDebugExecutor;
 import com.cocofhu.ctb.basic.CParamExecutor;
 import com.cocofhu.ctb.basic.CUtilExecutor;
@@ -7,6 +8,7 @@ import com.cocofhu.ctb.kernel.core.exec.build.CDefaultExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorUtils;
 import com.cocofhu.ctb.kernel.core.exec.compiler.CExecutorCompiler;
+import com.cocofhu.ctb.kernel.util.CStringUtils;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultWritableDataSet;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
@@ -63,10 +65,21 @@ public class Startup implements CExecutorCompiler {
                     return "Power";
                 }
             });
+
+            result.add(new CAbstractDefinition(CDBUtils.class) {
+                @Override
+                public String getBeanName() {
+                    return "CDBUtils";
+                }
+            });
+
             return result;
         });
+        Scanner scan = new Scanner(System.in);
 
-        String group = "ctb.basic.param";
+        String source = scan.nextLine();
+//        while(CStringUtils.isEmpty(source)) source = scan.next();
+        //        String group = "ctb.basic.param";
         // 由于任务的输入输出参数的类型和名字可能会动态确定，这里引入“引用”的概念
         // 1、关于输入输出参数的名字
         //      一个输入输出参数的名字由解引用符号+参数名字构成(这里称为引用标记)，例如*xyz，代表xyz变量所指向的变量
@@ -140,28 +153,28 @@ public class Startup implements CExecutorCompiler {
 
 //        System.out.println(JSON.toJSON(jobs));
 
-        CExecutorDefinition job0 = CExecutorUtils.toExecDetail(factory,new CExecutorMethod("Power",null,"mul", null));
-        CDefaultDefaultWritableDataSet<String,Object> attachment1 = new CDefaultDefaultWritableDataSet<>();
-        attachment1.put("x",100);
-        attachment1.put("y",2);
-        job0.setAttachment(attachment1);
-        CExecutorDefinition job1 = CExecutorUtils.toExecDetail(factory,new CExecutorMethod("CParamExecutor",null,"transform", null));
-
-        CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
-        attachment.put("source", CDefaultExecutionRuntime.EXEC_RETURN_VAL_KEY);
-        attachment.put("dist","ABC");
-        job1.setAttachment(attachment);
-
-        CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
-        CExecutorDefinition[] subJobs = {job0, job1};
-        CExecutorDefinition jobs = new CExecutorDefinition("SimpleJob","a simple job",group, subJobs,null);
-        CDefaultExecutionRuntime context = new CDefaultExecutionRuntime();
-        CExecutor executor = builder.toExecutor(jobs, builder, context);
-//        System.out.println(jobs);
-        executor.run();
-        System.out.println("返回值是：" + context.getReturnVal());
-//        System.out.println("返回值是：" + context.getCurrentLayer().toMap());
-        System.out.println(context);
+//        CExecutorDefinition job0 = CExecutorUtils.toExecDetail(factory,new CExecutorMethod("Power",null,"mul", null));
+//        CDefaultDefaultWritableDataSet<String,Object> attachment1 = new CDefaultDefaultWritableDataSet<>();
+//        attachment1.put("x",100);
+//        attachment1.put("y",2);
+//        job0.setAttachment(attachment1);
+//        CExecutorDefinition job1 = CExecutorUtils.toExecDetail(factory,new CExecutorMethod("CParamExecutor",null,"transform", null));
+//
+//        CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
+//        attachment.put("source", CDefaultExecutionRuntime.EXEC_RETURN_VAL_KEY);
+//        attachment.put("dist","ABC");
+//        job1.setAttachment(attachment);
+//
+//        CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
+//        CExecutorDefinition[] subJobs = {job0, job1};
+//        CExecutorDefinition jobs = new CExecutorDefinition("SimpleJob","a simple job",group, subJobs,null);
+//        CDefaultExecutionRuntime context = new CDefaultExecutionRuntime();
+//        CExecutor executor = builder.toExecutor(jobs, builder, context);
+////        System.out.println(jobs);
+//        executor.run();
+//        System.out.println("返回值是：" + context.getReturnVal());
+////        System.out.println("返回值是：" + context.getCurrentLayer().toMap());
+//        System.out.println(context);
 
 //        System.out.println(context);
 //        System.out.println(new Startup().compiler(" asd "));
@@ -176,14 +189,15 @@ public class Startup implements CExecutorCompiler {
 //        DefaultParser parser = new DefaultParser();
 //        CommandLine cmd = parser.parse(new Options().addOption("e","ese"),new String[]{"-e","123"});
 //        System.out.println(cmd.getOptionValue("e"));
+        CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
+        CDefaultExecutionRuntime context;
 
-        CExecutorDefinition definition = factory.compiler("Power -x  200 -y 300 > Transform > Transform -source ABC -dist x > Power -y 322");
-        CExecutorDefinition[] tmps = definition.getSubJobs();
-        for (int i = 0; i < tmps.length; i++) {
-            System.out.println(i + ":" + tmps[i].getAttachment().toMap());
-        }
-
-
+        CExecutorDefinition definition = factory.compiler(source);
+//        for (CExecutorDefinition d: definition.getSubJobs()
+//             ) {
+//            System.out.println(Arrays.toString(d.getInputs()));
+//            System.out.println(Arrays.toString(d.getOutputs()));
+//        }
         builder.toExecutor(definition,builder,context = new CDefaultExecutionRuntime()).run();
         System.out.println(context);
         System.out.println(context.getReturnVal());

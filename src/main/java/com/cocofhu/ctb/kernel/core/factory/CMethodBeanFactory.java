@@ -45,16 +45,25 @@ public class CMethodBeanFactory extends CDefaultBeanFactory implements CExecutor
         List<CBeanDefinition> beanDefinitions = beanDefinitionResolver.resolveAll(getConfig());
 
 
-        CExecutorDefinition job0 = CExecutorUtils.toExecDetail(this,new CExecutorMethod("Power",null,"mul", null));
-        CExecutorDefinition job1 = CExecutorUtils.toExecDetail(this,new CExecutorMethod("CParamExecutor",null,"transform", null));
+        CExecutorDefinition job0 = CExecutorUtils.toExecDetail(this,new CExecutorMethod("Power","mul"));
+        CExecutorDefinition job1 = CExecutorUtils.toExecDetail(this,new CExecutorMethod("CParamExecutor","transform"));
+        CExecutorDefinition job2 = CExecutorUtils.toExecDetail(this,new CExecutorMethod("CDBUtils","acquireConnection"));
+        CExecutorDefinition job3 = CExecutorUtils.toExecDetail(this,new CExecutorMethod("CDBUtils","queryAsMap"));
 
         CDefaultDefaultWritableDataSet<String,Object> attachment = new CDefaultDefaultWritableDataSet<>();
         attachment.put("source", CDefaultExecutionRuntime.EXEC_RETURN_VAL_KEY);
         attachment.put("dist","ABC");
         job1.setAttachment(attachment);
 
+        attachment = new CDefaultDefaultWritableDataSet<>();
+        attachment.put("driverName", "com.mysql.cj.jdbc.Driver");
+        attachment.put("username","root");
+        job2.setAttachment(attachment);
+
         executorDefinitionMap.put("Power", job0);
         executorDefinitionMap.put("Transform", job1);
+        executorDefinitionMap.put("AcquireConnection", job2);
+        executorDefinitionMap.put("QueryAsMap", job3);
 
     }
 

@@ -29,7 +29,7 @@ public abstract class CAbstractExecutor implements CExecutor {
         this.config = config;
         this.ignoreException = ignoreException;
         this.attachment = attachment;
-        this.status = Status.NotReady;
+        this.status = Status.Ready;
 
     }
 
@@ -46,7 +46,7 @@ public abstract class CAbstractExecutor implements CExecutor {
         if (getStatus() != Status.Exception) {
             throw new CExecStatusException(this, "executor has not encountered an exception.");
         }
-        return (Throwable) executionRuntime.getException();
+        return executionRuntime.getException();
     }
 
     @Override

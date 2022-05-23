@@ -17,7 +17,7 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
 
     // 当前层，每个执行器都将拥有一个唯一的层
     private volatile CDefaultLayerDataSet<String, Object> currentLayer;
-    private volatile long lastTime = 0;
+    private volatile long lastTime;
 
 
     private final ReentrantLock lock;
@@ -93,7 +93,7 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
 
             Object returnVal = "null";
 
-            table.addRow(i, types.get(i), timeElapsed.get(i + 1) + "ms", returnVal , "null", sb).setTextAlignment(TextAlignment.LEFT);
+            table.addRow(i, types.get(i), ( i+2 >= timeElapsed.size()? System.currentTimeMillis() - lastTime : timeElapsed.get(i + 2) ) + "ms", returnVal , "null", sb).setTextAlignment(TextAlignment.LEFT);
             table.getRenderer().setCWC(new CWC_LongestWordMin(3));
             table.addRule();
         }
