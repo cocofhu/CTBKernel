@@ -4,11 +4,10 @@ package com.cocofhu.ctb.kernel.core.exec.compiler;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.exception.compiler.CBadSyntaxException;
 import com.cocofhu.ctb.kernel.util.CStringUtils;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultWritableDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultWritableData;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
 
 
-import java.util.Arrays;
 import java.util.function.BiFunction;
 
 
@@ -56,7 +55,7 @@ public interface CExecutorCompiler {
 
             // 调整附加参数 这里是
             CExecutorDefinition definition = acquireNewExecutorDefinition(execName);
-            CDefaultDefaultWritableDataSet<String, Object> attachment = new CDefaultDefaultWritableDataSet<>(definition.getAttachment());
+            CDefaultWritableData<String, Object> attachment = new CDefaultWritableData<>(definition.getAttachment());
             definition.setAttachment(attachment);
 
             String key = null;

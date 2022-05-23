@@ -3,7 +3,7 @@ package com.cocofhu.ctb.kernel.core.exec.build;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
 import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
 
 
 public interface CExecutorBuilder {
@@ -20,10 +20,10 @@ public interface CExecutorBuilder {
      * @return 执行器和上一次的输出(去除Removal的实际输出)
      */
     CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CDefaultExecutionRuntime executionRuntime,
-                         CDefaultLayerDataSet<String,Class<?>> contextTypes,int layer, boolean checkInput);
+                         CDefaultLayerData<String,Class<?>> contextTypes, int layer, boolean checkInput);
 
     default CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CDefaultExecutionRuntime context){
-        return toExecutor(execDetail,builder,context,new CDefaultLayerDataSet<>(),0,false);
+        return toExecutor(execDetail,builder,context,new CDefaultLayerData<>(),0,false);
     }
 
 

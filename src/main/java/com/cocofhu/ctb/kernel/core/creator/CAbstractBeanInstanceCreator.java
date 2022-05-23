@@ -4,7 +4,7 @@ import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.exception.bean.CNoConstructorResolverException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoConstructorException;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 
 import java.util.PriorityQueue;
@@ -27,13 +27,13 @@ public abstract class CAbstractBeanInstanceCreator implements CBeanInstanceCreat
     }
 
     @Override
-    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
+    public CExecutableWrapper resolveConstructor(CBeanDefinition beanDefinition, CConfig config, CReadOnlyData<String, Object> data) {
         if (resolvers == null || resolvers.size() == 0) {
             throw new CNoConstructorResolverException();
         }
         CExecutableWrapper ctorWrapper = null;
         for (CConstructorResolver resolver : resolvers) {
-            ctorWrapper = resolver.resolveConstructor(beanDefinition, config, dataSet);
+            ctorWrapper = resolver.resolveConstructor(beanDefinition, config, data);
             if (ctorWrapper != null) break;
         }
 

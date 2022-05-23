@@ -10,11 +10,11 @@ import java.util.Set;
 
  * </pre>
  */
-public interface CLayerDataSet<K,V> extends CWritableDataSet<K, V>{
+public interface CLayerData<K,V> extends CWritableData<K, V> {
     /**
      * 新建层
      */
-    CLayerDataSet<K,V> newLayer();
+    CLayerData<K,V> newLayer();
 
 
     /**
@@ -42,6 +42,6 @@ public interface CLayerDataSet<K,V> extends CWritableDataSet<K, V>{
     /**
      * 将指定数据集中的元素全部添加到集合中(Only Current Layer)
      */
-    void putAll(CReadOnlyDataSet<? extends K, ? extends V> dataSet);
+    void putAll(CReadOnlyData<? extends K, ? extends V> dataSet);
 
 }

@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 import com.cocofhu.ctb.kernel.exception.CExecException;
 
 /**
@@ -48,7 +48,7 @@ public interface CExecutor extends Runnable{
     Throwable getThrowable() throws CExecException;
     Object getReturnVal() throws CExecException;
 
-    void setAttachment(CReadOnlyDataSet<String, Object> attachment);
+    void setAttachment(CReadOnlyData<String, Object> attachment);
 
 
     @Override

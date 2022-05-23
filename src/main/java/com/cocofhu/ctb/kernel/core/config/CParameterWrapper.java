@@ -3,7 +3,7 @@ package com.cocofhu.ctb.kernel.core.config;
 import com.cocofhu.ctb.kernel.exception.bean.CNoConfigException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoExecutableException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoParameterException;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
@@ -18,9 +18,9 @@ public class CParameterWrapper implements CMateData {
 
     private final CExecutableWrapper executor;
 
-    private final CReadOnlyDataSet<String, Object> dataSet;
+    private final CReadOnlyData<String, Object> dataSet;
 
-    public CParameterWrapper(Parameter parameter, CConfig config, CExecutableWrapper executor, CReadOnlyDataSet<String, Object> dataSet) {
+    public CParameterWrapper(Parameter parameter, CConfig config, CExecutableWrapper executor, CReadOnlyData<String, Object> dataSet) {
 
         if(parameter == null){
             throw new CNoParameterException("empty parameter on build a parameter wrapper. ");

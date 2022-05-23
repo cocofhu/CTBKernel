@@ -2,7 +2,7 @@ package com.cocofhu.ctb.kernel.core.resolver.value;
 
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +22,10 @@ public class CChainValueResolver implements CValueResolver {
     }
 
     @Override
-    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig config, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
+    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig config, CReadOnlyData<String, Object> data) throws CBeanException {
         List<CValueWrapper> values = new ArrayList<>();
         for (CValueResolver resolver : resolvers) {
-            List<CValueWrapper> cValueWrappers = resolver.resolveValues(parameter, config, dataSet);
+            List<CValueWrapper> cValueWrappers = resolver.resolveValues(parameter, config, data);
             if (cValueWrappers != null) {
                 values.addAll(cValueWrappers);
             }

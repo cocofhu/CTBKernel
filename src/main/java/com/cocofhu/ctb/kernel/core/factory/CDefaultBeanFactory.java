@@ -13,7 +13,7 @@ import com.cocofhu.ctb.kernel.exception.bean.CNoBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CNoUniqueBeanDefinitionException;
 import com.cocofhu.ctb.kernel.exception.bean.CInstantiationException;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -130,26 +130,26 @@ public class CDefaultBeanFactory implements CBeanFactory {
     }
 
     @Override
-    public Object getBean(String name, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
-        return doGetBean(name, null, dataSet);
+    public Object getBean(String name, CReadOnlyData<String, Object> data) throws CBeanException {
+        return doGetBean(name, null, data);
     }
 
     @Override
-    public <T> T getBean(String name, Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
-        return doGetBean(name, requiredType, dataSet);
+    public <T> T getBean(String name, Class<T> requiredType, CReadOnlyData<String, Object> data) throws CBeanException {
+        return doGetBean(name, requiredType, data);
     }
 
     @Override
-    public <T> T getBean(Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
-        return doGetBean(null, requiredType, dataSet);
+    public <T> T getBean(Class<T> requiredType, CReadOnlyData<String, Object> data) throws CBeanException {
+        return doGetBean(null, requiredType, data);
     }
 
     @Override
-    public Object getBean(CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
+    public Object getBean(CBeanDefinition beanDefinition, CReadOnlyData<String, Object> data) throws CBeanException {
         if (!beanDefinitionsForName.containsValue(beanDefinition)) {
             throw new CNoSuchBeanDefinitionException("no such bean definition found in bean factory, make sure acquired bean definition by using getBeanDefinition");
         }
-        return doGetBeanByBeanDefinition(beanDefinition, dataSet);
+        return doGetBeanByBeanDefinition(beanDefinition, data);
     }
 
     protected void refresh() {
@@ -203,7 +203,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
      * @throws CInstantiationException          初始化Bean实例的时候出现错误或BeanScope是不支持的类型
      */
 
-    protected <T> T doGetBean(String name, Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) {
+    protected <T> T doGetBean(String name, Class<T> requiredType, CReadOnlyData<String, Object> dataSet) {
         // Find BeanDefinition
         CBeanDefinition beanDefinition = doGetSingleBeanDefinition(name, requiredType);
         return doGetBeanByBeanDefinition(beanDefinition, dataSet);
@@ -265,12 +265,12 @@ public class CDefaultBeanFactory implements CBeanFactory {
         }
     }
 
-    private Object doCreateBeanInstance(CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) {
+    private Object doCreateBeanInstance(CBeanDefinition beanDefinition, CReadOnlyData<String, Object> dataSet) {
 
         return this.config.getInstanceCreator().newInstance(beanDefinition, config, dataSet);
     }
 
-    private void callInitMethods(CBeanDefinition b, Object o, CReadOnlyDataSet<String, Object> dataSet) {
+    private void callInitMethods(CBeanDefinition b, Object o, CReadOnlyData<String, Object> dataSet) {
         Method[] methods = b.initMethods();
         for (Method method : methods) {
             CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, b, dataSet);
@@ -286,7 +286,7 @@ public class CDefaultBeanFactory implements CBeanFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T doGetBeanByBeanDefinition(CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) {
+    private <T> T doGetBeanByBeanDefinition(CBeanDefinition beanDefinition, CReadOnlyData<String, Object> dataSet) {
         // Get instance of bean
         Object beanInstance;
         if (beanDefinition.isSingleton()) {

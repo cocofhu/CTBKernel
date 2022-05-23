@@ -3,7 +3,7 @@ package com.cocofhu.ctb.kernel.core.config;
 
 import com.cocofhu.ctb.kernel.exception.CBeanException;
 import com.cocofhu.ctb.kernel.exception.bean.*;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -19,9 +19,9 @@ public class CExecutableWrapper implements CMateData {
     private final CConfig config;
     private final CBeanDefinition beanDefinition;
 
-    private final CReadOnlyDataSet<String, Object> dataSet;
+    private final CReadOnlyData<String, Object> dataSet;
 
-    public CExecutableWrapper(Executable executor, CConfig config, CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
+    public CExecutableWrapper(Executable executor, CConfig config, CBeanDefinition beanDefinition, CReadOnlyData<String, Object> dataSet) throws CBeanException {
 
         if (executor == null) {
             throw new CNoExecutableException("empty executable object, maybe method or constructor not found.");

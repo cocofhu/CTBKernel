@@ -6,10 +6,7 @@ import com.cocofhu.ctb.basic.CParamExecutor;
 import com.cocofhu.ctb.basic.CUtilExecutor;
 import com.cocofhu.ctb.kernel.core.exec.build.CDefaultExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorBuilder;
-import com.cocofhu.ctb.kernel.core.exec.build.CExecutorUtils;
 import com.cocofhu.ctb.kernel.core.exec.compiler.CExecutorCompiler;
-import com.cocofhu.ctb.kernel.util.CStringUtils;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultWritableDataSet;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
@@ -75,9 +72,7 @@ public class Startup implements CExecutorCompiler {
 
             return result;
         });
-        Scanner scan = new Scanner(System.in);
 
-        String source = scan.nextLine();
 //        while(CStringUtils.isEmpty(source)) source = scan.next();
         //        String group = "ctb.basic.param";
         // 由于任务的输入输出参数的类型和名字可能会动态确定，这里引入“引用”的概念
@@ -189,19 +184,20 @@ public class Startup implements CExecutorCompiler {
 //        DefaultParser parser = new DefaultParser();
 //        CommandLine cmd = parser.parse(new Options().addOption("e","ese"),new String[]{"-e","123"});
 //        System.out.println(cmd.getOptionValue("e"));
-        CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
-        CDefaultExecutionRuntime context;
-
-        CExecutorDefinition definition = factory.compiler(source);
+//        CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
+//        CDefaultExecutionRuntime context;
+//        Scanner scan = new Scanner(System.in);
+//        String source = scan.nextLine();
+//        CExecutorDefinition definition = factory.compiler(source);
 //        for (CExecutorDefinition d: definition.getSubJobs()
 //             ) {
 //            System.out.println(Arrays.toString(d.getInputs()));
 //            System.out.println(Arrays.toString(d.getOutputs()));
 //        }
-        builder.toExecutor(definition,builder,context = new CDefaultExecutionRuntime()).run();
-        System.out.println(context);
-        System.out.println(context.getReturnVal());
-
+//        builder.toExecutor(definition,builder,context = new CDefaultExecutionRuntime()).run();
+//        System.out.println(context);
+//        System.out.println(context.getReturnVal());
+        factory.f();
 
     }
 

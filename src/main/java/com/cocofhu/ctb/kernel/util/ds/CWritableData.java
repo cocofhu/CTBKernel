@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel.util.ds;
 
-public interface CWritableDataSet<K,V> extends CReadOnlyDataSet<K,V>{
+public interface CWritableData<K,V> extends CReadOnlyData<K,V> {
     /**
      * 将指定的key-val对 加入到集合， 返回原来存在的元素
      */
@@ -14,5 +14,5 @@ public interface CWritableDataSet<K,V> extends CReadOnlyDataSet<K,V>{
     /**
      * 将指定数据集中的元素全部添加到集合中
      */
-    void putAll(CReadOnlyDataSet<? extends K, ? extends V> dataSet);
+    void putAll(CReadOnlyData<? extends K, ? extends V> dataSet);
 }

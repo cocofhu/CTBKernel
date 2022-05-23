@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, V> {
+public class CDefaultReadOnlyData<K,V> implements CReadOnlyData<K, V> {
 
     protected Map<K,V> dataset;
 
@@ -15,7 +15,7 @@ public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, 
      * @param dataImpl  数据的实现 默认使用ConcurrentHashMap
      * @param dataset   根据已有数据创建，浅拷贝
      */
-    protected CDefaultDefaultReadOnlyDataSet(Map<K,V> dataImpl, CDefaultDefaultReadOnlyDataSet<K,V> dataset) {
+    protected CDefaultReadOnlyData(Map<K,V> dataImpl, CDefaultReadOnlyData<K,V> dataset) {
         this.dataset = dataImpl;
         if(this.dataset == null){
             this.dataset = new ConcurrentHashMap<>();
@@ -29,7 +29,7 @@ public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, 
     }
 
 
-    public static class CDefaultReadOnlyEntry<K,V> implements CReadOnlyDataSet.CReadOnlyEntry<K,V> {
+    public static class CDefaultReadOnlyEntry<K,V> implements CReadOnlyData.CReadOnlyEntry<K,V> {
         private final K key;
         private final V val;
         public CDefaultReadOnlyEntry(K key, V val) {
@@ -46,7 +46,7 @@ public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, 
         }
         @Override
         public boolean equals(Object o) {
-            return o instanceof CReadOnlyDataSet.CReadOnlyEntry
+            return o instanceof CReadOnlyData.CReadOnlyEntry
                     && Objects.equals(getKey() ,((CReadOnlyEntry<?, ?>)o).getKey());
         }
         @Override
@@ -62,7 +62,7 @@ public class CDefaultDefaultReadOnlyDataSet<K,V> implements CReadOnlyDataSet<K, 
 
 
     @Override
-    public Set<CDefaultDefaultReadOnlyDataSet.CDefaultReadOnlyEntry<K, V>> entries() {
+    public Set<CDefaultReadOnlyData.CDefaultReadOnlyEntry<K, V>> entries() {
         Set<CDefaultReadOnlyEntry<K,V>> entries = new HashSet<>();
         dataset.forEach((k,v)->entries.add(new CDefaultReadOnlyEntry<>(k,v)));
         return entries;

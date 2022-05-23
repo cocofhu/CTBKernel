@@ -4,7 +4,7 @@ import com.cocofhu.ctb.kernel.anno.param.process.CAnnoProcess;
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,10 @@ public class CAnnotationValueResolver implements CValueResolver {
     }
 
     @Override
-    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig config, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException {
+    public List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig config, CReadOnlyData<String, Object> data) throws CBeanException {
         List<CValueWrapper> candidateValues = new ArrayList<>();
         for (CAnnoProcess process : annotationProcesses) {
-            CPair<Object, Boolean> pair = process.process(parameter,config,dataSet);
+            CPair<Object, Boolean> pair = process.process(parameter,config, data);
             if (pair != null && pair.getSecond()) {
                 candidateValues.add(new CValueWrapper(process, pair, config, parameter));
             }

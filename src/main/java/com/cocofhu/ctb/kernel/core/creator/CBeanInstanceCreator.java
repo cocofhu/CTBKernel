@@ -2,7 +2,7 @@ package com.cocofhu.ctb.kernel.core.creator;
 
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CConfig;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
 import com.cocofhu.ctb.kernel.exception.bean.CInstantiationException;
@@ -23,7 +23,7 @@ public interface CBeanInstanceCreator extends CConstructorResolver{
      * @throws CNoConstructorException          没有找到相应的构造方法
      * @throws CInstantiationException          创建Bean实例时发生了错误
      */
-    Object newInstance(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet)
+    Object newInstance(CBeanDefinition beanDefinition, CConfig config, CReadOnlyData<String, Object> dataSet)
             throws CBeanException;
 
     /**

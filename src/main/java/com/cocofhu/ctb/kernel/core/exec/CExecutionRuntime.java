@@ -1,7 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 /**
  * @author cocofhu
@@ -32,9 +32,9 @@ public interface CExecutionRuntime {
     String EXEC_CONTEXT_KEY = "EXEC_CONTEXT_KEY";
 
 
-    CDefaultLayerDataSet<String, Object> getCurrentLayer();
+    CDefaultLayerData<String, Object> getCurrentLayer();
 
-    void startNew(CReadOnlyDataSet<String, Object> attachment, boolean copyCurrent, CExecutorRuntimeType type, CExecutor executor);
+    void startNew(CReadOnlyData<String, Object> attachment, boolean copyCurrent, CExecutorRuntimeType type, CExecutor executor);
 
     void stopCurrent();
 

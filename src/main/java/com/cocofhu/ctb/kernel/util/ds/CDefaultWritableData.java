@@ -3,7 +3,7 @@ package com.cocofhu.ctb.kernel.util.ds;
 
 import java.util.Map;
 
-public class CDefaultDefaultWritableDataSet<K, V> extends CDefaultDefaultReadOnlyDataSet<K, V> implements CWritableDataSet<K, V> {
+public class CDefaultWritableData<K, V> extends CDefaultReadOnlyData<K, V> implements CWritableData<K, V> {
 
 
     /**
@@ -12,15 +12,15 @@ public class CDefaultDefaultWritableDataSet<K, V> extends CDefaultDefaultReadOnl
      * @param dataImpl 数据的实现 默认使用ConcurrentHashMap
      * @param dataset  根据已有数据创建，浅拷贝
      */
-    protected CDefaultDefaultWritableDataSet(Map<K, V> dataImpl, CDefaultDefaultReadOnlyDataSet<K, V> dataset) {
+    protected CDefaultWritableData(Map<K, V> dataImpl, CDefaultReadOnlyData<K, V> dataset) {
         super(dataImpl, dataset);
     }
 
-    public CDefaultDefaultWritableDataSet() {
+    public CDefaultWritableData() {
         super(null, null);
     }
 
-    public CDefaultDefaultWritableDataSet(CDefaultDefaultReadOnlyDataSet<K, V> dataset) {
+    public CDefaultWritableData(CDefaultReadOnlyData<K, V> dataset) {
         super(null, dataset);
     }
 
@@ -42,7 +42,7 @@ public class CDefaultDefaultWritableDataSet<K, V> extends CDefaultDefaultReadOnl
     }
 
     @Override
-    public void putAll(CReadOnlyDataSet<? extends K, ? extends V> dataSet) {
+    public void putAll(CReadOnlyData<? extends K, ? extends V> dataSet) {
         if (dataSet != null) {
             dataSet.entries().forEach(e -> this.put(e.getKey(), e.getValue()));
         }

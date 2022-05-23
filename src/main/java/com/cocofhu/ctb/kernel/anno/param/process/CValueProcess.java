@@ -4,7 +4,7 @@ import com.cocofhu.ctb.kernel.anno.param.CValue;
 import com.cocofhu.ctb.kernel.convert.ConverterUtils;
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 /**
  * @author cocofhu
@@ -12,7 +12,7 @@ import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
 public class CValueProcess implements CAnnoProcess {
 
     @Override
-    public CPair<Object, Boolean> process(CParameterWrapper parameter, CConfig config, CReadOnlyDataSet<String, Object> dataSet) {
+    public CPair<Object, Boolean> process(CParameterWrapper parameter, CConfig config, CReadOnlyData<String, Object> data) {
         CValue annotation = parameter.getAnnotation(CValue.class);
         if (annotation != null){
             String value = annotation.value();

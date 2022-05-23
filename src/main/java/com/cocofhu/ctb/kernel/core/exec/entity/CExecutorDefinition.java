@@ -1,16 +1,12 @@
 package com.cocofhu.ctb.kernel.core.exec.entity;
 
-import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultReadOnlyData;
 import com.cocofhu.ctb.kernel.core.exec.CExecutorMethod;
 import com.cocofhu.ctb.kernel.util.CCloneable;
-import de.vandermeer.asciitable.AsciiTable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 @Setter
@@ -41,7 +37,7 @@ public class CExecutorDefinition implements CCloneable {
     private CExecutorMethod method;
 
     // 任务的附加参数
-    private CDefaultDefaultReadOnlyDataSet<String, Object> attachment;
+    private CDefaultReadOnlyData<String, Object> attachment;
 
     // 多任务时的子任务
     private CExecutorDefinition[] subJobs;
@@ -61,7 +57,7 @@ public class CExecutorDefinition implements CCloneable {
     private String group;
 
     // 任务属性
-    private CDefaultDefaultReadOnlyDataSet<String, Object> attributes;
+    private CDefaultReadOnlyData<String, Object> attributes;
 
 
     /**
@@ -78,7 +74,7 @@ public class CExecutorDefinition implements CCloneable {
      * @param attachment      任务附加参数
      */
     public CExecutorDefinition(String name, String info, String group, CParameterDefinition[] inputs,
-                               CParameterDefinition[] outputs, CParameterDefinition[] removals, boolean ignoreException, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+                               CParameterDefinition[] outputs, CParameterDefinition[] removals, boolean ignoreException, CExecutorMethod method, CDefaultReadOnlyData<String, Object> attributes, CDefaultReadOnlyData<String, Object> attachment) {
         this.name = name;
         this.version = VERSION;
         this.type = TYPE_EXEC;
@@ -106,7 +102,7 @@ public class CExecutorDefinition implements CCloneable {
      * @param attachment 任务附加参数
      */
     public CExecutorDefinition(String name, String info, String group, CParameterDefinition[] inputs,
-                               CParameterDefinition[] outputs, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+                               CParameterDefinition[] outputs, CExecutorMethod method, CDefaultReadOnlyData<String, Object> attributes, CDefaultReadOnlyData<String, Object> attachment) {
         this(name, info, group, inputs, outputs, null, false, method, attributes, attachment);
     }
 
@@ -124,17 +120,17 @@ public class CExecutorDefinition implements CCloneable {
      * @param attachment 任务附加参数
      */
     public CExecutorDefinition(String name, String info, String group, CParameterDefinition[] inputs,
-                               CParameterDefinition[] outputs, CParameterDefinition[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+                               CParameterDefinition[] outputs, CParameterDefinition[] removals, CExecutorMethod method, CDefaultReadOnlyData<String, Object> attributes, CDefaultReadOnlyData<String, Object> attachment) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, attachment);
     }
 
     public CExecutorDefinition(String name, String info, String group, CParameterDefinition[] inputs,
-                               CParameterDefinition[] outputs, CParameterDefinition[] removals, CExecutorMethod method, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
+                               CParameterDefinition[] outputs, CParameterDefinition[] removals, CExecutorMethod method, CDefaultReadOnlyData<String, Object> attributes) {
         this(name, info, group, inputs, outputs, removals, false, method, attributes, null);
     }
 
 
-    public CExecutorDefinition(String name, String info, String group, CExecutorDefinition[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes, CDefaultDefaultReadOnlyDataSet<String, Object> attachment) {
+    public CExecutorDefinition(String name, String info, String group, CExecutorDefinition[] subJobs, CDefaultReadOnlyData<String, Object> attributes, CDefaultReadOnlyData<String, Object> attachment) {
         this.version = VERSION;
         this.type = TYPE_SCHEDULE;
         this.name = name;
@@ -145,7 +141,7 @@ public class CExecutorDefinition implements CCloneable {
         this.attachment = attachment;
     }
 
-    public CExecutorDefinition(String name, String info, String group, CExecutorDefinition[] subJobs, CDefaultDefaultReadOnlyDataSet<String, Object> attributes) {
+    public CExecutorDefinition(String name, String info, String group, CExecutorDefinition[] subJobs, CDefaultReadOnlyData<String, Object> attributes) {
         this(name, info, group, subJobs, attributes, null);
     }
 

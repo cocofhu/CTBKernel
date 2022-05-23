@@ -1,7 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_LongestWordMin;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CDefaultExecutionRuntime implements CExecutionRuntime {
 
     // 当前层，每个执行器都将拥有一个唯一的层
-    private volatile CDefaultLayerDataSet<String, Object> currentLayer;
+    private volatile CDefaultLayerData<String, Object> currentLayer;
     private volatile long lastTime;
 
 
@@ -36,22 +36,22 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
         executors = new ArrayList<>(16);
         layers = new ArrayList<>(16);
         lock = new ReentrantLock();
-        this.currentLayer = new CDefaultLayerDataSet<>();
+        this.currentLayer = new CDefaultLayerData<>();
         long currentTime = System.currentTimeMillis();
         timeElapsed.add(currentTime - lastTime);
     }
 
     @Override
-    public CDefaultLayerDataSet<String, Object> getCurrentLayer() {
+    public CDefaultLayerData<String, Object> getCurrentLayer() {
         return currentLayer;
     }
 
     @Override
-    public void startNew(CReadOnlyDataSet<String, Object> attachment, boolean copyCurrent,
+    public void startNew(CReadOnlyData<String, Object> attachment, boolean copyCurrent,
                          CExecutorRuntimeType type, CExecutor executor) {
         try {
             lock.lock();
-            CDefaultLayerDataSet<String, Object> layer = currentLayer.newLayer();
+            CDefaultLayerData<String, Object> layer = currentLayer.newLayer();
             layer.put(EXEC_CONTEXT_KEY, this);
             if (copyCurrent) {
                 currentLayer.entries(0).forEach(e -> layer.put(e.getKey(), e.getValue()));

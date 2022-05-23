@@ -1,7 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 import com.cocofhu.ctb.kernel.exception.exec.CExecStatusException;
 import com.cocofhu.ctb.kernel.exception.exec.CExecUnsupportedOperationException;
 
@@ -16,7 +16,7 @@ public abstract class CAbstractExecutor implements CExecutor {
     protected final CConfig config;
     protected final boolean ignoreException;
 
-    protected CReadOnlyDataSet<String, Object> attachment;
+    protected CReadOnlyData<String, Object> attachment;
 
     /**
      * @param executionRuntime   执行器的上下文，用于存放执行过程中的参数
@@ -24,7 +24,7 @@ public abstract class CAbstractExecutor implements CExecutor {
      * @param ignoreException    是否忽略上一次执行出现的异常
      * @param attachment         附加参数
      */
-    protected CAbstractExecutor(CDefaultExecutionRuntime executionRuntime, CConfig config, boolean ignoreException, CReadOnlyDataSet<String, Object> attachment) {
+    protected CAbstractExecutor(CDefaultExecutionRuntime executionRuntime, CConfig config, boolean ignoreException, CReadOnlyData<String, Object> attachment) {
         this.executionRuntime = executionRuntime;
         this.config = config;
         this.ignoreException = ignoreException;
@@ -85,7 +85,7 @@ public abstract class CAbstractExecutor implements CExecutor {
     }
 
     @Override
-    public void setAttachment(CReadOnlyDataSet<String, Object> attachment) {
+    public void setAttachment(CReadOnlyData<String, Object> attachment) {
         this.attachment = attachment;
     }
 }

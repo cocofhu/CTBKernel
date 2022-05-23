@@ -8,7 +8,7 @@ import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.exception.exec.CExecParamNotFoundException;
 import com.cocofhu.ctb.kernel.exception.exec.CExecUnsupportedOperationException;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
 
 import java.util.*;
@@ -27,7 +27,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
     @Override
     public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CDefaultExecutionRuntime executionRuntime,
-                                CDefaultLayerDataSet<String, Class<?>> contextTypes,int layer, boolean checkInput) {
+                                CDefaultLayerData<String, Class<?>> contextTypes, int layer, boolean checkInput) {
 
         CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "inputs", layer);
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "outputs", layer);
@@ -35,8 +35,8 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
 
         // set current context
-        CDefaultLayerDataSet<String, Object> valRef = new CDefaultLayerDataSet<>();
-        CDefaultLayerDataSet<String, Class<?>> typeRef = contextTypes.newLayer();
+        CDefaultLayerData<String, Object> valRef = new CDefaultLayerData<>();
+        CDefaultLayerData<String, Class<?>> typeRef = contextTypes.newLayer();
 
         if (execDetail.getAttachment() != null) {
             valRef.putAll(execDetail.getAttachment());
@@ -109,7 +109,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         return new CPair<>(str.substring(num), num);
     }
 
-    private CPair<String, Class<?>> resolveParameter(CParameterDefinition input, CDefaultLayerDataSet<String, Object> valRef, CDefaultLayerDataSet<String, Class<?>> typeRef, int layer) {
+    private CPair<String, Class<?>> resolveParameter(CParameterDefinition input, CDefaultLayerData<String, Object> valRef, CDefaultLayerData<String, Class<?>> typeRef, int layer) {
         CPair<String, Integer> nameRefPair = parseReference(input.getName());
         CPair<String, Integer> typeRefPair = null;
         Class<?> exactlyType = null;
@@ -135,7 +135,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         return new CPair<>(exactlyName, exactlyType);
     }
 
-    private String dereferenceOfName(CDefaultLayerDataSet<String, Object> ref, CPair<String, Integer> pair, int layer) {
+    private String dereferenceOfName(CDefaultLayerData<String, Object> ref, CPair<String, Integer> pair, int layer) {
         int times = pair.getSecond();
         String name = pair.getFirst();
         while (times-- > 0) {
@@ -151,7 +151,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         return name;
     }
 
-    private CPair<Boolean, List<CParameterDefinition>> hasParam(CDefaultLayerDataSet<String, Class<?>> typeRef, CPair<String, Class<?>> pair) {
+    private CPair<Boolean, List<CParameterDefinition>> hasParam(CDefaultLayerData<String, Class<?>> typeRef, CPair<String, Class<?>> pair) {
         List<CParameterDefinition> candidates = new ArrayList<>();
         if (typeRef == null) {
             return new CPair<>(false, candidates);

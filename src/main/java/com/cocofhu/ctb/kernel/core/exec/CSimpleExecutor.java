@@ -6,7 +6,7 @@ import com.cocofhu.ctb.kernel.exception.exec.CExecStatusException;
 import com.cocofhu.ctb.kernel.exception.exec.CExecBeanMethodInvokeException;
 import com.cocofhu.ctb.kernel.exception.exec.CExecNoSuchMethodException;
 import com.cocofhu.ctb.kernel.util.ReflectionUtils;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultDefaultReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultReadOnlyData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,7 +22,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
     private final CExecutorMethod executorMethod;
 
 
-    public CSimpleExecutor(CDefaultExecutionRuntime executionRuntime, CConfig config, CExecutorMethod executorMethod, boolean ignoreException, CDefaultDefaultReadOnlyDataSet<String,Object> attachment) {
+    public CSimpleExecutor(CDefaultExecutionRuntime executionRuntime, CConfig config, CExecutorMethod executorMethod, boolean ignoreException, CDefaultReadOnlyData<String,Object> attachment) {
         super(executionRuntime, config, ignoreException, attachment);
         this.executorMethod = executorMethod;
     }

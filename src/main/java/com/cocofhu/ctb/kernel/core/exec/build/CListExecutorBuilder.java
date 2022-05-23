@@ -3,7 +3,7 @@ package com.cocofhu.ctb.kernel.core.exec.build;
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.exec.*;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
 
 
 public class CListExecutorBuilder implements CExecutorBuilder {
@@ -18,7 +18,7 @@ public class CListExecutorBuilder implements CExecutorBuilder {
 
     @Override
     public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CDefaultExecutionRuntime executionRuntime,
-                                CDefaultLayerDataSet<String, Class<?>> contextTypes, int layer, boolean checkInput) {
+                                CDefaultLayerData<String, Class<?>> contextTypes, int layer, boolean checkInput) {
         CExecutor[] executors = new CExecutor[execDetail.getSubJobs().length];
         for (int i = 0; i < execDetail.getSubJobs().length; i++) {
             executors[i] = builder.toExecutor(execDetail.getSubJobs()[i], builder, executionRuntime, contextTypes, i, checkInput);

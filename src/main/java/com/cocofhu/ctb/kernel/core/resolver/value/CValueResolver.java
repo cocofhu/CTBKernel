@@ -2,7 +2,7 @@ package com.cocofhu.ctb.kernel.core.resolver.value;
 
 import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ import java.util.List;
  */
 public interface CValueResolver {
 
-    List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig context, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException;
+    List<CValueWrapper> resolveValues(CParameterWrapper parameter, CConfig context, CReadOnlyData<String, Object> data) throws CBeanException;
 }

@@ -2,7 +2,7 @@ package com.cocofhu.ctb.kernel.core.factory;
 
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.config.CConfig;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
 
 /**
@@ -26,11 +26,11 @@ public interface CBeanFactory {
 
     Object getBean(CBeanDefinition beanDefinition) throws CBeanException;
 
-    Object getBean(String name, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException;
-    <T> T getBean(String name, Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException;
-    <T> T getBean(Class<T> requiredType, CReadOnlyDataSet<String, Object> dataSet)throws CBeanException;
+    Object getBean(String name, CReadOnlyData<String, Object> data) throws CBeanException;
+    <T> T getBean(String name, Class<T> requiredType, CReadOnlyData<String, Object> data) throws CBeanException;
+    <T> T getBean(Class<T> requiredType, CReadOnlyData<String, Object> data)throws CBeanException;
 
-    Object getBean(CBeanDefinition beanDefinition, CReadOnlyDataSet<String, Object> dataSet) throws CBeanException;
+    Object getBean(CBeanDefinition beanDefinition, CReadOnlyData<String, Object> data) throws CBeanException;
 
 
 }

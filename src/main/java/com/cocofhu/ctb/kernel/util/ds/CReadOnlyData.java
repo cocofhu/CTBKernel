@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public interface CReadOnlyDataSet<K,V> extends Serializable {
+public interface CReadOnlyData<K,V> extends Serializable {
 
     /**
      * 获得指定key对于的元素，如果指定的key对应的元素不存在将返回null

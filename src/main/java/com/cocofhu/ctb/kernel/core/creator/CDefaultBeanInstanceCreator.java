@@ -4,7 +4,7 @@ import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.resolver.ctor.CConstructorResolver;
 import com.cocofhu.ctb.kernel.exception.CBeanException;
 import com.cocofhu.ctb.kernel.exception.bean.CInstantiationException;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyDataSet;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -26,7 +26,7 @@ public class CDefaultBeanInstanceCreator extends CAbstractBeanInstanceCreator {
     }
 
     @Override
-    public Object newInstance(CBeanDefinition beanDefinition, CConfig config, CReadOnlyDataSet<String, Object> dataSet)
+    public Object newInstance(CBeanDefinition beanDefinition, CConfig config, CReadOnlyData<String, Object> dataSet)
             throws CBeanException {
         try {
             return resolveConstructor(beanDefinition, config,dataSet).execute(null);
