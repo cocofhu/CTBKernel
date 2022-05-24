@@ -68,4 +68,9 @@ public class CDefaultReadOnlyData<K,V> implements CReadOnlyData<K, V> {
         return entries;
     }
 
+    @Override
+    public String toString() {
+        Map<K, V> map = toMap();
+        return map!= null ? map.toString() : "null";
+    }
 }

@@ -8,12 +8,22 @@ import com.cocofhu.ctb.kernel.util.ds.CPair;
 import java.util.*;
 import java.util.function.BiConsumer;
 
+/**
+ * 有限状态机 编译脚本
+ *
+ * @author cocofhu
+ */
 public class CFMSExecutorCompiler implements CExecutorCompiler {
 
+    private final CExecutorDefinitionResolver resolver;
+
+    public CFMSExecutorCompiler(CExecutorDefinitionResolver resolver) {
+        this.resolver = resolver;
+    }
 
     enum TokenType {
         NEXT,
-        PROTOCOL,
+        //        PROTOCOL,
         TOKEN,
         AS,
         BS,
@@ -87,7 +97,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
         public static List<Token> parseTokens(String str) {
             // we accept empty string
             if (str == null) {
-                throw new CBadSyntaxException("empty source code. ");
+                throw new CBadSyntaxException(null, "empty source code. ");
             }
             List<Token> tokens = new ArrayList<>();
             str = str.trim();
@@ -105,11 +115,11 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                     pair = utilNext(str, i + 1, '\'', true);
                 } else if (ch == '-') {
                     if (i + 1 >= len) {
-                        throw new CBadSyntaxException("incomplete source code", i);
+                        throw new CBadSyntaxException(str, "incomplete source code", i);
                     }
                     char next = str.charAt(i + 1);
                     if (next == ' ') {
-                        throw new CBadSyntaxException("incomplete source code", i, TokenType.TOKEN.toString(), "space");
+                        throw new CBadSyntaxException(str, "syntax error", i, "space");
                     }
                     tokens.add(new Token("-", TokenType.AS, i));
                     ++i;
@@ -128,18 +138,14 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
 
                 if (pair != null) {
                     if (pair.getFirst() == -1) {
-                        throw new CBadSyntaxException("incomplete source code", i);
+                        throw new CBadSyntaxException(str, "incomplete source code", i);
                     }
                     String token = pair.getSecond();
-                    if (i == 0 && PROTOCOLS.containsKey(token)) {
-                        tokens.add(new Token(token, TokenType.PROTOCOL, i));
-                    } else {
-                        tokens.add(new Token(token, TokenType.TOKEN, i));
-                    }
+                    tokens.add(new Token(token, TokenType.TOKEN, i));
                     i = pair.getFirst();
                 }
             }
-            tokens.add(new Token(null, TokenType.EMPTY, i));
+            tokens.add(new Token("EOF", TokenType.EMPTY, i));
             return tokens;
         }
     }
@@ -171,49 +177,80 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
 
 
     private class FSM {
-        // 开始状态
-        private final State start;
         // 结束状态
         private final State end;
+        //
         private final List<Token> tokens;
         // 当前状态
         private State currentState;
         // 括号深度
-        private int bracketsDepth;
+        private int bracketsDepth = 0;
         // 当前Token的位置
-        private int tokenPos;
+        private int tokenPos = 0;
 
+        private final String sourceCode;
 
-        private String protocol = null;
+        // first: 括号深度
+        private final Map<Integer, List<CExecutorDefinition>> executions = new HashMap<>();
+
         private String currentExecutionName = null;
-        private String currentKey;
-        private CDefaultWritableData<String, Object> currentData;
+        private String currentArgumentName = null;
+        private CDefaultWritableData<String, Object> currentData = null;
+
+        private final List<CExecutorDefinition> builtDefinitions = new ArrayList<>();
 
 
         @SuppressWarnings("unchecked")
-        private FSM(List<Token> tokens) {
+        private FSM(List<Token> tokens, String sourceCode) {
             this.tokens = tokens;
-            start = new State("start", null);
-            end = new State("end", null);
+            this.sourceCode = sourceCode;
 
-            // S1 存在两条入度 均为Next 不做任何处理交给S3初始化状态初始化状态
+            // 开始状态
+            State start = new State("Start", null);
+
+            // S1 存在2条入度 均为Next 不做任何处理交给S3初始化状态初始化状态
             State s1 = new State("S1", null);
-            // S2 存在两条入度 都是增加括号深度
+            // S2 存在2条入度 都是增加括号深度
             State s2 = new State("S2", (state, token) -> ++bracketsDepth);
-
+            // S3 存在4条入度
             State s3 = new State("S3", ((state, token) -> {
-                if("S1".equals(state.name)){
+                if ("S1".equals(state.name) || "Start".equals(state.name) || "S2".equals(state.name)) {
                     currentExecutionName = token.val;
-                    CExecutorDefinition definition = acquireNewExecutorDefinition(currentExecutionName);
-
-//                    currentData = definition;
+                    CExecutorDefinition definition = resolver.acquireNewExecutorDefinition(currentExecutionName);
+                    if (definition == null) {
+                        throw new CBadSyntaxException(sourceCode, "execution not found", token.pos, token.val);
+                    }
+                    currentData = new CDefaultWritableData<>(definition.getAttachment());
+                    definition.setAttachment(currentData);
+                    List<CExecutorDefinition> currentBracketsDepthExecutions = executions.computeIfAbsent(bracketsDepth, k -> new ArrayList<>());
+                    currentBracketsDepthExecutions.add(definition);
+                } else if ("S5".equals(state.name)) {
+                    String val = token.val;
+                    currentData.put(currentArgumentName, val);
                 }
             }));
+            // S4 存在1条入度    参数开始
             State s4 = new State("S4", null);
-            State s5 = new State("S5", null);
-            State s6 = new State("S6", null);
+            // S5 存在1条入度    记录参数名字
+            State s5 = new State("S5", (state, token) -> currentArgumentName = token.val);
+            // S6 存在两条入度    都是有括号处理
+            State s6 = new State("S6", (state, token) -> {
+                if (bracketsDepth <= 0) {
+                    throw new CBadSyntaxException(this.sourceCode, "syntax error", token.pos, ")");
+                }
+                List<CExecutorDefinition> currentBracketsDepthExecutions = executions.computeIfAbsent(bracketsDepth, k -> new ArrayList<>());
+                addToBuilt(currentBracketsDepthExecutions);
+                currentBracketsDepthExecutions.clear();
+                --bracketsDepth;
+            });
+
+            end = new State("End", (state, token) -> {
+                List<CExecutorDefinition> currentBracketsDepthExecutions = executions.computeIfAbsent(0, k -> new ArrayList<>());
+                addToBuilt(currentBracketsDepthExecutions);
+            });
+
             // start 3
-            start.add(new CPair<>(TokenType.BS, s2), new CPair<>(TokenType.TOKEN, s3), new CPair<>(TokenType.PROTOCOL, s3));
+            start.add(new CPair<>(TokenType.BS, s2), new CPair<>(TokenType.TOKEN, s3));
             // s1 2
             s1.add(new CPair<>(TokenType.BS, s2), new CPair<>(TokenType.TOKEN, s3));
             // s2 2
@@ -227,11 +264,29 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             // s6 3
             s6.add(new CPair<>(TokenType.NEXT, s1), new CPair<>(TokenType.BE, s6), new CPair<>(TokenType.EMPTY, end));
 
+            currentState = start;
+
 
         }
 
-        public FSM nextState() {
+        private int addToBuilt(List<CExecutorDefinition> currentBracketsDepthExecutions) {
+            if (currentBracketsDepthExecutions.size() == 1) {
+                builtDefinitions.add(currentBracketsDepthExecutions.get(0));
+            } else if (currentBracketsDepthExecutions.size() > 1) {
+                builtDefinitions.add(new CExecutorDefinition("", "", "", currentBracketsDepthExecutions.toArray(new CExecutorDefinition[0]), null));
+            }
+            return builtDefinitions.size();
+        }
 
+        public FSM nextState() {
+            Token token = tokens.get(tokenPos++);
+            State state = currentState.nextStates.get(token.type);
+            if (state == null) {
+                throw new CBadSyntaxException(this.sourceCode, "syntax error", token.pos, token.val);
+            }
+            state.transition(currentState, token);
+            currentState = state;
+//            System.out.println(currentState.name + ":::");
             return this;
         }
 
@@ -239,18 +294,25 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             return currentState != end;
         }
 
-
+        public List<CExecutorDefinition> getBuiltDefinitions() {
+            return builtDefinitions;
+        }
     }
 
     @Override
     public CExecutorDefinition compiler(String expression, int flag) {
-        return CExecutorCompiler.super.compiler(expression, flag);
+        FSM fsm = new FSM(Token.parseTokens(expression), expression);
+        while (fsm.hasNext()) {
+            fsm.nextState();
+        }
+        List<CExecutorDefinition> builtDefinitions = fsm.getBuiltDefinitions();
+        if (builtDefinitions.size() == 1) {
+            return builtDefinitions.get(0);
+        } else {
+            return new CExecutorDefinition("", "", "", builtDefinitions.toArray(new CExecutorDefinition[0]), null);
+        }
     }
 
-    @Override
-    public CExecutorDefinition acquireNewExecutorDefinition(String nameOrAlias) {
-        return null;
-    }
 
     public void testParseToken(String str) {
         System.out.println(Token.parseTokens(str));

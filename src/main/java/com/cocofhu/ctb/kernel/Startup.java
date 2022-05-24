@@ -4,6 +4,7 @@ import com.cocofhu.ctb.basic.CDBUtils;
 import com.cocofhu.ctb.basic.CDebugExecutor;
 import com.cocofhu.ctb.basic.CParamExecutor;
 import com.cocofhu.ctb.basic.CUtilExecutor;
+import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.exec.build.CDefaultExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.compiler.CExecutorCompiler;
@@ -13,7 +14,6 @@ import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
-import com.cocofhu.ctb.kernel.core.exec.*;
 import com.cocofhu.ctb.kernel.test.Power;
 
 import java.io.BufferedReader;
@@ -23,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
-public class Startup implements CExecutorCompiler {
+public class Startup {
 
 
     public static void main(String[] args) throws Exception {
@@ -199,8 +199,18 @@ public class Startup implements CExecutorCompiler {
 //        System.out.println(context);
 //        System.out.println(context.getReturnVal());
 //        factory.f();
-//        new CFMSExecutorCompiler().testParseToken("http -port 8080 -url /test > http-argument-adapter -arg '\\'sss' > ( CMD1 -a '100' -b 200 |  CMD2 -x 100 ) ");
-        new CFMSExecutorCompiler().testParseToken("'\\\\ss' ");
+
+//        System.out.println(f("/Users/hufeng/IdeaProjects/CTBKernel/src"));
+        Scanner scan = new Scanner(System.in);
+        String source = scan.nextLine();
+        CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
+        CDefaultExecutionRuntime context;
+        CExecutorDefinition definition = new CFMSExecutorCompiler(factory).compiler(source, 0);
+        builder.toExecutor(definition,builder,context = new CDefaultExecutionRuntime()).run();
+        System.out.println(context);
+        System.out.println(context.getReturnVal());
+
+//        new CFMSExecutorCompiler().testParseToken("'\\\\ss' ");
     }
 
     public static void outParams(CParameterDefinition[] params){
@@ -249,8 +259,4 @@ public class Startup implements CExecutorCompiler {
         return 0L;
     }
 
-    @Override
-    public CExecutorDefinition acquireNewExecutorDefinition(String nameOrAlias) {
-        return null;
-    }
 }

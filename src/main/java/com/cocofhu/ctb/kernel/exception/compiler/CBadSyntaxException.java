@@ -4,15 +4,27 @@ import com.cocofhu.ctb.kernel.core.exec.compiler.CFMSExecutorCompiler;
 import com.cocofhu.ctb.kernel.exception.CCompilerException;
 
 public class CBadSyntaxException extends CCompilerException {
-    public CBadSyntaxException(String msg) {
+
+    private final String sourceCode;
+
+    public CBadSyntaxException(String sourceCode, String msg) {
         super(msg);
+        this.sourceCode = sourceCode;
     }
 
-    public CBadSyntaxException(String msg, int pos) {
-        super(msg + " at position :" + pos + ". ");
+    public CBadSyntaxException(String sourceCode, String msg, int pos) {
+        this(sourceCode, msg + " at position :" + pos + ". ");
     }
 
-    public CBadSyntaxException(String msg, int pos, String except, String but) {
-        super(msg + " at position :" + pos + ", except:  " + except + ", but " + but + " found. ");
+    public CBadSyntaxException(String sourceCode, String msg, int pos, String unexpected) {
+        this(sourceCode, msg + " at position :" + pos + ", unexpected: '" + unexpected + "'. ");
+    }
+
+    public CBadSyntaxException(String sourceCode, String msg, int pos, String expected, String unexpected) {
+        this(sourceCode, msg + " at position :" + pos + ", except:  " + expected + ", but '" + unexpected + "' found. ");
+    }
+
+    public String getSourceCode() {
+        return sourceCode;
     }
 }

@@ -15,7 +15,7 @@ import java.util.Map;
 public class CDBUtils {
 
     @CExecutorOutput(info = "mul result",type = Connection.class, name = CDefaultExecutionRuntime.EXEC_RETURN_VAL_KEY)
-    @CExecBasicInfo(name="acquireConnection",info = "info", group = "test")
+    @CExecBasicInfo(name="AcquireConnection",info = "info", group = "test")
     public Connection acquireConnection(
             @CExecutorInput String driverName,
             @CExecutorInput String url,
@@ -26,7 +26,7 @@ public class CDBUtils {
     }
 
     @CExecutorOutput(info = "mul result",type = Map.class, name = CDefaultExecutionRuntime.EXEC_RETURN_VAL_KEY)
-    @CExecBasicInfo(name="queryAsMap",info = "info", group = "test")
+    @CExecBasicInfo(name="QueryAsMap",info = "info", group = "test")
     public List<Map<String, Object>> queryAsMap(@CExecutorInput Connection connection, @CExecutorInput String sql) throws SQLException {
         QueryRunner queryRunner = new QueryRunner();
         return queryRunner.query(connection,sql,new MapListHandler());
