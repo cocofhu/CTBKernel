@@ -1,7 +1,10 @@
 package com.cocofhu.ctb.kernel.core.exec.compiler;
 
+import com.cocofhu.ctb.kernel.convert.ConverterUtils;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
+import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.exception.compiler.CBadSyntaxException;
+import com.cocofhu.ctb.kernel.util.CReflectionUtils;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultWritableData;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
 
@@ -194,7 +197,11 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
         private final Map<Integer, List<CExecutorDefinition>> executions = new HashMap<>();
 
         private String currentExecutionName = null;
+
+        private CExecutorDefinition currentExecution = null;
         private String currentArgumentName = null;
+
+        private Class<?> currentType = null;
         private CDefaultWritableData<String, Object> currentData = null;
 
         private final List<CExecutorDefinition> builtDefinitions = new ArrayList<>();
@@ -224,15 +231,27 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                     definition.setAttachment(currentData);
                     List<CExecutorDefinition> currentBracketsDepthExecutions = executions.computeIfAbsent(bracketsDepth, k -> new ArrayList<>());
                     currentBracketsDepthExecutions.add(definition);
+                    // 保存当前正在处理的Execution
+                    currentExecution = definition;
                 } else if ("S5".equals(state.name)) {
                     String val = token.val;
-                    currentData.put(currentArgumentName, val);
+                    currentData.put(currentArgumentName, ConverterUtils.convert(val, currentType));
                 }
             }));
             // S4 存在1条入度    参数开始
             State s4 = new State("S4", null);
             // S5 存在1条入度    记录参数名字
-            State s5 = new State("S5", (state, token) -> currentArgumentName = token.val);
+            State s5 = new State("S5", (state, token) -> {
+                currentArgumentName = token.val;
+                CPair<Class<?>, String> pair = findTypeByName(currentArgumentName);
+                Class<?> type = pair.getFirst();
+                String msg = pair.getSecond();
+                if (type == null) {
+                    throw new CBadSyntaxException(sourceCode, msg, token.pos);
+                } else {
+                    currentType = type;
+                }
+            });
             // S6 存在两条入度    都是有括号处理
             State s6 = new State("S6", (state, token) -> {
                 if (bracketsDepth <= 0) {
@@ -267,6 +286,28 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             currentState = start;
 
 
+        }
+
+        private CPair<Class<?>, String> findTypeByName(String name) {
+            CParameterDefinition[] inputs = currentExecution.getInputs();
+            if (inputs != null) {
+                for (CParameterDefinition parameter : inputs) {
+                    if (name.equals(parameter.getName())) {
+                        Object type = parameter.getType();
+                        if (type.getClass() == Class.class) {
+                            Class<?> clazz = (Class<?>) type;
+                            if (CReflectionUtils.isBasicDataType(clazz)) {
+                                return new CPair<>(clazz, null);
+                            } else {
+                                return new CPair<>(null, "only basic data types can be use in source code, unexpected type:" + clazz.getName());
+                            }
+                        } else {
+                            return new CPair<>(null, "reference type can not be use in source code, try using '>' to pass reference arguments");
+                        }
+                    }
+                }
+            }
+            return new CPair<>(null, "unnecessary argument :" + name);
         }
 
         private int addToBuilt(List<CExecutorDefinition> currentBracketsDepthExecutions) {

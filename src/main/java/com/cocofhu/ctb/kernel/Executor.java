@@ -1,6 +1,6 @@
 package com.cocofhu.ctb.kernel;
 
-import com.cocofhu.ctb.kernel.util.ReflectionUtils;
+import com.cocofhu.ctb.kernel.util.CReflectionUtils;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -17,13 +17,13 @@ public class  Executor {
     }
 
     public Object execute() throws Exception {
-        Method method = ReflectionUtils.findMethod(clazz, methodName, null);
+        Method method = CReflectionUtils.findMethod(clazz, methodName, null);
         if (method == null) {
             throw new NoSuchMethodException(clazz.toString() +"." + methodName  + " does not exist.");
         }
         Object obj = clazz.newInstance();
-        Object[] methodParamList = ReflectionUtils.resolveMethodParamList(method, args);
+        Object[] methodParamList = CReflectionUtils.resolveMethodParamList(method, args);
 
-        return ReflectionUtils.invokeMethod(method,obj,methodParamList);
+        return CReflectionUtils.invokeMethod(method,obj,methodParamList);
     }
 }

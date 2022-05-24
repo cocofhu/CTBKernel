@@ -18,10 +18,10 @@ public interface CLayerData<K,V> extends CWritableData<K, V> {
 
 
     /**
-     * 从集合中获取指定key对应的元素，只搜索maxRecursive层
-     * eg. maxRecursive=0 将只搜索当前层
+     * 从集合中获取指定key对应的元素，只搜索第depth层
+     * eg. depth=0 将只搜索当前层
      */
-    V get(K key, int maxRecursive);
+    V get(K key, int depth);
     
     Set<? extends CReadOnlyEntry<K, V>> entries(int depth);
 

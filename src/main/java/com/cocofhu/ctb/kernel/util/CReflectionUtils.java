@@ -7,22 +7,31 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
  * 反射相关工具类
  * @author cocofhu
  */
-public abstract class ReflectionUtils {
+public abstract class CReflectionUtils {
 
+    private static final Set<Class<?>> BASIC_BOXING_TYPE;
+    static {
+        BASIC_BOXING_TYPE = new HashSet<>();
+        BASIC_BOXING_TYPE.add(Integer.class);
+        BASIC_BOXING_TYPE.add(Double.class);
+        BASIC_BOXING_TYPE.add(Float.class);
+        BASIC_BOXING_TYPE.add(Boolean.class);
+        BASIC_BOXING_TYPE.add(Long.class);
+        BASIC_BOXING_TYPE.add(Byte.class);
+        BASIC_BOXING_TYPE.add(Short.class);
+        BASIC_BOXING_TYPE.add(Character.class);
+    }
 
     public static Object[] resolveMethodParamList(Method method, Map<String, Object> params){
         Object[] objects = new Object[method.getParameterCount()];
-        String[] names = ReflectionUtils.getParameterNames(method.getParameters());
+        String[] names = CReflectionUtils.getParameterNames(method.getParameters());
         Class<?>[] types = method.getParameterTypes();
         for(int i = 0 ; i < method.getParameterCount(); ++i){
             if(types[i].isPrimitive()){ // 基本数据类型
@@ -34,8 +43,14 @@ public abstract class ReflectionUtils {
         return objects;
     }
 
-    public static Object invokeMethod(Method method, Object target) throws InvocationTargetException, IllegalAccessException {
-        return invokeMethod(method, target, new Object[0]);
+    /**
+     * 检查指定的类型是否是八种基本数据类型其中的一个(不包括void)
+     */
+    public static boolean isBasicDataType(Class<?> clazz){
+        if(clazz == null || clazz == Void.TYPE) {
+            return false;
+        }
+        return clazz.isPrimitive() || BASIC_BOXING_TYPE.contains(clazz);
     }
 
 

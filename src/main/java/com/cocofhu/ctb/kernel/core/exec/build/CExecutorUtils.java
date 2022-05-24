@@ -9,7 +9,7 @@ import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.exception.exec.CExecBadInfoException;
 import com.cocofhu.ctb.kernel.exception.exec.CExecConflictParameterException;
 import com.cocofhu.ctb.kernel.util.CStringUtils;
-import com.cocofhu.ctb.kernel.util.ReflectionUtils;
+import com.cocofhu.ctb.kernel.util.CReflectionUtils;
 import com.cocofhu.ctb.kernel.util.ds.*;
 
 import java.lang.annotation.Annotation;
@@ -24,7 +24,7 @@ public class CExecutorUtils {
         //
         CBeanDefinition beanDefinition = factory.getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
         CExecutableWrapper method = new CExecutableWrapper(
-                ReflectionUtils.findMethod(beanDefinition.getBeanClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes()),
+                CReflectionUtils.findMethod(beanDefinition.getBeanClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes()),
                 factory.getConfig(), beanDefinition, null);
 
         CExecutableWrapper ctor = factory.getConfig().getInstanceCreator().resolveConstructor(beanDefinition, factory.getConfig(), null);

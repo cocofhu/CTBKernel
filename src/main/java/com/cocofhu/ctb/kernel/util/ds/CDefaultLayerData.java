@@ -33,31 +33,33 @@ public class CDefaultLayerData<K, V> extends CDefaultWritableData<K, V> implemen
 
 
     @Override
-    public V get(K key, int maxRecursive) {
-        if(maxRecursive < 0) {
+    public V get(K key, int depth) {
+        if (depth < 0) {
             return null;
+        } else if (depth == 0) {
+            return dataset.get(key);
+        } else {
+            CDefaultLayerData<K, V> p = this.parent;
+            return p != null ? p.get(key, depth - 1) : null;
         }
-        V o = super.get(key);
-        CDefaultLayerData<K, V> p = this.parent;
-        return o == null && p != null ? p.get(key, maxRecursive - 1) : o;
     }
 
     @Override
     public Set<CDefaultReadOnlyEntry<K, V>> entries(int depth) {
-        if(depth < 0) {
+        if (depth < 0) {
             return null;
         }
         CDefaultLayerData<K, V> cur = this;
 
-        while (depth > 0 && cur != null){
+        while (depth > 0 && cur != null) {
             cur = cur.parent;
             --depth;
         }
-        if(cur == null){
+        if (cur == null) {
             return null;
         }
-        Set<CDefaultReadOnlyEntry<K,V>> entries = new HashSet<>();
-        cur.dataset.forEach((k,v)->entries.add(new CDefaultReadOnlyEntry<>(k,v)));
+        Set<CDefaultReadOnlyEntry<K, V>> entries = new HashSet<>();
+        cur.dataset.forEach((k, v) -> entries.add(new CDefaultReadOnlyEntry<>(k, v)));
         return entries;
     }
 
@@ -78,7 +80,7 @@ public class CDefaultLayerData<K, V> extends CDefaultWritableData<K, V> implemen
     @Override
     public Set<CDefaultReadOnlyEntry<K, V>> entries() {
         CDefaultLayerData<K, V> p = parent;
-        if(p != null) {
+        if (p != null) {
             Set<CDefaultReadOnlyEntry<K, V>> entries = p.entries();
             entries.addAll(super.entries());
             return entries;

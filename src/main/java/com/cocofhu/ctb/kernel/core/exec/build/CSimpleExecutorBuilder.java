@@ -52,10 +52,6 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         for (CParameterDefinition input : inputs) {
             // 解析出正在的变量名称和类型
             CPair<String, Class<?>> parameter = resolveParameter(input, valRef, typeRef, layer);
-//            typeRef.put(parameter.getFirst(), parameter.getSecond());
-//            if (parameter.getFirst() != null && parameter.getSecond() != null) {
-//                typeRef.put(parameter.getFirst(), parameter.getSecond());
-//            }
             CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
             if (checkInput && !checked.getFirst()) {
                 throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
