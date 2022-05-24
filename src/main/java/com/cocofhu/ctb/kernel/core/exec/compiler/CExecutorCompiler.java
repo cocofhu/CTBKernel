@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 
 
 public interface CExecutorCompiler {
-    default CExecutorDefinition compiler(String expression) {
+    default CExecutorDefinition compiler(String expression, int flag) {
         BiFunction<CPair<String,Character>,Integer, CPair<String,Integer>> fn = ((pair, i) -> {
             String src = pair.getFirst();
             Character target = pair.getSecond();
@@ -105,7 +105,7 @@ public interface CExecutorCompiler {
             if(CStringUtils.isEmpty(exec)){
                 throw new CBadSyntaxException("incomplete expression : at segment " + i);
             }
-            definitions[i] = compiler(exec);
+            definitions[i] = compiler(exec, 0);
         }
 
         return new CExecutorDefinition("","","",definitions,null);

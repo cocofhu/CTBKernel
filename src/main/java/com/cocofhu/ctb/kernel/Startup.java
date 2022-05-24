@@ -7,6 +7,7 @@ import com.cocofhu.ctb.basic.CUtilExecutor;
 import com.cocofhu.ctb.kernel.core.exec.build.CDefaultExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.compiler.CExecutorCompiler;
+import com.cocofhu.ctb.kernel.core.exec.compiler.CFMSExecutorCompiler;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
@@ -197,8 +198,9 @@ public class Startup implements CExecutorCompiler {
 //        builder.toExecutor(definition,builder,context = new CDefaultExecutionRuntime()).run();
 //        System.out.println(context);
 //        System.out.println(context.getReturnVal());
-        factory.f();
-
+//        factory.f();
+//        new CFMSExecutorCompiler().testParseToken("http -port 8080 -url /test > http-argument-adapter -arg '\\'sss' > ( CMD1 -a '100' -b 200 |  CMD2 -x 100 ) ");
+        new CFMSExecutorCompiler().testParseToken("'\\\\ss' ");
     }
 
     public static void outParams(CParameterDefinition[] params){

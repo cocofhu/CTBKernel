@@ -218,10 +218,10 @@ public class CMethodBeanFactory extends CDefaultBeanFactory implements CExecutor
         return (CExecutorDefinition) executorDefinitionMap.get(nameOrAlias).cloneSelf();
     }
 
-    @Override
-    public CExecutorDefinition compiler(String expression) {
-        return CExecutorCompiler.super.compiler(expression);
-    }
+//    @Override
+//    public CExecutorDefinition compiler(String expression) {
+//        return CExecutorCompiler.super.compiler(expression);
+//    }
 
     public void f(){
         FSM fsm = new FSM();
