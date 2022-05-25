@@ -50,6 +50,11 @@ public class CDefaultReadOnlyData<K,V> implements CReadOnlyData<K, V> {
         public int hashCode() {
             return Objects.hash(getKey());
         }
+
+        @Override
+        public String toString() {
+            return key + "=" + val;
+        }
     }
 
     @Override
