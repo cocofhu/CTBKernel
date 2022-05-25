@@ -48,6 +48,7 @@ public class CMethodBeanFactory extends CDefaultBeanFactory implements CExecutor
         CExecutorDefinition job1 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CParamExecutor", "transform"));
         CExecutorDefinition job2 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CDBUtils", "acquireConnection"));
         CExecutorDefinition job3 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CDBUtils", "queryAsMap"));
+        CExecutorDefinition job4 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CGRPCBasicExecutor", "service"));
 
         CDefaultWritableData<String, Object> attachment = new CDefaultWritableData<>();
         attachment.put("source", CDefaultExecutionRuntime.EXEC_RETURN_VAL_KEY);
@@ -63,6 +64,8 @@ public class CMethodBeanFactory extends CDefaultBeanFactory implements CExecutor
         executorDefinitionMap.put("Transform", job1);
         executorDefinitionMap.put("AcquireConnection", job2);
         executorDefinitionMap.put("QueryAsMapList", job3);
+        job4.setType(CExecutorDefinition.TYPE_SVC);
+        executorDefinitionMap.put("GRPCService", job4);
 
     }
 

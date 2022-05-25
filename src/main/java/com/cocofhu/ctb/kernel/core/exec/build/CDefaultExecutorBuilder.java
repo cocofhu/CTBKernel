@@ -22,6 +22,7 @@ public class CDefaultExecutorBuilder implements CExecutorBuilder {
         builderMap = new HashMap<>();
         builderMap.put(CExecutorDefinition.TYPE_EXEC, new CSimpleExecutorBuilder(config));
         builderMap.put(CExecutorDefinition.TYPE_SCHEDULE, new CListExecutorBuilder(config));
+        builderMap.put(CExecutorDefinition.TYPE_SVC, new CServiceExecutorBuilder(config));
 
     }
 

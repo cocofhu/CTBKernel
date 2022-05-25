@@ -27,6 +27,7 @@ public abstract class CReflectionUtils {
         BASIC_BOXING_TYPE.add(Byte.class);
         BASIC_BOXING_TYPE.add(Short.class);
         BASIC_BOXING_TYPE.add(Character.class);
+        BASIC_BOXING_TYPE.add(String.class);
     }
 
     public static Object[] resolveMethodParamList(Method method, Map<String, Object> params){

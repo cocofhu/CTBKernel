@@ -48,45 +48,52 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         });
         // 解析输入参数
         CParameterDefinition[] inputs = execDetail.getInputs();
-
-        for (CParameterDefinition input : inputs) {
-            // 解析出正在的变量名称和类型
-            CPair<String, Class<?>> parameter = resolveParameter(input, valRef, typeRef, layer);
-            CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
-            if (checkInput && !checked.getFirst()) {
-                throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
+        if(inputs != null){
+            for (CParameterDefinition input : inputs) {
+                // 解析出正在的变量名称和类型
+                CPair<String, Class<?>> parameter = resolveParameter(input, valRef, typeRef, layer);
+                CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
+                if (checkInput && !checked.getFirst()) {
+                    throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
+                }
+                input.setType(parameter.getSecond());
+                input.setName(parameter.getFirst());
             }
-            input.setType(parameter.getSecond());
-            input.setName(parameter.getFirst());
         }
+
         // 解析输出参数, 这里需要合并这一次和上一次的输出
         // 因为在Removal中可能会引用这一次和上一次的输出
         CParameterDefinition[] outputs = execDetail.getOutputs();
-
-        for (CParameterDefinition output : outputs) {
-            CPair<String, Class<?>> parameter = resolveParameter(output, valRef, typeRef, layer);
-            if (parameter.getFirst() != null && parameter.getSecond() != null) {
-                contextTypes.put(parameter.getFirst(), parameter.getSecond());
-                typeRef.put(parameter.getFirst(), parameter.getSecond());
+        if(outputs != null){
+            for (CParameterDefinition output : outputs) {
+                CPair<String, Class<?>> parameter = resolveParameter(output, valRef, typeRef, layer);
+                if (parameter.getFirst() != null && parameter.getSecond() != null) {
+                    contextTypes.put(parameter.getFirst(), parameter.getSecond());
+                    typeRef.put(parameter.getFirst(), parameter.getSecond());
+                }
+                output.setType(parameter.getSecond());
+                output.setName(parameter.getFirst());
             }
-            output.setType(parameter.getSecond());
-            output.setName(parameter.getFirst());
         }
+
 
         CParameterDefinition[] removals = execDetail.getRemovals();
-        for (CParameterDefinition removal : removals) {
-            CPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef, layer);
-            CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
-            if (!checked.getFirst()) {
-                throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
+        if(removals != null){
+            for (CParameterDefinition removal : removals) {
+                CPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef, layer);
+                CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
+                if (!checked.getFirst()) {
+                    throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
+                }
+                if (parameter.getFirst() != null && parameter.getSecond() != null) {
+                    contextTypes.remove(parameter.getFirst());
+                    typeRef.remove(parameter.getFirst());
+                }
+                removal.setType(parameter.getSecond());
+                removal.setName(parameter.getFirst());
             }
-            if (parameter.getFirst() != null && parameter.getSecond() != null) {
-                contextTypes.remove(parameter.getFirst());
-                typeRef.remove(parameter.getFirst());
-            }
-            removal.setType(parameter.getSecond());
-            removal.setName(parameter.getFirst());
         }
+
 
         CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "processed inputs", layer);
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "processed outputs", layer);

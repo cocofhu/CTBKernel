@@ -52,4 +52,6 @@ public interface CExecutor extends Runnable{
 
     void run() throws CExecException;
     CExecutorDefinition getExecutorDefinition();
+
+//    void appendAttachment(CReadOnlyData<String, Object> attachment);
 }

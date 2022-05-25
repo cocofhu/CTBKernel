@@ -24,6 +24,7 @@ public class CExecutorJob extends CAbstractExecutor {
     public void run() {
         for (CExecutor executor : executors) {
             executor.setStatus(Status.Ready);
+
             executor.run();
         }
         setStatus(Status.Stop);

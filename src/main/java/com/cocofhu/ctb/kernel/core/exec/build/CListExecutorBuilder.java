@@ -21,7 +21,7 @@ public class CListExecutorBuilder implements CExecutorBuilder {
                                 CDefaultLayerData<String, Class<?>> contextTypes, int layer, boolean checkInput) {
         CExecutor[] executors = new CExecutor[execDetail.getSubJobs().length];
         for (int i = 0; i < execDetail.getSubJobs().length; i++) {
-            executors[i] = builder.toExecutor(execDetail.getSubJobs()[i], builder, executionRuntime, contextTypes, i, checkInput);
+            executors[i] = builder.toExecutor(execDetail.getSubJobs()[i], builder, executionRuntime, contextTypes, i + layer, checkInput);
             checkInput = true;
         }
         return new CExecutorJob(executionRuntime, config, execDetail.isIgnoreException(), executors);

@@ -4,7 +4,10 @@ import com.cocofhu.ctb.basic.CDBUtils;
 import com.cocofhu.ctb.basic.CDebugExecutor;
 import com.cocofhu.ctb.basic.CParamExecutor;
 import com.cocofhu.ctb.basic.CUtilExecutor;
+import com.cocofhu.ctb.basic.grpc.CGRPCBasicExecutor;
 import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
+import com.cocofhu.ctb.kernel.core.exec.CExecutor;
+import com.cocofhu.ctb.kernel.core.exec.CServiceExecutor;
 import com.cocofhu.ctb.kernel.core.exec.build.CDefaultExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.compiler.CExecutorCompiler;
@@ -30,6 +33,7 @@ public class Startup {
 
 
     public static void main(String[] args) throws Exception {
+        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
         CMethodBeanFactory factory = new CMethodBeanFactory((config) -> {
             List<CBeanDefinition> result = new ArrayList<>();
             result.add(new CAbstractDefinition(CParamExecutor.class) {
@@ -74,34 +78,43 @@ public class Startup {
                 }
             });
 
+            result.add(new CAbstractDefinition(CGRPCBasicExecutor.class) {
+                @Override
+                public String getBeanName() {
+                    return "CGRPCBasicExecutor";
+                }
+            });
+
             return result;
         });
 
-        CLayerData<String, Object> layer0 = new CDefaultLayerData<>();
-        layer0.put("layer0","layer0");
-        layer0.put("data","layer0");
-        CLayerData<String, Object> layer1 = layer0.newLayer();
-        layer1.put("data","layer1");
-        layer1.put("layer1","layer1");
-        CLayerData<String, Object> layer2 = layer1.newLayer();
-        layer2.put("data","layer2");
-        layer2.put("layer2","layer2");
-        CLayerData<String, Object> layer3 = layer2.newLayer();
-        layer3.put("data","layer3");
-        layer3.put("layer3","layer3");
-        CLayerData<String, Object> layer4 = layer3.newLayer();
-        layer4.put("data","layer4");
-        layer4.put("layer4","layer4");
-        CLayerData<String, Object> layer5 = layer4.newLayer();
-        layer5.put("data","layer5");
-        layer5.put("layer5","layer5");
+//        CLayerData<String, Object> layer0 = new CDefaultLayerData<>();
+//        layer0.put("layer0","layer0");
+//        layer0.put("data","layer0");
+//        CLayerData<String, Object> layer1 = layer0.newLayer();
+//        layer1.put("data","layer1");
+//        layer1.put("layer1","layer1");
+//        CLayerData<String, Object> layer2 = layer1.newLayer();
+//        layer2.put("data","layer2");
+//        layer2.put("layer2","layer2");
+//        CLayerData<String, Object> layer3 = layer2.newLayer();
+//        layer3.put("data","layer3");
+//        layer3.put("layer3","layer3");
+//        CLayerData<String, Object> layer4 = layer3.newLayer();
+//        layer4.put("data","layer4");
+//        layer4.put("layer4","layer4");
+//        CLayerData<String, Object> layer5 = layer4.newLayer();
+//        layer5.put("data","layer5");
+//        layer5.put("layer5","layer5");
+//
+//        showLayer("layer0",layer0);
+//        showLayer("layer1",layer1);
+//        showLayer("layer2",layer2);
+//        showLayer("layer3",layer3);
+//        showLayer("layer4",layer4);
+//        showLayer("layer5",layer5);
 
-        showLayer("layer0",layer0);
-        showLayer("layer1",layer1);
-        showLayer("layer2",layer2);
-        showLayer("layer3",layer3);
-        showLayer("layer4",layer4);
-        showLayer("layer5",layer5);
+        testCompiler(factory);
 
     }
 
@@ -129,7 +142,12 @@ public class Startup {
         CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
         CDefaultExecutionRuntime context;
         CExecutorDefinition definition = new CFMSExecutorCompiler(factory).compiler(source, 0);
-        builder.toExecutor(definition,builder,context = new CDefaultExecutionRuntime(), true).run();
+        System.out.println(definition);
+        CExecutor executor = builder.toExecutor(definition, builder, context = new CDefaultExecutionRuntime(), true);
+//        new CServiceExecutor(context,factory.getConfig(),)
+        //GRPCService -port 9090 > Transform -source grpcData -dist abc
+
+        executor.run();
         System.out.println(context);
         System.out.println(context.getReturnVal());
     }

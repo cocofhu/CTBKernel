@@ -26,7 +26,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
 
     enum TokenType {
         NEXT,
-        //        PROTOCOL,
+        //        SERVICE,
         TOKEN,
         AS,
         BS,
@@ -206,6 +206,8 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
 
         private final List<CExecutorDefinition> builtDefinitions = new ArrayList<>();
 
+        private CExecutorDefinition service;
+
 
         @SuppressWarnings("unchecked")
         private FSM(List<Token> tokens, String sourceCode) {
@@ -219,7 +221,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             State s1 = new State("S1", null);
             // S2 存在2条入度 都是增加括号深度
             State s2 = new State("S2", (state, token) -> ++bracketsDepth);
-            // S3 存在4条入度
+            // S3 存在5条入度
             State s3 = new State("S3", ((state, token) -> {
                 if ("S1".equals(state.name) || "Start".equals(state.name) || "S2".equals(state.name)) {
                     currentExecutionName = token.val;
@@ -229,10 +231,18 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                     }
                     currentData = new CDefaultWritableData<>(definition.getAttachment());
                     definition.setAttachment(currentData);
-                    List<CExecutorDefinition> currentBracketsDepthExecutions = executions.computeIfAbsent(bracketsDepth, k -> new ArrayList<>());
-                    currentBracketsDepthExecutions.add(definition);
                     // 保存当前正在处理的Execution
                     currentExecution = definition;
+
+                    // 跳过Service类型
+                    if (definition.getType() == CExecutorDefinition.TYPE_SVC) {
+                        // CHECK if(service == null)
+                        service = definition;
+                    } else {
+                        List<CExecutorDefinition> currentBracketsDepthExecutions = executions.computeIfAbsent(bracketsDepth, k -> new ArrayList<>());
+                        currentBracketsDepthExecutions.add(definition);
+                    }
+
                 } else if ("S5".equals(state.name)) {
                     String val = token.val;
                     currentData.put(currentArgumentName, ConverterUtils.convert(val, currentType));
@@ -338,6 +348,10 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
         public List<CExecutorDefinition> getBuiltDefinitions() {
             return builtDefinitions;
         }
+
+        public CExecutorDefinition getService() {
+            return service;
+        }
     }
 
     @Override
@@ -347,10 +361,16 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             fsm.nextState();
         }
         List<CExecutorDefinition> builtDefinitions = fsm.getBuiltDefinitions();
-        if (builtDefinitions.size() == 1) {
-            return builtDefinitions.get(0);
+        CExecutorDefinition service = fsm.getService();
+        if (service != null) {
+            System.out.println(123123);
+            return CExecutorDefinition.newServiceDefinition("", "", "", builtDefinitions.toArray(new CExecutorDefinition[0]), service.getOutputs(), service.getMethod(), service.getAttributes(), service.getAttachment());
         } else {
-            return new CExecutorDefinition("", "", "", builtDefinitions.toArray(new CExecutorDefinition[0]), null);
+            if (builtDefinitions.size() == 1) {
+                return builtDefinitions.get(0);
+            } else {
+                return new CExecutorDefinition("", "", "", builtDefinitions.toArray(new CExecutorDefinition[0]), null);
+            }
         }
     }
 

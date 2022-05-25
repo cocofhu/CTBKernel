@@ -18,6 +18,8 @@ public class CExecutorDefinition implements CCloneable {
     public static final int TYPE_SCHEDULE = 1;
     // 任务类型：单个任务
     public static final int TYPE_EXEC = 2;
+    // 任务类型： 服务
+    public static final int TYPE_SVC = 3;
     // 版本号：0
     public static final int VERSION = 0;
 
@@ -143,6 +145,29 @@ public class CExecutorDefinition implements CCloneable {
 
     public CExecutorDefinition(String name, String info, String group, CExecutorDefinition[] subJobs, CDefaultReadOnlyData<String, Object> attributes) {
         this(name, info, group, subJobs, attributes, null);
+    }
+
+    public CExecutorDefinition() {
+        this.version = VERSION;
+    }
+
+
+    /**
+     * 构建一个服务定义
+     */
+    public static CExecutorDefinition newServiceDefinition(String name, String info, String group, CExecutorDefinition[] subJobs,
+                                                           CParameterDefinition[] outputs, CExecutorMethod method, CDefaultReadOnlyData<String, Object> attributes, CDefaultReadOnlyData<String, Object> attachment){
+        CExecutorDefinition definition = new CExecutorDefinition();
+        definition.setName(name);
+        definition.setInfo(info);
+        definition.setGroup(group);
+        definition.setSubJobs(subJobs);
+        definition.setOutputs(outputs);
+        definition.setMethod(method);
+        definition.setAttributes(attributes);
+        definition.setAttachment(attachment);
+        definition.setType(TYPE_SVC);
+        return definition;
     }
 
 }

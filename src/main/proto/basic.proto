@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "com.cocofhu.ctb.basic.grpc";
+option java_multiple_files = false;
+option java_outer_classname = "CGRPCBasicProto";
+
+message GRPCBasicData {
+    string data = 1;
+}
+
+
+service CGRPCBasicService {
+    rpc execute (GRPCBasicData) returns (GRPCBasicData);
+}
