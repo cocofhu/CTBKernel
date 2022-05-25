@@ -1,8 +1,6 @@
 package com.cocofhu.ctb.kernel.util.ds;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 带有层级结构的数据集，实现该接口的类 需要满足新建和回退不同的层
@@ -46,15 +44,7 @@ public class CDefaultLayerData<K, V> extends CDefaultWritableData<K, V> implemen
 
     @Override
     public Set<CDefaultReadOnlyEntry<K, V>> entries(int depth) {
-        if (depth < 0) {
-            return null;
-        }
-        CDefaultLayerData<K, V> cur = this;
-
-        while (depth > 0 && cur != null) {
-            cur = cur.parent;
-            --depth;
-        }
+        CDefaultLayerData<K, V> cur = getParentLayer(depth);
         if (cur == null) {
             return null;
         }
@@ -67,6 +57,41 @@ public class CDefaultLayerData<K, V> extends CDefaultWritableData<K, V> implemen
     @Override
     public int depth() {
         return parent == null ? 0 : parent.depth() + 1;
+    }
+
+    @Override
+    public Map<K, V> toReadOnlyMap(int depth) {
+        CDefaultLayerData<K, V> cur = getParentLayer(depth);
+        if (cur == null) {
+            return null;
+        }
+        return Collections.unmodifiableMap(cur.dataset);
+    }
+
+    @Override
+    public Map<K, V> toReadOnlyMap() {
+        Map<K, V> map = new HashMap<>();
+        entries().forEach(e -> {
+            V value = e.getValue();
+            K key = e.getKey();
+            if (value != null && key != null) {
+                map.put(key, value);
+            }
+        });
+        return Collections.unmodifiableMap(map);
+    }
+
+    private CDefaultLayerData<K, V> getParentLayer(int depth) {
+        if (depth < 0) {
+            return null;
+        }
+        CDefaultLayerData<K, V> cur = this;
+
+        while (depth > 0 && cur != null) {
+            cur = cur.parent;
+            --depth;
+        }
+        return cur;
     }
 
 

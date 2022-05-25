@@ -1,9 +1,6 @@
 package com.cocofhu.ctb.kernel.util.ds;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CDefaultReadOnlyData<K,V> implements CReadOnlyData<K, V> {
@@ -70,7 +67,12 @@ public class CDefaultReadOnlyData<K,V> implements CReadOnlyData<K, V> {
 
     @Override
     public String toString() {
-        Map<K, V> map = toMap();
+        Map<K, V> map = toReadOnlyMap();
         return map!= null ? map.toString() : "null";
+    }
+
+    @Override
+    public Map<K, V> toReadOnlyMap() {
+        return Collections.unmodifiableMap(dataset);
     }
 }

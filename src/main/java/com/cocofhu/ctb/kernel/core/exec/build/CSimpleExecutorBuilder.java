@@ -152,7 +152,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         if (typeRef == null) {
             return new CPair<>(false, candidates);
         }
-        Map<String, Class<?>> map = typeRef.toMap();
+        Map<String, Class<?>> map = typeRef.toReadOnlyMap();
 
         Set<String> keys = map.keySet();
         for(String key: keys){
