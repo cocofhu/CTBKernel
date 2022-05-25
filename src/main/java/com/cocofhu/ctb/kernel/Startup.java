@@ -134,7 +134,7 @@ public class Startup {
 //        CExecutor executor = new CJobExecutor().toExecutor(factory, jobs);
 //        System.out.println(pair.getSecond());
 //        new CJobExecutor().toExecutor(factory, pair.getSecond().getJobDetail());
-        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
+//        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
 //
 //        CExecDetail job = new CExecBuilder().toJobDetail(factory, new CExecutorMethod("Power", null, "mul", null));
 //
@@ -206,7 +206,7 @@ public class Startup {
         CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
         CDefaultExecutionRuntime context;
         CExecutorDefinition definition = new CFMSExecutorCompiler(factory).compiler(source, 0);
-        builder.toExecutor(definition,builder,context = new CDefaultExecutionRuntime(), false).run();
+        builder.toExecutor(definition,builder,context = new CDefaultExecutionRuntime(), true).run();
         System.out.println(context);
         System.out.println(context.getReturnVal());
 

@@ -92,7 +92,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "processed outputs", layer);
         CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "processed removal", layer);
 
-        return new CSimpleExecutor(executionRuntime, config, execDetail.getMethod(), execDetail.isIgnoreException(), execDetail.getAttachment());
+        return new CSimpleExecutor(executionRuntime, execDetail, config);
     }
 
 

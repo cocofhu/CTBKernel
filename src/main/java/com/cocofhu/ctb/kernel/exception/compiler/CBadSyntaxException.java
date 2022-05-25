@@ -1,6 +1,5 @@
 package com.cocofhu.ctb.kernel.exception.compiler;
 
-import com.cocofhu.ctb.kernel.core.exec.compiler.CFMSExecutorCompiler;
 import com.cocofhu.ctb.kernel.exception.CCompilerException;
 
 public class CBadSyntaxException extends CCompilerException {

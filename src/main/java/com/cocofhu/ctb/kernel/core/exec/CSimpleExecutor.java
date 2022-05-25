@@ -1,12 +1,9 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.*;
-import com.cocofhu.ctb.kernel.exception.exec.CExecExceptionUnhandledException;
-import com.cocofhu.ctb.kernel.exception.exec.CExecStatusException;
-import com.cocofhu.ctb.kernel.exception.exec.CExecBeanMethodInvokeException;
-import com.cocofhu.ctb.kernel.exception.exec.CExecNoSuchMethodException;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
+import com.cocofhu.ctb.kernel.exception.exec.*;
 import com.cocofhu.ctb.kernel.util.CReflectionUtils;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultReadOnlyData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,10 +18,17 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
     private final CExecutorMethod executorMethod;
 
-
-    public CSimpleExecutor(CDefaultExecutionRuntime executionRuntime, CConfig config, CExecutorMethod executorMethod, boolean ignoreException, CDefaultReadOnlyData<String,Object> attachment) {
-        super(executionRuntime, config, ignoreException, attachment);
-        this.executorMethod = executorMethod;
+    /**
+     * @param executionRuntime   执行器的上下文，用于存放执行过程中的参数
+     * @param executorDefinition 任务定义
+     * @param config             BeanFactory的上下文，用于获得框架的支持
+     */
+    public CSimpleExecutor(CDefaultExecutionRuntime executionRuntime, CExecutorDefinition executorDefinition, CConfig config) {
+        super(executionRuntime, executorDefinition, config);
+        if(executorDefinition == null){
+            throw new CExecBadDefinitionException("executor definition must be not null. ");
+        }
+        this.executorMethod = executorDefinition.getMethod();
     }
 
 
@@ -53,7 +57,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
                 throw new CExecNoSuchMethodException( bean.getClass() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
             }
             // 复制参数
-            executionRuntime.startNew(attachment,true, CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
+            executionRuntime.startNew(getExecutorDefinition().getAttachment(),true, CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
             // 启动当前任务环境
             executionRuntime.startNew(null,false, CExecutionRuntime.CExecutorRuntimeType.SIMPLE, this);
             CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, executionRuntime.getCurrentLayer());

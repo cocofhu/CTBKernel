@@ -1,12 +1,14 @@
 package com.cocofhu.ctb.kernel.util.ds;
 
+import com.cocofhu.ctb.kernel.util.CCloneable;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 
-public interface CReadOnlyData<K,V> extends Serializable {
+public interface CReadOnlyData<K,V> extends CCloneable {
 
     /**
      * 获得指定key对于的元素，如果指定的key对应的元素不存在将返回null

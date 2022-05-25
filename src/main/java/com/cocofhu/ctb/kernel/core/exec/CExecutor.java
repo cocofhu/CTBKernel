@@ -1,5 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
+import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
+import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 import com.cocofhu.ctb.kernel.exception.CExecException;
 
@@ -48,9 +50,6 @@ public interface CExecutor extends Runnable{
     Throwable getThrowable() throws CExecException;
     Object getReturnVal() throws CExecException;
 
-    void setAttachment(CReadOnlyData<String, Object> attachment);
-
-
-    @Override
     void run() throws CExecException;
+    CExecutorDefinition getExecutorDefinition();
 }
