@@ -379,9 +379,4 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             }
         }
     }
-
-
-    public void testParseToken(String str) {
-        System.out.println(Token.parseTokens(str));
-    }
 }
