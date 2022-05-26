@@ -2,6 +2,8 @@ package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultReadOnlyData;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultWritableData;
 import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 import com.cocofhu.ctb.kernel.exception.exec.CExecStatusException;
 import com.cocofhu.ctb.kernel.exception.exec.CExecUnsupportedOperationException;
@@ -13,21 +15,18 @@ public abstract class CAbstractExecutor implements CExecutor {
 
     private volatile Status status;
 
-    protected final CDefaultExecutionRuntime executionRuntime;
     protected final CExecutorDefinition executorDefinition;
     protected final CConfig config;
 
 
     /**
-     * @param executionRuntime      执行器的上下文，用于存放执行过程中的参数
-     * @param config                BeanFactory的上下文，用于获得框架的支持
-     * @param executorDefinition    任务定义
+     * @param config             全局配置，用于获得框架的支持
+     * @param executorDefinition 任务定义
      */
-    protected CAbstractExecutor(CDefaultExecutionRuntime executionRuntime, CExecutorDefinition executorDefinition, CConfig config) {
-        this.executionRuntime = executionRuntime;
-        if(executorDefinition != null){
+    protected CAbstractExecutor(CExecutorDefinition executorDefinition, CConfig config) {
+        if (executorDefinition != null) {
             this.executorDefinition = (CExecutorDefinition) executorDefinition.cloneSelf();
-        }else{
+        } else {
             this.executorDefinition = null;
         }
         this.config = config;
@@ -35,29 +34,8 @@ public abstract class CAbstractExecutor implements CExecutor {
     }
 
     @Override
-    public Object getReturnVal() {
-        if (getStatus() != Status.Stop) {
-            throw new CExecStatusException(this, "executor not executed successfully.");
-        }
-        return executionRuntime.getReturnVal();
-    }
-
-    @Override
-    public Throwable getThrowable() {
-        if (getStatus() != Status.Exception) {
-            throw new CExecStatusException(this, "executor has not encountered an exception.");
-        }
-        return executionRuntime.getException();
-    }
-
-    @Override
     public boolean isIgnoreException() {
         return executorDefinition != null && executorDefinition.isIgnoreException();
-    }
-
-    @Override
-    public boolean isExceptionInContext() {
-        return executionRuntime.hasException();
     }
 
     @Override
@@ -89,5 +67,6 @@ public abstract class CAbstractExecutor implements CExecutor {
     public CExecutorDefinition getExecutorDefinition() {
         return executorDefinition;
     }
+
 
 }

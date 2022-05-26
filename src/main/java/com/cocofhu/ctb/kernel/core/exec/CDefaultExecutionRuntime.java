@@ -19,7 +19,6 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
     private volatile CDefaultLayerData<String, Object> currentLayer;
     private volatile long lastTime;
 
-
     private final ReentrantLock lock;
     private final List<Long> timeElapsed;
     private final List<CExecutorRuntimeType> types;
@@ -27,9 +26,7 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
     private final List<Integer> layers;
 
 
-
     public CDefaultExecutionRuntime() {
-
         lastTime = System.currentTimeMillis();
         timeElapsed = new ArrayList<>(16);
         types = new ArrayList<>(16);
@@ -47,15 +44,14 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
     }
 
     @Override
-    public void startNew(CReadOnlyData<String, Object> attachment, boolean copyCurrent,
-                         CExecutorRuntimeType type, CExecutor executor) {
+    public void startNew(CReadOnlyData<String, Object> attachment, CExecutorRuntimeType type, CExecutor executor) {
         try {
             lock.lock();
             CDefaultLayerData<String, Object> layer = currentLayer.newLayer();
-            layer.put(EXEC_CONTEXT_KEY, this);
-            if (copyCurrent) {
+            if (type == CExecutorRuntimeType.ARGS_COPY) {
                 currentLayer.entries(0).forEach(e -> layer.put(e.getKey(), e.getValue()));
             }
+            layer.put(EXEC_CONTEXT_KEY, this);
             if (attachment != null) {
                 attachment.entries().forEach(e -> layer.put(e.getKey(), e.getValue()));
             }
@@ -68,6 +64,7 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
             lock.unlock();
         }
     }
+
 
     @Override
     public void stopCurrent() {
@@ -93,7 +90,7 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
 
             Object returnVal = "null";
 
-            table.addRow(i, types.get(i), ( i+2 >= timeElapsed.size()? System.currentTimeMillis() - lastTime : timeElapsed.get(i + 2) ) + "ms", returnVal , "null", sb).setTextAlignment(TextAlignment.LEFT);
+            table.addRow(i, types.get(i), (i + 2 >= timeElapsed.size() ? System.currentTimeMillis() - lastTime : timeElapsed.get(i + 2)) + "ms", returnVal, "null", sb).setTextAlignment(TextAlignment.LEFT);
             table.getRenderer().setCWC(new CWC_LongestWordMin(3));
             table.addRule();
         }

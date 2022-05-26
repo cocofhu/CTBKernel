@@ -221,7 +221,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             State s1 = new State("S1", null);
             // S2 存在2条入度 都是增加括号深度
             State s2 = new State("S2", (state, token) -> ++bracketsDepth);
-            // S3 存在5条入度
+            // S3 存在4条入度
             State s3 = new State("S3", ((state, token) -> {
                 if ("S1".equals(state.name) || "Start".equals(state.name) || "S2".equals(state.name)) {
                     currentExecutionName = token.val;
@@ -231,17 +231,21 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                     }
                     currentData = new CDefaultWritableData<>(definition.getAttachment());
                     definition.setAttachment(currentData);
-                    // 保存当前正在处理的Execution
-                    currentExecution = definition;
 
                     // 跳过Service类型
                     if (definition.getType() == CExecutorDefinition.TYPE_SVC) {
-                        // CHECK if(service == null)
+                        // service definition must at first
+                        if(service != null || currentExecution != null){
+                            throw new CBadSyntaxException(sourceCode ,"service definition must at the beginning", token.pos, currentExecutionName);
+                        }
                         service = definition;
                     } else {
                         List<CExecutorDefinition> currentBracketsDepthExecutions = executions.computeIfAbsent(bracketsDepth, k -> new ArrayList<>());
                         currentBracketsDepthExecutions.add(definition);
                     }
+
+                    // 保存当前正在处理的Execution
+                    currentExecution = definition;
 
                 } else if ("S5".equals(state.name)) {
                     String val = token.val;
@@ -337,7 +341,6 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             }
             state.transition(currentState, token);
             currentState = state;
-//            System.out.println(currentState.name + ":::");
             return this;
         }
 
@@ -356,6 +359,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
 
     @Override
     public CExecutorDefinition compiler(String expression, int flag) {
+
         FSM fsm = new FSM(Token.parseTokens(expression), expression);
         while (fsm.hasNext()) {
             fsm.nextState();
@@ -363,7 +367,9 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
         List<CExecutorDefinition> builtDefinitions = fsm.getBuiltDefinitions();
         CExecutorDefinition service = fsm.getService();
         if (service != null) {
-            System.out.println(123123);
+            if(builtDefinitions.size() == 0){
+                throw new CBadSyntaxException(expression, "service has no action. ");
+            }
             return CExecutorDefinition.newServiceDefinition("", "", "", builtDefinitions.toArray(new CExecutorDefinition[0]), service.getOutputs(), service.getMethod(), service.getAttributes(), service.getAttachment());
         } else {
             if (builtDefinitions.size() == 1) {

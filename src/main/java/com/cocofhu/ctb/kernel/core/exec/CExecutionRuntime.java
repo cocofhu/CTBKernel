@@ -13,7 +13,10 @@ public interface CExecutionRuntime {
         SIMPLE("SIMPLE"),
         LIST("LIST"),
         ARGS_COPY("ARGS_COPY"),
-        PIPE("PIPE");
+        SERVICE("SERVICE"),
+
+        RESTORE("RESTORE");
+
         private final String value;
 
         CExecutorRuntimeType(String value) {
@@ -34,7 +37,7 @@ public interface CExecutionRuntime {
 
     CDefaultLayerData<String, Object> getCurrentLayer();
 
-    void startNew(CReadOnlyData<String, Object> attachment, boolean copyCurrent, CExecutorRuntimeType type, CExecutor executor);
+    void startNew(CReadOnlyData<String, Object> attachment, CExecutorRuntimeType type, CExecutor executor);
 
     void stopCurrent();
 

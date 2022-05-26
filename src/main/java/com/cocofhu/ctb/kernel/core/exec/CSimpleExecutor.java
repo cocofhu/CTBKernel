@@ -4,6 +4,9 @@ import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.exception.exec.*;
 import com.cocofhu.ctb.kernel.util.CReflectionUtils;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultReadOnlyData;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultWritableData;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,12 +22,11 @@ public class CSimpleExecutor extends CAbstractExecutor {
     private final CExecutorMethod executorMethod;
 
     /**
-     * @param executionRuntime   执行器的上下文，用于存放执行过程中的参数
      * @param executorDefinition 任务定义
-     * @param config             BeanFactory的上下文，用于获得框架的支持
+     * @param config             全局配置，用于获得框架的支持
      */
-    public CSimpleExecutor(CDefaultExecutionRuntime executionRuntime, CExecutorDefinition executorDefinition, CConfig config) {
-        super(executionRuntime, executorDefinition, config);
+    public CSimpleExecutor(CExecutorDefinition executorDefinition, CConfig config) {
+        super(executorDefinition, config);
         if(executorDefinition == null){
             throw new CExecBadDefinitionException("executor definition must be not null. ");
         }
@@ -33,16 +35,16 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
 
     @Override
-    public void run() {
+    public void run(CExecutionRuntime runtime) {
         try {
             lock.lock();
             if (getStatus() != Status.Ready) {
                 throw new CExecStatusException(this, "executor is not ready.");
             }
-            if (!isIgnoreException() && isExceptionInContext()) {
+            if (!isIgnoreException() && runtime.hasException()) {
                 // 有未处理的异常
                 setStatus(Status.Exception);
-                throw new CExecExceptionUnhandledException(getThrowable());
+                throw new CExecExceptionUnhandledException(runtime.getException());
             }
 
             // 设置执行状态, 开始执行
@@ -50,28 +52,28 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
             // 获取执行信息 这里可能会抛出 CNoSuchBeanDefinitionException
             CBeanDefinition beanDefinition = config.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-            Object bean = config.getBeanFactory().getBean(beanDefinition, executionRuntime.getCurrentLayer());
+            Object bean = config.getBeanFactory().getBean(beanDefinition, runtime.getCurrentLayer());
             Method method = CReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
             // 检查方法是否存在
             if (method == null) {
                 throw new CExecNoSuchMethodException( bean.getClass() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
             }
             // 复制参数
-            executionRuntime.startNew(getExecutorDefinition().getAttachment(),true, CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
+            runtime.startNew(getExecutorDefinition().getAttachment(), CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
             // 启动当前任务环境
-            executionRuntime.startNew(null,false, CExecutionRuntime.CExecutorRuntimeType.SIMPLE, this);
-            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, executionRuntime.getCurrentLayer());
+            runtime.startNew(null, CExecutionRuntime.CExecutorRuntimeType.SIMPLE, this);
+            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, runtime.getCurrentLayer());
 
             try {
                 Object returnVal = executableWrapper.execute(bean);
-                executionRuntime.setReturnVal(returnVal);
+                runtime.setReturnVal(returnVal);
             } catch (InstantiationException | IllegalAccessException e) {
                 throw new CExecBeanMethodInvokeException(executorMethod, e);
             } catch (InvocationTargetException e) {
-                executionRuntime.setException(e.getTargetException());
+                runtime.setException(e.getTargetException());
             }
 
-            if (executionRuntime.hasException()) {
+            if (runtime.hasException()) {
                 setStatus(Status.Exception);
             } else {
                 setStatus(Status.Stop);
@@ -80,5 +82,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
             lock.unlock();
         }
     }
+
+
 
 }

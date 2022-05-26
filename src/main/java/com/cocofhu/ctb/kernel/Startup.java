@@ -7,19 +7,14 @@ import com.cocofhu.ctb.basic.CUtilExecutor;
 import com.cocofhu.ctb.basic.grpc.CGRPCBasicExecutor;
 import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
-import com.cocofhu.ctb.kernel.core.exec.CServiceExecutor;
 import com.cocofhu.ctb.kernel.core.exec.build.CDefaultExecutorBuilder;
 import com.cocofhu.ctb.kernel.core.exec.build.CExecutorBuilder;
-import com.cocofhu.ctb.kernel.core.exec.compiler.CExecutorCompiler;
 import com.cocofhu.ctb.kernel.core.exec.compiler.CFMSExecutorCompiler;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
-import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.core.config.CAbstractDefinition;
 import com.cocofhu.ctb.kernel.core.config.CBeanDefinition;
-import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.core.factory.CMethodBeanFactory;
 import com.cocofhu.ctb.kernel.test.Power;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
 import com.cocofhu.ctb.kernel.util.ds.CLayerData;
 
 import java.io.BufferedReader;
@@ -33,7 +28,8 @@ public class Startup {
 
 
     public static void main(String[] args) throws Exception {
-        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
+        // CGRPCService -port 9090 > Transform -source grpcData -dist sql > ReadMySQLURLAndPassword -source "mysql.properties" > AcquireConnection > Transform -dist connection > QueryAsMapList > Debug
+//        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
         CMethodBeanFactory factory = new CMethodBeanFactory((config) -> {
             List<CBeanDefinition> result = new ArrayList<>();
             result.add(new CAbstractDefinition(CParamExecutor.class) {
@@ -75,6 +71,13 @@ public class Startup {
                 @Override
                 public String getBeanName() {
                     return "CDBUtils";
+                }
+            });
+
+            result.add(new CAbstractDefinition(CDebugExecutor.class) {
+                @Override
+                public String getBeanName() {
+                    return "CDebugExecutor";
                 }
             });
 
@@ -140,14 +143,15 @@ public class Startup {
         Scanner scan = new Scanner(System.in);
         String source = scan.nextLine();
         CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
-        CDefaultExecutionRuntime context;
+        CDefaultExecutionRuntime context = new CDefaultExecutionRuntime();
         CExecutorDefinition definition = new CFMSExecutorCompiler(factory).compiler(source, 0);
         System.out.println(definition);
-        CExecutor executor = builder.toExecutor(definition, builder, context = new CDefaultExecutionRuntime(), true);
+        CExecutor executor = builder.toExecutor(definition, builder, true);
 //        new CServiceExecutor(context,factory.getConfig(),)
-        //GRPCService -port 9090 > Transform -source grpcData -dist abc
+        //CGRPCService -port 9090 > Transform -source grpcData -dist abc
+        //CGRPCService -port 9090 > Debug
 
-        executor.run();
+        executor.run(context);
         System.out.println(context);
         System.out.println(context.getReturnVal());
     }

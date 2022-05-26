@@ -25,7 +25,7 @@ public class CServiceExecutorBuilder extends CSimpleExecutorBuilder {
 
 
     @Override
-    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CDefaultExecutionRuntime executionRuntime,
+    public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder,
                                 CDefaultLayerData<String, Class<?>> contextTypes, int layer, boolean checkInput) {
 
         // layer must equal zero
@@ -34,9 +34,9 @@ public class CServiceExecutorBuilder extends CSimpleExecutorBuilder {
         CExecutorDefinition self2 = (CExecutorDefinition) execDetail.cloneSelf();
         self1.setType(CExecutorDefinition.TYPE_EXEC);
         self2.setType(CExecutorDefinition.TYPE_SCHEDULE);
-        CExecutor service = builder.toExecutor(self1, builder, executionRuntime, contextTypes, 0, false);
-        CExecutor executor = builder.toExecutor(self2, builder, executionRuntime, contextTypes, 1, true);
-        return new CServiceExecutor(executionRuntime,config,executor,service);
+        CExecutor service = builder.toExecutor(self1, builder, contextTypes, 0, false);
+        CExecutor executor = builder.toExecutor(self2, builder, contextTypes, 1, true);
+        return new CServiceExecutor(config,executor,service);
     }
 
 }

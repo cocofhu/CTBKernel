@@ -8,7 +8,7 @@ import com.cocofhu.ctb.kernel.exception.CExecException;
 /**
  * @author cocofhu
  */
-public interface CExecutor extends Runnable{
+public interface CExecutor{
 
     enum Status{
         // 未就绪，任务的执行可能需要必要条件
@@ -41,17 +41,22 @@ public interface CExecutor extends Runnable{
     void loadState();
 
 
-    boolean isIgnoreException();
+    default boolean isIgnoreException(){
+        CExecutorDefinition definition = getExecutorDefinition();
+        return definition != null && definition.isIgnoreException();
+    }
 
-    boolean isExceptionInContext();
 
-    boolean isExecutedSuccessfully();
+    default boolean isExecutedSuccessfully(){
+        return getStatus() == Status.Stop;
+    }
 
-    Throwable getThrowable() throws CExecException;
-    Object getReturnVal() throws CExecException;
+    // 数据与行为解耦合，不要在这里指定任何参数
+    void run(CExecutionRuntime runtime) throws CExecException;
 
-    void run() throws CExecException;
+
     CExecutorDefinition getExecutorDefinition();
 
-//    void appendAttachment(CReadOnlyData<String, Object> attachment);
+
+
 }

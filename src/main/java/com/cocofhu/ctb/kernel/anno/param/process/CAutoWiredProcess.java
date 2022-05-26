@@ -16,10 +16,11 @@ public class CAutoWiredProcess implements CAnnoProcess {
     @Override
     public CPair<Object, Boolean> process(CParameterWrapper parameter, CConfig config, CReadOnlyData<String, Object> data) {
         Annotation annotation = parameter.acquireNearAnnotation(CAutowired.class);
-        if (annotation != null && parameter.getParameter().getType().isAssignableFrom(CBeanFactory.class)) {
+        if (annotation != null && CBeanFactory.class.isAssignableFrom(parameter.getParameter().getType())) {
             return new CPair<>(config.getBeanFactory(), true);
         }
-        if (annotation != null && parameter.getParameter().getType().isAssignableFrom(CExecutionRuntime.class)) {
+
+        if (annotation != null && CExecutionRuntime.class.isAssignableFrom(parameter.getParameter().getType())) {
             Object o = data.get(EXEC_CONTEXT_KEY);
             if (o instanceof CExecutionRuntime) {
                 return new CPair<>(o, true);
