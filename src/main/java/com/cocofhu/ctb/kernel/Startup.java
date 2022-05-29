@@ -118,7 +118,7 @@ public class Startup {
 //        showLayer("layer3",layer3);
 //        showLayer("layer4",layer4);
 //        showLayer("layer5",layer5);
-
+        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
         log.info("GOGOGO");
         testCompiler(factory);
 
@@ -155,7 +155,7 @@ public class Startup {
         //CGRPCService -port 9090 > Debug
 
         executor.run(context);
-//        System.out.println(context);
+        System.out.println(context);
         System.out.println(context.getReturnVal());
     }
 

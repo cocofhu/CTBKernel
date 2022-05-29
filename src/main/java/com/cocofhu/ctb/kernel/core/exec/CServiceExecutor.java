@@ -33,7 +33,6 @@ public class CServiceExecutor extends CAbstractExecutor {
     public void run(CExecutionRuntime runtime) {
         init(runtime);
         new Thread(()-> service.run(runtime)).start();
-        System.out.println("GRPC SERVICE START!");
     }
 
 
