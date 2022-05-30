@@ -118,7 +118,7 @@ public class Startup {
 //        showLayer("layer3",layer3);
 //        showLayer("layer4",layer4);
 //        showLayer("layer5",layer5);
-        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
+//        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
         log.info("GOGOGO");
         testCompiler(factory);
 
@@ -143,13 +143,16 @@ public class Startup {
     }
 
     private static void testCompiler(CMethodBeanFactory factory){
+        System.out.println(Integer.MAX_VALUE / 100);
         Scanner scan = new Scanner(System.in);
         String source = scan.nextLine();
         CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
         CDefaultExecutionRuntime context = new CDefaultExecutionRuntime();
         CExecutorDefinition definition = new CFMSExecutorCompiler(factory).compiler(source, 0);
-        System.out.println(definition);
+//        System.out.println();
+        Arrays.stream(definition.getInitExecution().getSubJobs()).forEach(s-> System.out.println(s));
         CExecutor executor = builder.toExecutor(definition, builder, true);
+        System.out.println(executor);
 //        new CServiceExecutor(context,factory.getConfig(),)
         //CGRPCService -port 9090 > Transform -source grpcData -dist abc
         //CGRPCService -port 9090 > Debug

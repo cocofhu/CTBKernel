@@ -18,10 +18,10 @@ public class CListExecutorBuilder implements CExecutorBuilder {
 
     @Override
     public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder,
-                                CDefaultLayerData<String, Class<?>> contextTypes, int layer, boolean checkInput) {
+                                CDefaultLayerData<String, Class<?>> contextTypes, String layer, boolean checkInput) {
         CExecutor[] executors = new CExecutor[execDetail.getSubJobs().length];
         for (int i = 0; i < execDetail.getSubJobs().length; i++) {
-            executors[i] = builder.toExecutor(execDetail.getSubJobs()[i], builder, contextTypes, i + layer, checkInput);
+            executors[i] = builder.toExecutor(execDetail.getSubJobs()[i], builder, contextTypes, layer + "-" + i, checkInput);
             checkInput = true;
         }
         return new CListExecutor(config, execDetail.isIgnoreException(), executors);

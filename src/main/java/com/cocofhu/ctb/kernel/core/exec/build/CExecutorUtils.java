@@ -33,13 +33,13 @@ public class CExecutorUtils {
 
         // 由于后续操作会改变Input Output的完整性
         // 这里先要检查每个单独的Input Output Removal
-        checkParamValidAndThrow(ctorParams.getFirst().toArray(new CParameterDefinition[0]), "ctor inputs", 0);
-        checkParamValidAndThrow(ctorParams.getSecond().toArray(new CParameterDefinition[0]), "ctor outputs", 0);
-        checkParamValidAndThrow(ctorParams.getThird().toArray(new CParameterDefinition[0]), "ctor removals", 0);
+        checkParamValidAndThrow(ctorParams.getFirst().toArray(new CParameterDefinition[0]), "ctor inputs", "0");
+        checkParamValidAndThrow(ctorParams.getSecond().toArray(new CParameterDefinition[0]), "ctor outputs", "0");
+        checkParamValidAndThrow(ctorParams.getThird().toArray(new CParameterDefinition[0]), "ctor removals", "0");
 
-        checkParamValidAndThrow(methodParams.getFirst().toArray(new CParameterDefinition[0]), "method inputs", 0);
-        checkParamValidAndThrow(methodParams.getSecond().toArray(new CParameterDefinition[0]), "method outputs", 0);
-        checkParamValidAndThrow(methodParams.getThird().toArray(new CParameterDefinition[0]), "method removals", 0);
+        checkParamValidAndThrow(methodParams.getFirst().toArray(new CParameterDefinition[0]), "method inputs", "0");
+        checkParamValidAndThrow(methodParams.getSecond().toArray(new CParameterDefinition[0]), "method outputs", "0");
+        checkParamValidAndThrow(methodParams.getThird().toArray(new CParameterDefinition[0]), "method removals", "0");
 
 
         Set<CParameterDefinition> ctorOutputs = ctorParams.getSecond();
@@ -53,7 +53,7 @@ public class CExecutorUtils {
         actualInputs.addAll(methodInputs);
 
         // 检查最终Inputs参数
-        checkParamValidAndThrow(actualInputs.toArray(new CParameterDefinition[0]), "method inputs", 0);
+        checkParamValidAndThrow(actualInputs.toArray(new CParameterDefinition[0]), "method inputs", "0");
 
 
         // 这里没有必要再弄个类出来了，后续变更是再做修改
@@ -112,7 +112,7 @@ public class CExecutorUtils {
         return new CPair<>(conflictParams.size() == 0, conflictParams);
     }
 
-    static void checkParamValidAndThrow(CParameterDefinition[] params, String which, int layer) {
+    static void checkParamValidAndThrow(CParameterDefinition[] params, String which, String layer) {
         CPair<Boolean, List<CParameterDefinition>> pair = checkParamValid(params);
         if (!pair.getFirst()) {
             throw new CExecConflictParameterException(params, "conflict " + which + " parameters at layer " + layer + " , " + Arrays.toString(pair.getSecond().stream().map(

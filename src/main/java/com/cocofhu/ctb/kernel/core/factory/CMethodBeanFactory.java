@@ -67,6 +67,7 @@ public class CMethodBeanFactory extends CDefaultBeanFactory implements CExecutor
         executorDefinitionMap.put("AcquireConnection", job2);
         executorDefinitionMap.put("QueryAsMapList", job3);
         job4.setType(CExecutorDefinition.TYPE_SVC);
+        System.out.println(job4);
         executorDefinitionMap.put("CGRPCService", job4);
         executorDefinitionMap.put("Debug", job5);
         executorDefinitionMap.put("ReadMySQLURLAndPassword", job6);

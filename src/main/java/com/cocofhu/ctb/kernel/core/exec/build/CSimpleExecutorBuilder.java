@@ -27,7 +27,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
     @Override
     public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder,
-                                CDefaultLayerData<String, Class<?>> contextTypes, int layer, boolean checkInput) {
+                                CDefaultLayerData<String, Class<?>> contextTypes, String layer, boolean checkInput) {
 
         CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "inputs", layer);
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "outputs", layer);
@@ -48,6 +48,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         });
         // 解析输入参数
         CParameterDefinition[] inputs = execDetail.getInputs();
+        List<CParameterDefinition> exactlyInputs = new ArrayList<>();
         if(inputs != null){
             for (CParameterDefinition input : inputs) {
                 // 解析出正在的变量名称和类型
@@ -56,10 +57,16 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
                 if (checkInput && !checked.getFirst()) {
                     throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
                 }
+                // 如果输入参数不存在 则这个参数为真正需要的参数
+                if(!checked.getFirst()){
+                    exactlyInputs.add(input);
+                }
                 input.setType(parameter.getSecond());
                 input.setName(parameter.getFirst());
             }
         }
+        // 设置真正的需要的Input参数
+        execDetail.setInputs(exactlyInputs.toArray(new CParameterDefinition[0]));
 
         // 解析输出参数, 这里需要合并这一次和上一次的输出
         // 因为在Removal中可能会引用这一次和上一次的输出
@@ -112,7 +119,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         return new CPair<>(str.substring(num), num);
     }
 
-    private CPair<String, Class<?>> resolveParameter(CParameterDefinition input, CDefaultLayerData<String, Object> valRef, CDefaultLayerData<String, Class<?>> typeRef, int layer) {
+    private CPair<String, Class<?>> resolveParameter(CParameterDefinition input, CDefaultLayerData<String, Object> valRef, CDefaultLayerData<String, Class<?>> typeRef, String layer) {
         CPair<String, Integer> nameRefPair = parseReference(input.getName());
         CPair<String, Integer> typeRefPair = null;
         Class<?> exactlyType = null;
@@ -138,7 +145,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         return new CPair<>(exactlyName, exactlyType);
     }
 
-    private String dereferenceOfName(CDefaultLayerData<String, Object> ref, CPair<String, Integer> pair, int layer) {
+    private String dereferenceOfName(CDefaultLayerData<String, Object> ref, CPair<String, Integer> pair, String layer) {
         int times = pair.getSecond();
         String name = pair.getFirst();
         while (times-- > 0) {

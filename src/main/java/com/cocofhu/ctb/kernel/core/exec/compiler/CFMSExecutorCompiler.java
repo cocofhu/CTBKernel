@@ -54,6 +54,13 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
      * Token        :   just string
      */
 
+    public static final Set<Integer> GENERAL_TYPE = new HashSet<>();
+
+    static {
+        GENERAL_TYPE.add(CExecutorDefinition.TYPE_SCHEDULE);
+        GENERAL_TYPE.add(CExecutorDefinition.TYPE_EXEC);
+    }
+
     private final CExecutorDefinitionResolver resolver;
 
     public CFMSExecutorCompiler(CExecutorDefinitionResolver resolver) {
@@ -92,6 +99,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             DELIMITERS.add('(');
             DELIMITERS.add(')');
             DELIMITERS.add('-');
+            DELIMITERS.add('>');
         }
 
 
@@ -113,11 +121,11 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
         // 转义字符
         private static final char ESCAPE_CHAR = '\\';
 
-        private static CPair<Integer, String> utilNext(String str, int start, char target, boolean escape) {
+        private static CPair<Integer, String> utilNext(String str, int start, char target) {
             Set<Character> characters = new HashSet<>();
             characters.add(target);
             // Always true
-            return utilNext(str, start, characters, escape);
+            return utilNext(str, start, characters, true);
         }
 
         private static CPair<Integer, String> utilNext(String str, int start, Set<Character> target, boolean escape) {
@@ -167,9 +175,9 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                     // 删除无效空格
                     while (i < len && str.charAt(i) == ' ') ++i;
                 } else if (ch == '"') {
-                    pair = utilNext(str, i + 1, '"', true);
+                    pair = utilNext(str, i + 1, '"');
                 } else if (ch == '\'') {
-                    pair = utilNext(str, i + 1, '\'', true);
+                    pair = utilNext(str, i + 1, '\'');
                 } else if (ch == ':') {
                     tokens.add(new Token(":", TokenType.SERVICE, i));
                     ++i;
@@ -234,6 +242,8 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
 
 
     private class FSM {
+
+
         // 结束状态
         private final State end;
         // 词法分析之后的所有token
@@ -301,8 +311,9 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                 if (d == null || d.getType() != CExecutorDefinition.TYPE_SVC) {
                     throw new CBadSyntaxException(sourceCode, "service only can be defined as service type", token.pos);
                 }
-
-                //
+                // 恢复底层类型 设置外层类型
+                d.setType(d.getSubJobs() != null ? CExecutorDefinition.TYPE_SCHEDULE : CExecutorDefinition.TYPE_EXEC);
+//                service.setType(CExecutorDefinition.TYPE_SVC);
                 builtDefinitions.clear();
 
             }));
@@ -314,6 +325,17 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             // S3 存在4条入度
             State s3 = new State("S3", ((state, token) -> {
                 if ("S1".equals(state.name) || "Start".equals(state.name) || "S2".equals(state.name)) {
+
+                    // 如果上一个任务是不是基本任务类型, 只有基本任务类型才允许用 next 连起来
+                    // 比如上一个类型是服务类型，这就说明一个服务类型后面接的不是":", 这在语法上是不允许的.
+                    if(currentExecution != null && !GENERAL_TYPE.contains(currentExecution.getType())){
+                        throw new CBadSyntaxException(sourceCode, "bad next execution, only basic executions can be connected by next", token.pos, token.val);
+                    }
+                    // 如果服务已经定义了，此时又出现一个服务定义, 这在语法上是不允许的.
+                    if(service != null && currentExecution != null && currentExecution.getType() == CExecutorDefinition.TYPE_SVC ){
+                        throw new CBadSyntaxException(sourceCode, "service only can be defined once", token.pos, token.val);
+                    }
+
                     currentExecutionName = token.val;
                     CExecutorDefinition definition = resolver.acquireNewExecutorDefinition(currentExecutionName);
                     if (definition == null) {
@@ -442,7 +464,6 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
     @Override
     public CExecutorDefinition compiler(String expression, int flag) {
         List<Token> tokens = Token.parseTokens(expression);
-        log.debug("parse token finished : " + tokens);
         FSM fsm = new FSM(tokens, expression);
         while (fsm.hasNext()) {
             fsm.nextState();
@@ -453,7 +474,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             if (builtDefinitions.size() == 0) {
                 throw new CBadSyntaxException(expression, "service has no action. ");
             }
-            return CExecutorDefinition.newServiceDefinition("", "", "", builtDefinitions.toArray(new CExecutorDefinition[0]), service.getOutputs(), service.getMethod(), service.getAttributes(), service.getAttachment());
+            return CExecutorDefinition.newServiceDefinition(service,new CExecutorDefinition("", "", "", builtDefinitions.toArray(new CExecutorDefinition[0]), null));
         } else {
             if (builtDefinitions.size() == 1) {
                 return builtDefinitions.get(0);

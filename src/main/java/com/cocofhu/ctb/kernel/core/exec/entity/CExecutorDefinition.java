@@ -20,17 +20,13 @@ public class CExecutorDefinition implements CCloneable {
     public static final int TYPE_EXEC = 2;
     // 任务类型： 服务
     public static final int TYPE_SVC = 3;
-    // 版本号：0
-    public static final int VERSION = 0;
+
 
     // 任务名称
     private String name;
 
     // 是否忽略上次异常，用与多个任务串行执行时，忽略或者处理上一个任务出现的异常
     private boolean ignoreException;
-
-    // 版本号
-    private int version;
 
     // 任务类型
     private int type;
@@ -61,6 +57,9 @@ public class CExecutorDefinition implements CCloneable {
     // 任务属性
     private CDefaultReadOnlyData<String, Object> attributes;
 
+    // 初始化的执行器定义
+    private CExecutorDefinition initExecution;
+
 
     /**
      * 创建一个默认的单任务
@@ -78,7 +77,6 @@ public class CExecutorDefinition implements CCloneable {
     public CExecutorDefinition(String name, String info, String group, CParameterDefinition[] inputs,
                                CParameterDefinition[] outputs, CParameterDefinition[] removals, boolean ignoreException, CExecutorMethod method, CDefaultReadOnlyData<String, Object> attributes, CDefaultReadOnlyData<String, Object> attachment) {
         this.name = name;
-        this.version = VERSION;
         this.type = TYPE_EXEC;
         this.method = method;
         this.attachment = attachment;
@@ -133,7 +131,6 @@ public class CExecutorDefinition implements CCloneable {
 
 
     public CExecutorDefinition(String name, String info, String group, CExecutorDefinition[] subJobs, CDefaultReadOnlyData<String, Object> attributes, CDefaultReadOnlyData<String, Object> attachment) {
-        this.version = VERSION;
         this.type = TYPE_SCHEDULE;
         this.name = name;
         this.info = info;
@@ -147,27 +144,14 @@ public class CExecutorDefinition implements CCloneable {
         this(name, info, group, subJobs, attributes, null);
     }
 
-    public CExecutorDefinition() {
-        this.version = VERSION;
-    }
-
 
     /**
      * 构建一个服务定义
      */
-    public static CExecutorDefinition newServiceDefinition(String name, String info, String group, CExecutorDefinition[] subJobs,
-                                                           CParameterDefinition[] outputs, CExecutorMethod method, CDefaultReadOnlyData<String, Object> attributes, CDefaultReadOnlyData<String, Object> attachment){
-        CExecutorDefinition definition = new CExecutorDefinition();
-        definition.setName(name);
-        definition.setInfo(info);
-        definition.setGroup(group);
-        definition.setSubJobs(subJobs);
-        definition.setOutputs(outputs);
-        definition.setMethod(method);
-        definition.setAttributes(attributes);
-        definition.setAttachment(attachment);
-        definition.setType(TYPE_SVC);
-        return definition;
+    public static CExecutorDefinition newServiceDefinition(CExecutorDefinition service,CExecutorDefinition handle){
+        handle.setInitExecution(service);
+        handle.setType(TYPE_SVC);
+        return handle;
     }
 
 }
