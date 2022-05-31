@@ -119,9 +119,12 @@ public class Startup {
 //        showLayer("layer4",layer4);
 //        showLayer("layer5",layer5);
 //        System.out.println(f("C:\\Users\\cocofhu\\IdeaProjects\\CTBKernel\\src"));
-        log.info("GOGOGO");
+//        log.info("GOGOGO");
         testCompiler(factory);
-
+//        StackTraceElement[] stack = Thread.getAllStackTraces().get(Thread.currentThread());
+//        Thread.();
+//        Thread.currentThread()
+//        Arrays.stream(stack).forEach(stackTraceElement -> System.out.println(stackTraceElement.getClassName()));
     }
 
 
@@ -150,12 +153,14 @@ public class Startup {
         CDefaultExecutionRuntime context = new CDefaultExecutionRuntime();
         CExecutorDefinition definition = new CFMSExecutorCompiler(factory).compiler(source, 0);
 //        System.out.println();
-        Arrays.stream(definition.getInitExecution().getSubJobs()).forEach(s-> System.out.println(s));
+//        Arrays.stream(definition.getInitExecution().getSubJobs()).forEach(s-> System.out.println(s));
+        System.out.println(definition);
         CExecutor executor = builder.toExecutor(definition, builder, true);
         System.out.println(executor);
 //        new CServiceExecutor(context,factory.getConfig(),)
         //CGRPCService -port 9090 > Transform -source grpcData -dist abc
         //CGRPCService -port 9090 > Debug
+
 
         executor.run(context);
         System.out.println(context);

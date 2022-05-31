@@ -2,14 +2,14 @@ package com.cocofhu.ctb.kernel.core.exec.build;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
-import com.cocofhu.ctb.kernel.core.exec.CDefaultExecutionRuntime;
 import com.cocofhu.ctb.kernel.core.exec.CSimpleExecutor;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.core.exec.entity.CParameterDefinition;
 import com.cocofhu.ctb.kernel.exception.exec.CExecParamNotFoundException;
 import com.cocofhu.ctb.kernel.exception.exec.CExecUnsupportedOperationException;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
+import com.cocofhu.ctb.kernel.util.ds.CDefaultWritableData;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
+import com.cocofhu.ctb.kernel.util.ds.CWritableData;
 
 import java.util.*;
 
@@ -27,25 +27,29 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
 
     @Override
     public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder,
-                                CDefaultLayerData<String, Class<?>> contextTypes, String layer, boolean checkInput) {
+                                CWritableData<String, Class<?>> contextTypes,
+                                CWritableData<String, Object> attachedValues,
+                                String layer, boolean checkInput) {
 
         CExecutorUtils.checkParamValidAndThrow(execDetail.getInputs(), "inputs", layer);
         CExecutorUtils.checkParamValidAndThrow(execDetail.getOutputs(), "outputs", layer);
         CExecutorUtils.checkParamValidAndThrow(execDetail.getRemovals(), "removal", layer);
 
-
-        // set current context
-        CDefaultLayerData<String, Object> valRef = new CDefaultLayerData<>();
-        CDefaultLayerData<String, Class<?>> typeRef = contextTypes.newLayer();
-
+        // valRef typeRef只在当前方法里有效
+        CWritableData<String, Object> valRef = new CDefaultWritableData<>(attachedValues);
+        CWritableData<String, Class<?>> typeRef = new CDefaultWritableData<>(contextTypes);
+        // 加入执行器自己的attachment
         if (execDetail.getAttachment() != null) {
             valRef.putAll(execDetail.getAttachment());
         }
+        // 每个attachment都有自己的type
         valRef.entries().forEach(e -> {
             if (e.getKey() != null && e.getValue() != null) {
                 typeRef.put(e.getKey(), e.getValue().getClass());
             }
         });
+
+
         // 解析输入参数
         CParameterDefinition[] inputs = execDetail.getInputs();
         List<CParameterDefinition> exactlyInputs = new ArrayList<>();
@@ -75,6 +79,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
             for (CParameterDefinition output : outputs) {
                 CPair<String, Class<?>> parameter = resolveParameter(output, valRef, typeRef, layer);
                 if (parameter.getFirst() != null && parameter.getSecond() != null) {
+                    // 两个Map中都要加入对应的类型
                     contextTypes.put(parameter.getFirst(), parameter.getSecond());
                     typeRef.put(parameter.getFirst(), parameter.getSecond());
                 }
@@ -93,6 +98,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
                     throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
                 }
                 if (parameter.getFirst() != null && parameter.getSecond() != null) {
+                    // 两个Map中都要去除
                     contextTypes.remove(parameter.getFirst());
                     typeRef.remove(parameter.getFirst());
                 }
@@ -119,7 +125,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         return new CPair<>(str.substring(num), num);
     }
 
-    private CPair<String, Class<?>> resolveParameter(CParameterDefinition input, CDefaultLayerData<String, Object> valRef, CDefaultLayerData<String, Class<?>> typeRef, String layer) {
+    private CPair<String, Class<?>> resolveParameter(CParameterDefinition input, CWritableData<String, Object> valRef, CWritableData<String, Class<?>> typeRef, String layer) {
         CPair<String, Integer> nameRefPair = parseReference(input.getName());
         CPair<String, Integer> typeRefPair = null;
         Class<?> exactlyType = null;
@@ -145,7 +151,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         return new CPair<>(exactlyName, exactlyType);
     }
 
-    private String dereferenceOfName(CDefaultLayerData<String, Object> ref, CPair<String, Integer> pair, String layer) {
+    private String dereferenceOfName(CWritableData<String, Object> ref, CPair<String, Integer> pair, String layer) {
         int times = pair.getSecond();
         String name = pair.getFirst();
         while (times-- > 0) {
@@ -161,7 +167,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
         return name;
     }
 
-    private CPair<Boolean, List<CParameterDefinition>> hasParam(CDefaultLayerData<String, Class<?>> typeRef, CPair<String, Class<?>> pair) {
+    private CPair<Boolean, List<CParameterDefinition>> hasParam(CWritableData<String, Class<?>> typeRef, CPair<String, Class<?>> pair) {
         List<CParameterDefinition> candidates = new ArrayList<>();
         if (typeRef == null) {
             return new CPair<>(false, candidates);

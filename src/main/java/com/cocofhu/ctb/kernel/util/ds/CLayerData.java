@@ -55,6 +55,6 @@ public interface CLayerData<K, V> extends CWritableData<K, V> {
     /**
      * 将指定数据集中的元素全部添加到集合中(Only Current Layer)
      */
-    void putAll(CReadOnlyData<? extends K, ? extends V> dataSet);
+    void putAll(CReadOnlyData<? extends K, ? extends V> dataset);
 
 }

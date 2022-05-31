@@ -12,7 +12,7 @@ public class CDefaultWritableData<K, V> extends CDefaultReadOnlyData<K, V> imple
      * @param dataImpl 数据的实现 默认使用ConcurrentHashMap
      * @param dataset  根据已有数据创建，浅拷贝
      */
-    protected CDefaultWritableData(Map<K, V> dataImpl, CDefaultReadOnlyData<K, V> dataset) {
+    protected CDefaultWritableData(Map<K, V> dataImpl, CReadOnlyData<K, V> dataset) {
         super(dataImpl, dataset);
     }
 
@@ -20,7 +20,7 @@ public class CDefaultWritableData<K, V> extends CDefaultReadOnlyData<K, V> imple
         super(null, null);
     }
 
-    public CDefaultWritableData(CDefaultReadOnlyData<K, V> dataset) {
+    public CDefaultWritableData(CReadOnlyData<K, V> dataset) {
         super(null, dataset);
     }
 
@@ -42,9 +42,16 @@ public class CDefaultWritableData<K, V> extends CDefaultReadOnlyData<K, V> imple
     }
 
     @Override
-    public void putAll(CReadOnlyData<? extends K, ? extends V> dataSet) {
-        if (dataSet != null) {
-            dataSet.entries().forEach(e -> this.put(e.getKey(), e.getValue()));
+    public void putAll(CReadOnlyData<? extends K, ? extends V> dataset) {
+        if (dataset != null) {
+            dataset.entries().forEach(e -> this.put(e.getKey(), e.getValue()));
+        }
+    }
+
+    @Override
+    public void putAll(Map<? extends K, ? extends V> dataset) {
+        if (dataset != null) {
+            dataset.forEach(this::put);
         }
     }
 }

@@ -12,7 +12,7 @@ public class Power {
     @CExecutorOutput(info = "mul result",type = Integer.class, name = CDefaultExecutionRuntime.EXEC_RETURN_VAL_KEY)
     @CExecBasicInfo(name="SimpleJob",info = "info", group = "test")
     public int mul(@CExecutorInput Integer x, @CExecutorInput Integer y){
-//        System.out.println(x*y);
+        System.out.println("POWER: "+x*y);
         return x*y;
     }
 }

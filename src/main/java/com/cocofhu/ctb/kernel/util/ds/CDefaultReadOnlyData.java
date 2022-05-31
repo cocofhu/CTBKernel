@@ -12,13 +12,13 @@ public class CDefaultReadOnlyData<K,V> implements CReadOnlyData<K, V> {
      * @param dataImpl  数据的实现 默认使用ConcurrentHashMap
      * @param dataset   根据已有数据创建，浅拷贝
      */
-    protected CDefaultReadOnlyData(Map<K,V> dataImpl, CDefaultReadOnlyData<K,V> dataset) {
+    protected CDefaultReadOnlyData(Map<K,V> dataImpl, CReadOnlyData<K,V> dataset) {
         this.dataset = dataImpl;
         if(this.dataset == null){
             this.dataset = new ConcurrentHashMap<>();
         }
         if(dataset != null) {
-            Set<CDefaultReadOnlyEntry<K, V>> entries = dataset.entries();
+            Set<? extends CReadOnlyEntry<K, V>> entries = dataset.entries();
             if (entries != null) {
                 entries.forEach(e->this.dataset.put(e.getKey(), e.getValue()));
             }

@@ -5,6 +5,7 @@ import com.cocofhu.ctb.kernel.core.exec.CExecutor;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.exception.exec.CExecUnsupportedOperationException;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
+import com.cocofhu.ctb.kernel.util.ds.CWritableData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,13 +29,13 @@ public class CDefaultExecutorBuilder implements CExecutorBuilder {
 
     @Override
     public CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder,
-                                 CDefaultLayerData<String, Class<?>> contextTypes, String layer, boolean checkInput) {
+                                CWritableData<String, Class<?>> contextTypes,
+                                CWritableData<String, Object> attachedValues, String layer, boolean checkInput) {
         CExecutorBuilder exactlyBuilder = builderMap.get(execDetail.getType());
         if (exactlyBuilder == null) {
             throw new CExecUnsupportedOperationException("unsupported exec type: " + execDetail.getType());
         }
-        return exactlyBuilder.toExecutor(execDetail, builder, contextTypes, layer, checkInput);
+        return exactlyBuilder.toExecutor(execDetail, builder, contextTypes, attachedValues, layer, checkInput);
     }
-
 
 }

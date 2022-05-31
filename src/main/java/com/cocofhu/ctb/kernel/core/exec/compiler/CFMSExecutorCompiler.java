@@ -54,6 +54,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
      * Token        :   just string
      */
 
+    // 支持的普通任务类型
     public static final Set<Integer> GENERAL_TYPE = new HashSet<>();
 
     static {
@@ -250,7 +251,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
         private final List<Token> tokens;
         // 当前状态
         private State currentState;
-        // 括号深度
+        // 括号深度 1代表第一层括号，为了方便处理前后各加了一个括号
         private int bracketsDepth = 0;
         // 当前Token的位置
         private int tokenPos = 0;
@@ -311,9 +312,8 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                 if (d == null || d.getType() != CExecutorDefinition.TYPE_SVC) {
                     throw new CBadSyntaxException(sourceCode, "service only can be defined as service type", token.pos);
                 }
-                // 恢复底层类型 设置外层类型
+                // 恢复底层类型
                 d.setType(d.getSubJobs() != null ? CExecutorDefinition.TYPE_SCHEDULE : CExecutorDefinition.TYPE_EXEC);
-//                service.setType(CExecutorDefinition.TYPE_SVC);
                 builtDefinitions.clear();
 
             }));
@@ -328,11 +328,11 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
 
                     // 如果上一个任务是不是基本任务类型, 只有基本任务类型才允许用 next 连起来
                     // 比如上一个类型是服务类型，这就说明一个服务类型后面接的不是":", 这在语法上是不允许的.
-                    if(currentExecution != null && !GENERAL_TYPE.contains(currentExecution.getType())){
+                    if (currentExecution != null && !GENERAL_TYPE.contains(currentExecution.getType())) {
                         throw new CBadSyntaxException(sourceCode, "bad next execution, only basic executions can be connected by next", token.pos, token.val);
                     }
                     // 如果服务已经定义了，此时又出现一个服务定义, 这在语法上是不允许的.
-                    if(service != null && currentExecution != null && currentExecution.getType() == CExecutorDefinition.TYPE_SVC ){
+                    if (service != null && currentExecution != null && currentExecution.getType() == CExecutorDefinition.TYPE_SVC) {
                         throw new CBadSyntaxException(sourceCode, "service only can be defined once", token.pos, token.val);
                     }
 
@@ -369,15 +369,29 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                     currentType = type;
                 }
             });
-            // S6 存在两条入度    都是有括号处理
+            // S6 存在3条入度
             State s6 = new State("S6", (state, token) -> {
-                if (bracketsDepth <= 0) {
-                    throw new CBadSyntaxException(this.sourceCode, "syntax error", token.pos, ")");
+                if ("S6".equals(state.name) || "S3".equals(state.name)) {
+                    if (bracketsDepth <= 0) {
+                        throw new CBadSyntaxException(this.sourceCode, "syntax error", token.pos, ")");
+                    }
+                    // 遇到右括号，拿出当前层的执行器放在上一层
+                    List<CExecutorDefinition> currentBracketsDepthExecutions = executions.computeIfAbsent(bracketsDepth, k -> new ArrayList<>());
+                    // 如果是括号创建的 用ListExecutor实例化
+                    CExecutorDefinition definition = new CExecutorDefinition("", "", "", currentBracketsDepthExecutions.toArray(new CExecutorDefinition[0]), null);
+                    // 反正前一层的括号里
+                    executions.computeIfAbsent(bracketsDepth - 1, k -> new ArrayList<>()).add(definition);
+                    // 创建List创建的attachment
+                    currentData = new CDefaultWritableData<>();
+                    definition.setAttachment(currentData);
+
+                    currentBracketsDepthExecutions.clear();
+                    --bracketsDepth;
+                } else if ("S5".equals(state.name)) {
+                    String val = token.val;
+                    currentData.put(currentArgumentName, ConverterUtils.convert(val, currentType));
                 }
-                List<CExecutorDefinition> currentBracketsDepthExecutions = executions.computeIfAbsent(bracketsDepth, k -> new ArrayList<>());
-                addToBuilt(currentBracketsDepthExecutions);
-                currentBracketsDepthExecutions.clear();
-                --bracketsDepth;
+
             });
 
             end = new State("End", (state, token) -> {
@@ -398,10 +412,10 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             s3.add(new CPair<>(TokenType.NEXT, s1), new CPair<>(TokenType.AS, s4), new CPair<>(TokenType.BE, s6), new CPair<>(TokenType.EMPTY, end), new CPair<>(TokenType.SERVICE, start));
             // s4 1
             s4.add(new CPair<>(TokenType.TOKEN, s5));
-            // s5 1
-            s5.add(new CPair<>(TokenType.TOKEN, s3));
-            // s6 3
-            s6.add(new CPair<>(TokenType.NEXT, s1), new CPair<>(TokenType.BE, s6), new CPair<>(TokenType.EMPTY, end));
+            // s5 2
+            s5.add(new CPair<>(TokenType.TOKEN, s3), new CPair<>(TokenType.TOKEN, s6));
+            // s6 4
+            s6.add(new CPair<>(TokenType.NEXT, s1), new CPair<>(TokenType.AS, s4), new CPair<>(TokenType.BE, s6), new CPair<>(TokenType.EMPTY, end));
 
             currentState = start;
 
@@ -431,12 +445,20 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
         }
 
         private void addToBuilt(List<CExecutorDefinition> currentBracketsDepthExecutions) {
+            builtDefinitions.add(instanceGeneralDefinition(currentBracketsDepthExecutions));
+        }
+
+        private CExecutorDefinition instanceGeneralDefinition(List<CExecutorDefinition> currentBracketsDepthExecutions) {
             if (currentBracketsDepthExecutions.size() == 1) {
-                builtDefinitions.add(currentBracketsDepthExecutions.get(0));
+                return currentBracketsDepthExecutions.get(0);
             } else if (currentBracketsDepthExecutions.size() > 1) {
-                builtDefinitions.add(new CExecutorDefinition("", "", "", currentBracketsDepthExecutions.toArray(new CExecutorDefinition[0]), null));
+                return new CExecutorDefinition("", "", "", currentBracketsDepthExecutions.toArray(new CExecutorDefinition[0]), null);
+            } else {
+                // never reach here!
+                throw new CBadSyntaxException(sourceCode, "empty definitions");
             }
         }
+
 
         public void nextState() {
             Token token = tokens.get(tokenPos++);
@@ -474,7 +496,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             if (builtDefinitions.size() == 0) {
                 throw new CBadSyntaxException(expression, "service has no action. ");
             }
-            return CExecutorDefinition.newServiceDefinition(service,new CExecutorDefinition("", "", "", builtDefinitions.toArray(new CExecutorDefinition[0]), null));
+            return CExecutorDefinition.newServiceDefinition(service, new CExecutorDefinition("", "", "", builtDefinitions.toArray(new CExecutorDefinition[0]), null));
         } else {
             if (builtDefinitions.size() == 1) {
                 return builtDefinitions.get(0);

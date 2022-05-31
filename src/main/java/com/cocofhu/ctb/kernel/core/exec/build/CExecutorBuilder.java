@@ -3,6 +3,7 @@ package com.cocofhu.ctb.kernel.core.exec.build;
 import com.cocofhu.ctb.kernel.core.exec.CExecutor;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
+import com.cocofhu.ctb.kernel.util.ds.CWritableData;
 
 
 public interface CExecutorBuilder {
@@ -16,14 +17,13 @@ public interface CExecutorBuilder {
      * @param layer             执行对象所在的层级，用于跟踪异常
      * @param checkInput        是否检查输入参数的完整性
      */
-    CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, CDefaultLayerData<String,Class<?>> contextTypes, String layer, boolean checkInput);
-
-    default CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder){
-        return toExecutor(execDetail,builder,new CDefaultLayerData<>(),"0",false);
-    }
+    CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder,
+                         CWritableData<String, Class<?>> contextTypes,
+                         CWritableData<String, Object> attachedValues,
+                         String layer, boolean checkInput);
 
     default CExecutor toExecutor(CExecutorDefinition execDetail, CExecutorBuilder builder, boolean checkInput){
-        return toExecutor(execDetail,builder,new CDefaultLayerData<>(),"0",checkInput);
+        return toExecutor(execDetail,builder,new CDefaultLayerData<>(),new CDefaultLayerData<>(),"0",checkInput);
     }
 
 }
