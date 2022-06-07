@@ -1,10 +1,7 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.core.config.CConfig;
-import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultReadOnlyData;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultWritableData;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 import com.cocofhu.ctb.kernel.util.ds.CWritableData;
 
 /**
@@ -26,7 +23,7 @@ public class CServiceExecutor extends CAbstractExecutor {
     private void init(CExecutionRuntime runtime){
         CWritableData<String,Object> attachment = new CDefaultWritableData<>();
         attachment.put("executor", executor);
-        runtime.startNew(attachment, CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
+        runtime.start(attachment, CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
     }
 
     @Override

@@ -3,19 +3,26 @@ package com.cocofhu.ctb.kernel.core.exec;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
 import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
+import java.util.UUID;
+
 /**
  * @author cocofhu
  */
 public interface CExecutionRuntime {
 
 
-    enum CExecutorRuntimeType {
-        SIMPLE("SIMPLE"),
-        LIST("LIST"),
-        ARGS_COPY("ARGS_COPY"),
-        SERVICE("SERVICE"),
 
-        RESTORE("RESTORE");
+    // -------------------------------------------------------------
+    // ---------------------  Common Constants ---------------------
+    // -------------------------------------------------------------
+    // -------------------------------------------------------------
+
+    enum CExecutorRuntimeType {
+        SIMPLE("simple"),
+        LIST("list"),
+        ARGS_COPY("copy"),
+        SERVICE("service"),
+        RESTORE("restore");
 
         private final String value;
 
@@ -29,18 +36,46 @@ public interface CExecutionRuntime {
         }
     }
 
+    /**
+     * 返回值
+     */
     String EXEC_RETURN_VAL_KEY = "EXEC_RETURN_VAL_KEY";
+    /**
+     * 异常
+     */
     String EXEC_EXCEPTION_KEY = "EXEC_EXCEPTION_KEY";
-
+    /**
+     * Runtime
+     */
     String EXEC_CONTEXT_KEY = "EXEC_CONTEXT_KEY";
+
+
 
 
     CDefaultLayerData<String, Object> getCurrentLayer();
 
-    void startNew(CReadOnlyData<String, Object> attachment, CExecutorRuntimeType type, CExecutor executor);
+    UUID start(CReadOnlyData<String, Object> attachment, CExecutorRuntimeType type, CExecutor executor);
+    void finish(UUID uuid);
+//    void startSimpleExecution(CReadOnlyData<String, Object> attachment, CExecutor executor);
+//    void startList(CReadOnlyData<String, Object> attachment, CExecutor executor);
+//    void startSimple(CReadOnlyData<String, Object> attachment, CExecutor executor);
+//    void startSimple(CReadOnlyData<String, Object> attachment, CExecutor executor);
 
-    void stopCurrent();
 
+
+
+
+
+
+
+
+
+
+
+    // -------------------------------------------------------------
+    // -----------------  Common Default Methods--------------------
+    // -------------------------------------------------------------
+    // -------------------------------------------------------------
 
     /**
      * 当前层下是否发生过异常

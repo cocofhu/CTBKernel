@@ -24,7 +24,7 @@ public class CGRPCBasicService extends CGRPCBasicServiceGrpc.CGRPCBasicServiceIm
             CDefaultWritableData<String, Object> newAttachment = new CDefaultWritableData<>();
             newAttachment.put("grpcData", data);
             CDefaultExecutionRuntime runtime = new CDefaultExecutionRuntime();
-            runtime.startNew(newAttachment, CExecutionRuntime.CExecutorRuntimeType.SERVICE, executor);
+            runtime.start(newAttachment, CExecutionRuntime.CExecutorRuntimeType.SERVICE, executor);
             executor.run(runtime);
             String value = JSON.toJSONString(runtime.getReturnVal());
             responseObserver.onNext(CGRPCBasicProto.GRPCBasicData.newBuilder().setData(value).build());

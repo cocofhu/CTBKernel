@@ -23,7 +23,7 @@ public class CListExecutor extends CAbstractExecutor {
     public void run(CExecutionRuntime runtime) {
 
         for (CExecutor executor : executors) {
-            runtime.startNew(executorDefinition.getAttachment(), CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
+            runtime.start(executorDefinition.getAttachment(), CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
             executor.setStatus(Status.Ready);
             executor.run(runtime);
         }

@@ -4,9 +4,6 @@ import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.exception.exec.*;
 import com.cocofhu.ctb.kernel.util.CReflectionUtils;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultReadOnlyData;
-import com.cocofhu.ctb.kernel.util.ds.CDefaultWritableData;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -59,9 +56,9 @@ public class CSimpleExecutor extends CAbstractExecutor {
                 throw new CExecNoSuchMethodException( bean.getClass() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
             }
             // 复制参数
-            runtime.startNew(getExecutorDefinition().getAttachment(), CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
+            runtime.start(getExecutorDefinition().getAttachment(), CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
             // 启动当前任务环境
-            runtime.startNew(null, CExecutionRuntime.CExecutorRuntimeType.SIMPLE, this);
+            runtime.start(null, CExecutionRuntime.CExecutorRuntimeType.SIMPLE, this);
             CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, runtime.getCurrentLayer());
 
             try {
