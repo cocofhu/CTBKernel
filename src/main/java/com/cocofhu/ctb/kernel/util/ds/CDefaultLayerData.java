@@ -1,6 +1,7 @@
 package com.cocofhu.ctb.kernel.util.ds;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 带有层级结构的数据集，实现该接口的类 需要满足新建和回退不同的层
@@ -12,6 +13,8 @@ import java.util.*;
 public class CDefaultLayerData<K, V> extends CDefaultWritableData<K, V> implements CLayerData<K, V> {
 
     private final CDefaultLayerData<K, V> parent;
+    private final List<CDefaultLayerData<K,V>> children = new ArrayList<>();
+    private final ReentrantLock lock = new ReentrantLock();
 
     protected CDefaultLayerData(CDefaultLayerData<K, V> parent) {
         // 除了最顶层，其他的可以使用HashMap提升效率
@@ -26,9 +29,33 @@ public class CDefaultLayerData<K, V> extends CDefaultWritableData<K, V> implemen
 
     @Override
     public CDefaultLayerData<K, V> newLayer() {
-        return new CDefaultLayerData<>(this);
+        try {
+            lock.lock();
+            CDefaultLayerData<K, V> layer = new CDefaultLayerData<>(this);
+            children.add(layer);
+            return layer;
+        }finally {
+            lock.unlock();
+        }
+    }
+    @Override
+    public CDefaultLayerData<K, V> newLayer(CReadOnlyData<K, V> data) {
+        CDefaultLayerData<K, V> layer = newLayer();
+        layer.putAll(data);
+        return layer;
     }
 
+    @Override
+    public List<? extends CLayerData<K, V>> subLayers() {
+        return children;
+    }
+
+    @Override
+    public CDefaultLayerData<K, V> newCopiedTopLayer() {
+        CDefaultLayerData<K, V> layer = newLayer();
+        layer.putAll(dataset);
+        return layer;
+    }
 
     @Override
     public V get(K key, int depth) {

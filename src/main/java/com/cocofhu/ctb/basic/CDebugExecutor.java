@@ -14,6 +14,6 @@ public class CDebugExecutor {
     @CExecutorOutput(info = "mul result",type = String.class, name = EXEC_RETURN_VAL_KEY)
     public String debug(@CAutowired CDefaultExecutionRuntime runtime){
         System.out.println(runtime);
-        return "[DEBUG] " + runtime.getCurrentLayer().get(EXEC_RETURN_VAL_KEY);
+        return "[DEBUG] " + runtime.getReturnVal();
     }
 }

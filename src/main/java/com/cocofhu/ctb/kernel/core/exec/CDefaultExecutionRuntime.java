@@ -1,15 +1,11 @@
 package com.cocofhu.ctb.kernel.core.exec;
 
-import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
-import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
+import com.cocofhu.ctb.kernel.util.ds.*;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_LongestWordMin;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -17,108 +13,197 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class CDefaultExecutionRuntime implements CExecutionRuntime {
 
-    // 当前层，每个执行器都将拥有一个唯一的层
-    private volatile CDefaultLayerData<String, Object> currentLayer = new CDefaultLayerData<>();
+
     private final ReentrantLock lock = new ReentrantLock();
+    /**
+     * 唯一标识
+     */
+    public final String uuid;
+    /**
+     * 开始时间
+     */
+    public final long start;
+    /**
+     * 结束时间
+     */
+    public long end = 0;
+    /**
+     * 执行器对象
+     */
+    public final CExecutor executor;
+    /**
+     * 类型
+     */
+    public CExecutorRuntimeType type;
+    /**
+     * 子Executor的上下文
+     */
+    public List<CDefaultExecutionRuntime> executions;
+    /**
+     * 父对象
+     */
+    private final CDefaultExecutionRuntime parent;
 
-    private Stack<Execution> executionStack = new Stack<>();
+    private final CWritableData<String, Object> fullObjects;
+    private final CWritableData<String, Object> sinkObjects;
+
+    private volatile boolean isFinished = false;
 
 
-    private static class Execution{
-        public String uuid;
-        public long start;
-        public long end = -1;
-        public CExecutor executor;
-        public CExecutorRuntimeType type;
-        public List<Execution> executions;
-        public CDefaultLayerData<String, Object> layer;
 
-        public Execution(String uuid, CExecutor executor, CExecutorRuntimeType type, CDefaultLayerData<String, Object> layer) {
-            this.uuid = uuid;
-            this.executor = executor;
-            this.type = type;
-            this.layer = layer;
-            this.executions = new ArrayList<>();
-            this.start = System.currentTimeMillis();
+    private CDefaultExecutionRuntime(CReadOnlyData<String, Object> attachment, CExecutor executor, CExecutorRuntimeType type, CDefaultExecutionRuntime parent) {
+
+        this.executor = executor;
+        this.type = type;
+        this.executions = new ArrayList<>();
+        this.uuid = UUID.randomUUID().toString();
+        this.start = System.currentTimeMillis();
+
+        if (parent != null) {
+            this.parent = parent;
+            parent.executions.add(this);
+        } else {
+            this.parent = null;
         }
-        public void finish(){
-            end = System.currentTimeMillis();
+        fullObjects = new CDefaultWritableData<>();
+        sinkObjects = new CDefaultWritableData<>();
+
+        Stack<CDefaultExecutionRuntime> parents = new Stack<>();
+        CDefaultExecutionRuntime p = this.parent;
+        while (p != null) {
+            parents.push(p);
+            p = p.parent;
         }
+        while (!parents.empty()) {
+            CDefaultExecutionRuntime pop = parents.pop();
+            fullObjects.putAll(pop.fullObjects);
+            sinkObjects.putAll(pop.sinkObjects);
+        }
+        fullObjects.putAll(attachment);
+
     }
 
+    public static CDefaultExecutionRuntime newDefault(CReadOnlyData<String, Object> attachment, CExecutor executor, CExecutorRuntimeType type, CDefaultExecutionRuntime parent){
+        return new CDefaultExecutionRuntime(attachment,executor,type,parent);
+    }
+    public static CDefaultExecutionRuntime newDefault(CReadOnlyData<String, Object> attachment, CExecutor executor, CExecutorRuntimeType type){
+        return newDefault(attachment,executor,type,null);
+    }
+    public static CDefaultExecutionRuntime newDefault(){
+        return newDefault(null,null,null,null);
+    }
 
-    public CDefaultExecutionRuntime() {
+    public void
+    finish() {
+        lock.lock();
+        if (!isFinished) {
+            isFinished = true;
+            for (CDefaultExecutionRuntime execution : executions) {
+                if (!execution.isFinished) {
+                    isFinished = false;
+                    break;
+                }
+            }
+            if (isFinished) {
+                for (CDefaultExecutionRuntime execution : executions) {
+                    sinkObjects.putAll(execution.sinkObjects);
+                }
+                if (parent != null) {
+                    parent.finish();
+                }
+                end = System.currentTimeMillis();
+            }
 
+        }
+        lock.unlock();
     }
 
     @Override
-    public CDefaultLayerData<String, Object> getCurrentLayer() {
-        return currentLayer;
+    public Object get(String key) {
+        Object o = fullObjects.get(key);
+        return o == null && parent != null ? parent.get(key) : o;
     }
 
     @Override
-    public UUID start(CReadOnlyData<String, Object> attachment, CExecutorRuntimeType type, CExecutor executor) {
-        String uuid = UUID.randomUUID().toString();
+    public Set<? extends CReadOnlyData.CReadOnlyEntry<String, Object>> entries() {
+        return fullObjects.entries();
+    }
+
+    @Override
+    public Map<String, Object> toReadOnlyMap() {
+        return fullObjects.toReadOnlyMap();
+    }
+
+    @Override
+    public Object put(String key, Object val) {
+        sinkObjects.put(key, val);
+        return fullObjects.put(key, val);
+    }
+
+    @Override
+    public Object remove(String key) {
+        sinkObjects.remove(key);
+        return fullObjects.remove(key);
+    }
+
+    @Override
+    public void putAll(CReadOnlyData<? extends String, ?> dataset) {
+        sinkObjects.putAll(dataset);
+        fullObjects.putAll(dataset);
+    }
+
+    @Override
+    public void putAll(Map<? extends String, ?> dataset) {
+        sinkObjects.putAll(dataset);
+        fullObjects.putAll(dataset);
+    }
+
+
+    @Override
+    public CExecutionRuntime start(CReadOnlyData<String, Object> attachment, CExecutorRuntimeType type, CExecutor executor) {
+
         try {
             lock.lock();
-            CDefaultLayerData<String, Object> layer = currentLayer.newLayer();
-            Execution execution = new Execution(uuid, executor, type, layer);
-
-            switch (type){
-                case ARGS_COPY:
-                    currentLayer.toReadOnlyMap(0).forEach(layer::put);
-                    layer.putAll(attachment);
-                    execution.finish();
-                    break;
-                case SIMPLE:
-                    layer.putAll(attachment);
-
-                case SERVICE:
-                case LIST:
-                    executionStack.push(execution);
-                case RESTORE:
-            }
-            if(!executionStack.empty()){
-                executionStack.peek().executions.add(execution);
-            }
-            currentLayer = layer;
+            return CDefaultExecutionRuntime.newDefault(attachment, executor, type, this);
         } finally {
             lock.unlock();
         }
-        return null;
-    }
-
-    @Override
-    public void finish(UUID uuid) {
-
     }
 
 
     @Override
     public String toString() {
-//        AsciiTable table = new AsciiTable();
-//        table.addRule();
-//        int depth = currentLayer.depth();
-//        table.addRow(null, null, null, null, null, "Execution Summary").setTextAlignment(TextAlignment.CENTER);
-//        table.addRule();
-//        table.addRow(null, "BuiltCost:", timeElapsed.get(0) + "ms", null, "TimeElapsed:", (Long) timeElapsed.stream().mapToLong(a -> a).sum() + "ms");
-//        table.addRule();
-//        table.addRow("Id", "Type", "TimeElapsed", "ReturnValue", "Exception", "Context");
-//        table.addRule();
-//        for (int i = 0; i < depth; i++) {
-//            StringBuilder sb = new StringBuilder();
-//            currentLayer.entries(depth - 1 - i).stream()
-//                    .filter(e -> e.getValue() != this && !e.getKey().equals(EXEC_RETURN_VAL_KEY) && !e.getKey().equals(EXEC_EXCEPTION_KEY) && !e.getKey().equals(EXEC_CONTEXT_KEY))
-//                    .map(e -> "" + e.getKey() + "=" + e.getValue() + " <br>").forEach(sb::append);
-//
-//            Object returnVal = "null";
-//
-//            table.addRow(i, types.get(i), (i + 2 >= timeElapsed.size() ? System.currentTimeMillis() - lastTime : timeElapsed.get(i + 2)) + "ms", returnVal, "null", sb).setTextAlignment(TextAlignment.LEFT);
-//            table.getRenderer().setCWC(new CWC_LongestWordMin(3));
-//            table.addRule();
-//        }
-//        return table.render(100);
-        return null;
+        AsciiTable table = new AsciiTable();
+        System.out.println(isFinished);
+        table.addRule();
+        int depth = executions.size();
+        table.addRow(null,null, null, null, null, null, null, null, "Execution Summary").setTextAlignment(TextAlignment.CENTER);
+        table.addRule();
+        table.addRow("Id","UUID", "Type", "Start","End","TimeElapsed", "ReturnValue", "Exception", "Context");
+        table.addRule();
+        for (int i = 0; i < depth; i++) {
+            CDefaultExecutionRuntime runtime = executions.get(i);
+
+
+
+
+            m1(table, i+"", runtime);
+            if(runtime.executions.size() > 0){
+                for (int j = 0; j < runtime.executions.size(); j++) {
+                    m1(table, i+"-"+j, runtime.executions.get(j));
+                }
+            }
+
+
+        }
+        return table.render(100);
+    }
+
+    private void m1(AsciiTable table, String i, CDefaultExecutionRuntime runtime) {
+        StringBuilder sb = new StringBuilder();
+        table.addRow(i,runtime.uuid, runtime.type, runtime.start, runtime.end,runtime.end-runtime.start, String.valueOf(runtime.getReturnVal()), String.valueOf(runtime.getException()), sb).setTextAlignment(TextAlignment.LEFT);
+        table.getRenderer().setCWC(new CWC_LongestWordMin(3));
+        table.addRule();
     }
 
 

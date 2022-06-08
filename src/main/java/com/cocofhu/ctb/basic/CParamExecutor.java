@@ -12,11 +12,10 @@ public class CParamExecutor {
     @CExecutorContextRawInput(name = "*source", info = "context input", type = "*source")
     @CExecutorRawRemoval(name="*source", info = "will be removal", type = "*source")
     @CExecBasicInfo(name="Transform",info = "info", group = "test")
-    public void transform(@CAutowired CExecutionRuntime executionRuntime, @CExecutorInput String source, @CExecutorInput String dist){
-        CDefaultLayerData<String, Object> currentLayer = executionRuntime.getCurrentLayer();
-        Object o = currentLayer.get(source);
-        currentLayer.remove(source);
-        currentLayer.put(dist,o);
+    public void transform(@CAutowired CExecutionRuntime runtime, @CExecutorInput String source, @CExecutorInput String dist){
+        Object o = runtime.get(source);
+        runtime.remove(source);
+        runtime.put(dist,o);
     }
 
 

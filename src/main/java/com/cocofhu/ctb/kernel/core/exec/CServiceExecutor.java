@@ -23,7 +23,7 @@ public class CServiceExecutor extends CAbstractExecutor {
     private void init(CExecutionRuntime runtime){
         CWritableData<String,Object> attachment = new CDefaultWritableData<>();
         attachment.put("executor", executor);
-        runtime.start(attachment, CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
+//        runtime.start(attachment, CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
     }
 
     @Override

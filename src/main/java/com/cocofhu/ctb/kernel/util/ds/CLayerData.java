@@ -1,6 +1,7 @@
 package com.cocofhu.ctb.kernel.util.ds;
 
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +17,15 @@ public interface CLayerData<K, V> extends CWritableData<K, V> {
      * 新建层
      */
     CLayerData<K, V> newLayer();
+
+    /**
+     * 新建层 并复制顶层的所有数据到该层
+     */
+    CLayerData<K, V> newCopiedTopLayer();
+
+    CLayerData<K, V> newLayer(CReadOnlyData<K, V> data) ;
+
+    List<? extends CLayerData<K, V>> subLayers();
 
 
     /**

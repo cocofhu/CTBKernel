@@ -150,7 +150,7 @@ public class Startup {
         Scanner scan = new Scanner(System.in);
         String source = scan.nextLine();
         CExecutorBuilder builder = new CDefaultExecutorBuilder(factory.getConfig());
-        CDefaultExecutionRuntime context = new CDefaultExecutionRuntime();
+        CDefaultExecutionRuntime context = CDefaultExecutionRuntime.newDefault();
         CExecutorDefinition definition = new CFMSExecutorCompiler(factory).compiler(source, 0);
 //        System.out.println();
 //        Arrays.stream(definition.getInitExecution().getSubJobs()).forEach(s-> System.out.println(s));

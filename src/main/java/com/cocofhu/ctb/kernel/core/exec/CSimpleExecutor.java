@@ -4,7 +4,9 @@ import com.cocofhu.ctb.kernel.core.config.*;
 import com.cocofhu.ctb.kernel.core.exec.entity.CExecutorDefinition;
 import com.cocofhu.ctb.kernel.exception.exec.*;
 import com.cocofhu.ctb.kernel.util.CReflectionUtils;
+import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.locks.ReentrantLock;
@@ -33,6 +35,7 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
     @Override
     public void run(CExecutionRuntime runtime) {
+        CExecutionRuntime newRuntime = null;
         try {
             lock.lock();
             if (getStatus() != Status.Ready) {
@@ -49,17 +52,19 @@ public class CSimpleExecutor extends CAbstractExecutor {
 
             // 获取执行信息 这里可能会抛出 CNoSuchBeanDefinitionException
             CBeanDefinition beanDefinition = config.getBeanFactory().getBeanDefinition(executorMethod.getBeanName(), executorMethod.getBeanClass());
-            Object bean = config.getBeanFactory().getBean(beanDefinition, runtime.getCurrentLayer());
+            Object bean = config.getBeanFactory().getBean(beanDefinition, runtime);
             Method method = CReflectionUtils.findMethod(bean.getClass(), executorMethod.getMethodName(), executorMethod.getParameterTypes());
             // 检查方法是否存在
             if (method == null) {
                 throw new CExecNoSuchMethodException( bean.getClass() + "." + executorMethod.getMethodName(), executorMethod.getParameterTypes());
             }
+
             // 复制参数
-            runtime.start(getExecutorDefinition().getAttachment(), CExecutionRuntime.CExecutorRuntimeType.ARGS_COPY, this);
             // 启动当前任务环境
-            runtime.start(null, CExecutionRuntime.CExecutorRuntimeType.SIMPLE, this);
-            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, runtime.getCurrentLayer());
+            newRuntime = runtime.start(getExecutorDefinition().getAttachment(), CExecutionRuntime.CExecutorRuntimeType.SIMPLE, this);
+
+
+            CExecutableWrapper executableWrapper = new CExecutableWrapper(method, config, beanDefinition, newRuntime);
 
             try {
                 Object returnVal = executableWrapper.execute(bean);
@@ -76,6 +81,9 @@ public class CSimpleExecutor extends CAbstractExecutor {
                 setStatus(Status.Stop);
             }
         } finally {
+            if(newRuntime != null){
+                newRuntime.finish();
+            }
             lock.unlock();
         }
     }

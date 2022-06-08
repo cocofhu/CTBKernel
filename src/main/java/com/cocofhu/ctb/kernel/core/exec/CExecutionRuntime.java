@@ -2,13 +2,15 @@ package com.cocofhu.ctb.kernel.core.exec;
 
 import com.cocofhu.ctb.kernel.util.ds.CDefaultLayerData;
 import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
+import com.cocofhu.ctb.kernel.util.ds.CWritableData;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
  * @author cocofhu
  */
-public interface CExecutionRuntime {
+public interface CExecutionRuntime extends CWritableData<String, Object> {
 
 
 
@@ -52,21 +54,9 @@ public interface CExecutionRuntime {
 
 
 
-    CDefaultLayerData<String, Object> getCurrentLayer();
 
-    UUID start(CReadOnlyData<String, Object> attachment, CExecutorRuntimeType type, CExecutor executor);
-    void finish(UUID uuid);
-//    void startSimpleExecution(CReadOnlyData<String, Object> attachment, CExecutor executor);
-//    void startList(CReadOnlyData<String, Object> attachment, CExecutor executor);
-//    void startSimple(CReadOnlyData<String, Object> attachment, CExecutor executor);
-//    void startSimple(CReadOnlyData<String, Object> attachment, CExecutor executor);
-
-
-
-
-
-
-
+    CExecutionRuntime start(CReadOnlyData<String, Object> attachment, CExecutorRuntimeType type, CExecutor executor);
+    void finish();
 
 
 
@@ -88,28 +78,28 @@ public interface CExecutionRuntime {
      * 获取当前层下的异常
      */
     default Throwable getException(){
-        return (Throwable) getCurrentLayer().get(EXEC_EXCEPTION_KEY, 0);
+        return (Throwable) get(EXEC_EXCEPTION_KEY);
     }
 
     /**
      * 获得当前层下的返回值
      */
     default Object getReturnVal(){
-        return getCurrentLayer().get(EXEC_RETURN_VAL_KEY, 0);
+        return get(EXEC_RETURN_VAL_KEY);
     }
 
     /**
      * 在当前层上获得返回值
      */
     default void setReturnVal(Object returnVal){
-        getCurrentLayer().put(EXEC_RETURN_VAL_KEY, returnVal);
+        put(EXEC_RETURN_VAL_KEY, returnVal);
     }
 
     /**
      * 在当前层上获得异常
      */
     default void setException(Throwable throwable){
-        getCurrentLayer().put(EXEC_EXCEPTION_KEY, throwable);
+        put(EXEC_EXCEPTION_KEY, throwable);
     }
 
 

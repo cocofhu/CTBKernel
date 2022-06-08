@@ -7,6 +7,7 @@ import com.cocofhu.ctb.kernel.core.factory.CBeanFactory;
 import com.cocofhu.ctb.kernel.exception.bean.CNoSuchBeanDefinitionException;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
 import com.cocofhu.ctb.kernel.util.ds.CReadOnlyData;
+import com.cocofhu.ctb.kernel.util.ds.CWritableData;
 
 import java.lang.annotation.Annotation;
 
@@ -20,12 +21,12 @@ public class CAutoWiredProcess implements CAnnoProcess {
             return new CPair<>(config.getBeanFactory(), true);
         }
 
-        if (annotation != null && CExecutionRuntime.class.isAssignableFrom(parameter.getParameter().getType())) {
-            Object o = data.get(EXEC_CONTEXT_KEY);
-            if (o instanceof CExecutionRuntime) {
-                return new CPair<>(o, true);
+        if (annotation != null && CWritableData.class.isAssignableFrom(parameter.getParameter().getType())) {
+            if (data instanceof CWritableData) {
+                return new CPair<>(data, true);
             }
         }
+
         try {
             Object bean = config.getBeanFactory().getBean(parameter.getParameter().getType());
             return new CPair<>(bean, true);

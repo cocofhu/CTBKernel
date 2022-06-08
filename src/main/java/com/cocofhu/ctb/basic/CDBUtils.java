@@ -49,8 +49,8 @@ public class CDBUtils {
         pros.load(is);
         String url = pros.getProperty("url");
         String password = pros.getProperty("password");
-        runtime.getCurrentLayer().put("url",url);
-        runtime.getCurrentLayer().put("password",password);
+        runtime.put("url",url);
+        runtime.put("password",password);
         is.close();
     }
 
