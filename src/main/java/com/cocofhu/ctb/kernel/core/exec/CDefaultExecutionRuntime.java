@@ -93,8 +93,7 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
         return newDefault(null,null,null,null);
     }
 
-    public void
-    finish() {
+    public void finish() {
         lock.lock();
         if (!isFinished) {
             isFinished = true;
@@ -107,9 +106,6 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
             if (isFinished) {
                 for (CDefaultExecutionRuntime execution : executions) {
                     sinkObjects.putAll(execution.sinkObjects);
-                }
-                if (parent != null) {
-                    parent.finish();
                 }
                 end = System.currentTimeMillis();
             }
@@ -170,41 +166,41 @@ public class CDefaultExecutionRuntime implements CExecutionRuntime {
         }
     }
 
+    private List<String[]> generateTableData(int recursive,CDefaultExecutionRuntime runtime, int start){
+
+        List<String[]> tables = new ArrayList<>();
+        if(recursive >= 0){
+            int size = runtime.executions.size();
+            if(size == 0){
+                tables.add(new String[]{
+                        String.valueOf(start),String.valueOf(runtime.uuid), String.valueOf(runtime.type),
+                        String.valueOf(runtime.executor.getExecutorDefinition().getName()), String.valueOf(runtime.executor.getExecutorDefinition().getGroup()), String.valueOf(runtime.executor.getExecutorDefinition().getInfo()),
+                        String.valueOf(runtime.end-runtime.start), String.valueOf(runtime.getReturnVal()), String.valueOf(runtime.getException()), "sb"});
+            }else{
+                for (int j = 0; j < size; j++) {
+                    tables.addAll(generateTableData(recursive-1,runtime.executions.get(j),start + tables.size()));
+                }
+            }
+        }
+        return tables;
+    }
 
     @Override
     public String toString() {
         AsciiTable table = new AsciiTable();
-        System.out.println(isFinished);
         table.addRule();
-        int depth = executions.size();
-        table.addRow(null,null, null, null, null, null, null, null, "Execution Summary").setTextAlignment(TextAlignment.CENTER);
+        table.addRow(null,null, null, null, null, null, null, null, null, "Execution Summary").setTextAlignment(TextAlignment.CENTER);
         table.addRule();
-        table.addRow("Id","UUID", "Type", "Start","End","TimeElapsed", "ReturnValue", "Exception", "Context");
+        table.addRow("Id","UUID", "Type", "Name","Group","Info","TimeCost", "ReturnValue", "Exception", "Context");
         table.addRule();
-        for (int i = 0; i < depth; i++) {
-            CDefaultExecutionRuntime runtime = executions.get(i);
+        generateTableData(2,this,1).forEach((String[] s)->{
+            table.addRow((Object []) s);
+            table.getRenderer().setCWC(new CWC_LongestWordMin(3));
+            table.addRule();
+        });
 
 
-
-
-            m1(table, i+"", runtime);
-            if(runtime.executions.size() > 0){
-                for (int j = 0; j < runtime.executions.size(); j++) {
-                    m1(table, i+"-"+j, runtime.executions.get(j));
-                }
-            }
-
-
-        }
         return table.render(100);
     }
-
-    private void m1(AsciiTable table, String i, CDefaultExecutionRuntime runtime) {
-        StringBuilder sb = new StringBuilder();
-        table.addRow(i,runtime.uuid, runtime.type, runtime.start, runtime.end,runtime.end-runtime.start, String.valueOf(runtime.getReturnVal()), String.valueOf(runtime.getException()), sb).setTextAlignment(TextAlignment.LEFT);
-        table.getRenderer().setCWC(new CWC_LongestWordMin(3));
-        table.addRule();
-    }
-
 
 }
