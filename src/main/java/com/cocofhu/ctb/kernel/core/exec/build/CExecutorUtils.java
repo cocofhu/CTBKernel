@@ -76,7 +76,8 @@ public class CExecutorUtils {
         });
 
         if (basicInfo.getFirst() == null || basicInfo.getSecond() == null || basicInfo.getThird().getFirst() == null || basicInfo.getThird().getSecond() == null) {
-            throw new CExecBadInfoException(basicInfo.getFirst(), basicInfo.getSecond(), basicInfo.getThird().getFirst());
+//            throw new CExecBadInfoException(basicInfo.getFirst(), basicInfo.getSecond(), basicInfo.getThird().getFirst());
+            return null;
         }
 
         return new CExecutorDefinition(basicInfo.getFirst(), basicInfo.getSecond(), basicInfo.getThird().getFirst(),

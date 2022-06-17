@@ -25,8 +25,6 @@ public class CListExecutor extends CAbstractExecutor {
         CExecutionRuntime newRuntime = runtime.start(executorDefinition.getAttachment(), CExecutionRuntime.CExecutorRuntimeType.LIST, this);
         for (CExecutor executor : executors) {
             executor.setStatus(Status.Ready);
-            System.out.println("-----");
-            System.out.println(executor);
             executor.run(newRuntime);
         }
         setStatus(Status.Stop);

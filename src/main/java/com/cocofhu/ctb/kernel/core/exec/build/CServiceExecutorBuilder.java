@@ -25,7 +25,7 @@ public class CServiceExecutorBuilder implements CExecutorBuilder {
         self.setType(self.getSubJobs() == null ? CExecutorDefinition.TYPE_EXEC : CExecutorDefinition.TYPE_SCHEDULE);
         contextTypes.put("executor", CExecutor.class);
         // 服务启动
-        CExecutor service = builder.toExecutor(self.getInitExecution(), builder, contextTypes, attachedValues, "service", false);
+        CExecutor service = builder.toExecutor(self.getInitExecution(), builder, contextTypes, attachedValues, "service", true);
         // 服务处理器
         CExecutor executor = builder.toExecutor(self, builder, contextTypes, attachedValues, "handler", true);
         return new CServiceExecutor(config, executor, service);

@@ -155,6 +155,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                 while (i < len && str.charAt(i) == ' ') ++i;
                 return new CPair<>(i, sb.toString());
             }
+
             // 解析失败 不完整的字符串
             return new CPair<>(-1, null);
         }
@@ -177,8 +178,10 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                     while (i < len && str.charAt(i) == ' ') ++i;
                 } else if (ch == '"') {
                     pair = utilNext(str, i + 1, '"');
+                    pair = new CPair<>(pair.getFirst()+1,pair.getSecond());
                 } else if (ch == '\'') {
                     pair = utilNext(str, i + 1, '\'');
+                    pair = new CPair<>(pair.getFirst()+1,pair.getSecond());
                 } else if (ch == ':') {
                     tokens.add(new Token(":", TokenType.SERVICE, i));
                     ++i;
@@ -274,6 +277,10 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
         private final List<CExecutorDefinition> builtDefinitions = new ArrayList<>();
         // 暴露的服务，可能为空
         private CExecutorDefinition service;
+        // 是否存在服务
+        private boolean hasService = false;
+        // 是否已经构建过服务
+        private boolean builtService = false;
 
 
         @SuppressWarnings("unchecked")
@@ -283,7 +290,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
 
             // 开始状态
             State start = new State("Start", ((state, token) -> {
-                if ("S3".equals(state.name) && token.type == TokenType.SERVICE) {
+                if (( "S3".equals(state.name) || "S6".equals(state.name )) && token.type == TokenType.SERVICE) {
                     if (bracketsDepth != 0) {
                         throw new CBadSyntaxException(sourceCode, "unmatched brackets", token.pos);
                     }
@@ -312,9 +319,10 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
                 if (d == null || d.getType() != CExecutorDefinition.TYPE_SVC) {
                     throw new CBadSyntaxException(sourceCode, "service only can be defined as service type", token.pos);
                 }
-                // 恢复底层类型
+                // 恢复底层类型 把类型改成普通类型 在最终的时候进行检查 并创建新的Service
                 d.setType(d.getSubJobs() != null ? CExecutorDefinition.TYPE_SCHEDULE : CExecutorDefinition.TYPE_EXEC);
                 builtDefinitions.clear();
+                builtService = true;
 
             }));
 
@@ -326,21 +334,18 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             State s3 = new State("S3", ((state, token) -> {
                 if ("S1".equals(state.name) || "Start".equals(state.name) || "S2".equals(state.name)) {
 
-                    // 如果上一个任务是不是基本任务类型, 只有基本任务类型才允许用 next 连起来
-                    // 比如上一个类型是服务类型，这就说明一个服务类型后面接的不是":", 这在语法上是不允许的.
-                    if (currentExecution != null && !GENERAL_TYPE.contains(currentExecution.getType())) {
-                        throw new CBadSyntaxException(sourceCode, "bad next execution, only basic executions can be connected by next", token.pos, token.val);
-                    }
-                    // 如果服务已经定义了，此时又出现一个服务定义, 这在语法上是不允许的.
-                    if (service != null && currentExecution != null && currentExecution.getType() == CExecutorDefinition.TYPE_SVC) {
-                        throw new CBadSyntaxException(sourceCode, "service only can be defined once", token.pos, token.val);
-                    }
 
                     currentExecutionName = token.val;
                     CExecutorDefinition definition = resolver.acquireNewExecutorDefinition(currentExecutionName);
                     if (definition == null) {
                         throw new CBadSyntaxException(sourceCode, "execution not found", token.pos, token.val);
                     }
+
+                    // 服务只允许出现一次,如果服务已经定义了，此时又出现一个服务定义, 这在语法上是不允许的.
+                    if (hasService && definition.getType() == CExecutorDefinition.TYPE_SVC) {
+                        throw new CBadSyntaxException(sourceCode, "service only can be defined once", token.pos, token.val);
+                    }
+
                     currentData = new CDefaultWritableData<>(definition.getAttachment());
                     definition.setAttachment(currentData);
 
@@ -349,6 +354,11 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
 
                     // 保存当前正在处理的Execution
                     currentExecution = definition;
+
+                    //如果是服务类型 记录本次
+                    if(currentExecution.getType() == CExecutorDefinition.TYPE_SVC){
+                        hasService = true;
+                    }
 
                 } else if ("S5".equals(state.name)) {
                     String val = token.val;
@@ -415,7 +425,7 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             // s5 2
             s5.add(new CPair<>(TokenType.TOKEN, s3), new CPair<>(TokenType.TOKEN, s6));
             // s6 4
-            s6.add(new CPair<>(TokenType.NEXT, s1), new CPair<>(TokenType.AS, s4), new CPair<>(TokenType.BE, s6), new CPair<>(TokenType.EMPTY, end));
+            s6.add(new CPair<>(TokenType.NEXT, s1), new CPair<>(TokenType.AS, s4), new CPair<>(TokenType.BE, s6), new CPair<>(TokenType.EMPTY, end), new CPair<>(TokenType.SERVICE, start));
 
             currentState = start;
 
@@ -481,6 +491,9 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
         public CExecutorDefinition getService() {
             return service;
         }
+        public boolean isServiceCompleted(){
+            return !hasService || builtService;
+        }
     }
 
     @Override
@@ -491,6 +504,11 @@ public class CFMSExecutorCompiler implements CExecutorCompiler {
             fsm.nextState();
         }
         List<CExecutorDefinition> builtDefinitions = fsm.getBuiltDefinitions();
+
+        if(!fsm.isServiceCompleted()){
+            throw new CBadSyntaxException(expression, "service definition uncompleted. ");
+        }
+
         CExecutorDefinition service = fsm.getService();
         if (service != null) {
             if (builtDefinitions.size() == 0) {

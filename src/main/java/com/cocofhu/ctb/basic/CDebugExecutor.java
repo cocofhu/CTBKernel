@@ -13,7 +13,7 @@ public class CDebugExecutor {
     @CExecBasicInfo(name="Debug",info = "info", group = "test")
     @CExecutorOutput(info = "mul result",type = String.class, name = EXEC_RETURN_VAL_KEY)
     public String debug(@CAutowired CDefaultExecutionRuntime runtime){
-        System.out.println(runtime);
+        System.out.println(runtime.toReadOnlyMap());
         return "[DEBUG] " + runtime.getReturnVal();
     }
 }

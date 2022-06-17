@@ -22,9 +22,7 @@ public interface CExecutionRuntime extends CWritableData<String, Object> {
     enum CExecutorRuntimeType {
         SIMPLE("simple"),
         LIST("list"),
-        ARGS_COPY("copy"),
-        SERVICE("service"),
-        RESTORE("restore");
+        SERVICE("service");
 
         private final String value;
 
@@ -56,7 +54,7 @@ public interface CExecutionRuntime extends CWritableData<String, Object> {
 
 
     CExecutionRuntime start(CReadOnlyData<String, Object> attachment, CExecutorRuntimeType type, CExecutor executor);
-    void finish();
+    boolean finish();
 
 
 

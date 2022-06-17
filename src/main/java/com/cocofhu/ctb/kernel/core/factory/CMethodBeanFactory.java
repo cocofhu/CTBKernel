@@ -20,18 +20,33 @@ import com.cocofhu.ctb.kernel.core.resolver.value.*;
 import com.cocofhu.ctb.kernel.util.CCollections;
 import com.cocofhu.ctb.kernel.util.ds.CDefaultWritableData;
 import com.cocofhu.ctb.kernel.util.ds.CPair;
+import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
  * @author cocofhu
  */
+@Slf4j
 public class CMethodBeanFactory extends CDefaultBeanFactory implements CExecutorDefinitionResolver {
 
     private final Map<String, CExecutorDefinition> executorDefinitionMap = new HashMap<>(32);
     private final Map<String, String> alias = new HashMap<>();
 
+    private void registerExec(String beanName){
+        CBeanDefinition beanDefinition = getBeanDefinition(beanName);
+        Method[] methods = beanDefinition.getBeanClass().getMethods();
+        for (Method method : methods) {
+            CExecutorDefinition exec = CExecutorUtils.toExecDetail(this, new CExecutorMethod(beanName, beanDefinition.getBeanClass(), method.getName(), method.getParameterTypes()));
+            if(exec != null){
+                executorDefinitionMap.put(exec.getName(), exec);
+                log.info("register exec: "+ exec.getName() +", detail: " + exec);
+            }
+        }
+    }
+    
     public CMethodBeanFactory(CBeanDefinitionResolver beanDefinitionResolver) {
         super(new CDefaultBeanInstanceCreator(new CConstructorResolver[]{new CDefaultConstructorResolver(), new CDefaultNoParameterConstructorResolver()}),
                 beanDefinitionResolver,
@@ -41,36 +56,7 @@ public class CMethodBeanFactory extends CDefaultBeanFactory implements CExecutor
                         })
         );
 
-        List<CBeanDefinition> beanDefinitions = beanDefinitionResolver.resolveAll(getConfig());
-
-
-        CExecutorDefinition job0 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("Power", "mul"));
-        CExecutorDefinition job1 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CParamExecutor", "transform"));
-        CExecutorDefinition job2 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CDBUtils", "acquireConnection"));
-        CExecutorDefinition job3 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CDBUtils", "queryAsMap"));
-        CExecutorDefinition job4 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CGRPCBasicExecutor", "service"));
-        CExecutorDefinition job5 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CDebugExecutor", "debug"));
-        CExecutorDefinition job6 = CExecutorUtils.toExecDetail(this, new CExecutorMethod("CDBUtils", "ReadMySQLURLAndPassword"));
-
-        CDefaultWritableData<String, Object> attachment = new CDefaultWritableData<>();
-        attachment.put("source", CDefaultExecutionRuntime.EXEC_RETURN_VAL_KEY);
-        attachment.put("dist", "ABC");
-        job1.setAttachment(attachment);
-
-        attachment = new CDefaultWritableData<>();
-        attachment.put("driverName", "com.mysql.cj.jdbc.Driver");
-        attachment.put("username", "root");
-        job2.setAttachment(attachment);
-
-        executorDefinitionMap.put("Power", job0);
-        executorDefinitionMap.put("Transform", job1);
-        executorDefinitionMap.put("AcquireConnection", job2);
-        executorDefinitionMap.put("QueryAsMapList", job3);
-        job4.setType(CExecutorDefinition.TYPE_SVC);
-        System.out.println(job4);
-        executorDefinitionMap.put("CGRPCService", job4);
-        executorDefinitionMap.put("Debug", job5);
-        executorDefinitionMap.put("ReadMySQLURLAndPassword", job6);
+        registerExec("CUtilExecutor");
 
     }
 

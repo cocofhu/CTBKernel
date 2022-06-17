@@ -17,9 +17,9 @@ public class CExecParamNotFoundException extends CExecException {
         super(msg);
     }
 
-    public CExecParamNotFoundException(CPair<String, Class<?>> required, List<CParameterDefinition> candidates, String layer) {
+    public CExecParamNotFoundException(CPair<String, Class<?>> required, List<CParameterDefinition> candidates, String layer, String info) {
         super("parameter not match in this job at layer " + layer + ", " +
-                "require ( type: " + required.getSecond() + ", name: " + required.getFirst() + "), " +
+                "require ( type: " + required.getSecond() + ", name: " + required.getFirst() + ", info: " + info + "), " +
                 "but found(s) " + Arrays.toString(candidates.stream().map(param -> "( type: " + param.getType() + ", name: " + param.getName() + ")").toArray(String[]::new)));
     }
 }

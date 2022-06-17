@@ -10,9 +10,10 @@ import io.grpc.stub.StreamObserver;
 public class CGRPCBasicService extends CGRPCBasicServiceGrpc.CGRPCBasicServiceImplBase{
 
     private final CExecutor executor;
-
-    public CGRPCBasicService(CExecutor executor) {
+    private final String targetName;
+    public CGRPCBasicService(CExecutor executor, String targetName) {
         this.executor = executor;
+        this.targetName = targetName;
     }
 
     @Override
@@ -22,11 +23,11 @@ public class CGRPCBasicService extends CGRPCBasicServiceGrpc.CGRPCBasicServiceIm
             String data = request.getData();
             executor.setStatus(CExecutor.Status.Ready);
             CDefaultWritableData<String, Object> newAttachment = new CDefaultWritableData<>();
-            newAttachment.put("grpcData", data);
-            CDefaultExecutionRuntime runtime = CDefaultExecutionRuntime.newDefault();
-            runtime.start(newAttachment, CExecutionRuntime.CExecutorRuntimeType.SERVICE, executor);
-            executor.run(runtime);
-            String value = JSON.toJSONString(runtime.getReturnVal());
+            newAttachment.put(targetName, data);
+            CDefaultExecutionRuntime runtime = CDefaultExecutionRuntime.newRoot();
+            CExecutionRuntime next = runtime.start(newAttachment, CExecutionRuntime.CExecutorRuntimeType.SERVICE, executor);
+            executor.run(next);
+            String value = JSON.toJSONString(next.getReturnVal());
             responseObserver.onNext(CGRPCBasicProto.GRPCBasicData.newBuilder().setData(value).build());
         }finally {
             responseObserver.onCompleted();

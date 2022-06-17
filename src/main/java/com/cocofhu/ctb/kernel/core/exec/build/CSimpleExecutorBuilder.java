@@ -59,7 +59,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
                 CPair<String, Class<?>> parameter = resolveParameter(input, valRef, typeRef, layer);
                 CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
                 if (checkInput && !checked.getFirst()) {
-                    throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
+                    throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer, input.getInfo());
                 }
                 // 如果输入参数不存在 则这个参数为真正需要的参数
                 if(!checked.getFirst()){
@@ -95,7 +95,7 @@ public class CSimpleExecutorBuilder implements CExecutorBuilder {
                 CPair<String, Class<?>> parameter = resolveParameter(removal, valRef, typeRef, layer);
                 CPair<Boolean, List<CParameterDefinition>> checked = hasParam(typeRef, parameter);
                 if (!checked.getFirst()) {
-                    throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer);
+                    throw new CExecParamNotFoundException(parameter, checked.getSecond(), layer, removal.getInfo());
                 }
                 if (parameter.getFirst() != null && parameter.getSecond() != null) {
                     // 两个Map中都要去除
